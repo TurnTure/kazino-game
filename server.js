@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
-const { Pool } = require('pg'); // Подключаем PostgreSQL
+const { Pool } = require('pg');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,17 +11,15 @@ app.use(express.json());
 app.use(cookieParser());
 
 // ===== Подключение к базе данных =====
-// Если переменной нет (например, ты запускаешь локально), используем localhost
 const dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/kazino';
 const pool = new Pool({
     connectionString: dbUrl,
     ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 
-// Функция для инициализации таблиц при старте
+// Функция для инициализации таблиц
 async function initDB() {
     try {
-        // Таблица пользователей
         await pool.query(`
             CREATE TABLE IF NOT EXISTS users (
                 id VARCHAR(50) PRIMARY KEY,
@@ -34,7 +32,6 @@ async function initDB() {
             )
         `);
 
-        // Таблица истории операций
         await pool.query(`
             CREATE TABLE IF NOT EXISTS history (
                 id SERIAL PRIMARY KEY,
@@ -52,7 +49,7 @@ async function initDB() {
 }
 initDB();
 
-// ===== Блокировка чувствительных файлов от публичного доступа =====
+// ===== Блокировка чувствительных файлов =====
 app.use((req, res, next) => {
     const forbidden = ['/users.json', '/history.txt', '/server.js', '/package.json', '/package-lock.json'];
     if (forbidden.includes(req.path)) return res.status(403).send('Forbidden');
@@ -90,7 +87,6 @@ function generateSessionId() {
     return Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
-// сессии в памяти: sessionId -> { userId, createdAt }
 const sessions = new Map();
 
 // ===== Регистрация =====
@@ -234,11 +230,8 @@ app.post('/api/balance', async (req, res) => {
         if (!user) return res.status(401).json({ error: 'user not found' });
 
         const newBalance = Math.max(0, user.balance + delta);
-
-        // Обновляем баланс
         await pool.query('UPDATE users SET balance = $1 WHERE id = $2', [newBalance, session.userId]);
 
-        // Пишем историю
         await pool.query(
             'INSERT INTO history (username, delta, reason, balance) VALUES ($1, $2, $3, $4)',
             [user.username, delta, reason || '-', newBalance]
