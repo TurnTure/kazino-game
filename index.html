@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kazino_zestko</title>
+</head>
+<link rel="stylesheet" href="./shared/header.css">
+<link rel="stylesheet" href="./styles/vitrina.css">
+<link rel="stylesheet" href="./styles/osnova-promo.css">
+<link rel="stylesheet" href="./styles/modalka.css">
+<link rel="stylesheet" href="./styles/reset-btn.css">
+<link rel="stylesheet" href="./styles/games_block.css">
+<body class="fon">
+    <header class="header">
+        <a href="./index.html" class="logo">
+            <img src="./img/Знак.png" alt="">
+            <h1>Слот-машина</h1>
+        </a>
+
+        <nav class="header__nav">
+            <a href="#!" class="header__link">Реклама</a>
+            <a href="#!" class="header__link">Промокод</a>
+            <a href="#!" class="header__link">Награды</a>
+        </nav>
+        <div class="menu">
+            <div class="rubli">
+                <img src="./img/Лампочка.png" alt="">
+                <span class="amount" id="balance">1488</span>
+                <span class="currency_name">шуховские рубли</span>
+                <span class="balance-diff" id="balanceDiff"></span>
+            </div>
+            <div class="header-auth" id="headerAuth"></div>
+        </div>
+    </header>
+
+    <div class="vitrina">
+        <!-- <div class="ad-banner">
+            <img src="https://imgs.yagla.ru/blog/1059/13-narujnaya-reklama-primery--implantaciya-zubov.png" alt="Реклама" class="ad-banner__image">
+    
+            <div class="ad-banner__overlay"></div>
+    
+                <div class="ad-banner__content">
+                    <span class="ad-banner__label">РЕКЛАМА</span>
+                    <h2 class="ad-banner__title">Уютный креатив из внешнего источника</h2>
+                    <p class="ad-banner__subtitle">Внешняя ссылка · открывается в новой вкладке</p>
+                </div>
+    
+                <a href="https://example.com" target="_blank" rel="noopener" class="ad-banner__arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="7" y1="17" x2="17" y2="7"></line>
+                        <polyline points="7 7 17 7 17 17"></polyline>
+                    </svg>
+                </a>
+        </div> -->
+        <div class="container">
+            <div class="ad-banner">
+                <div class="ad-banner__content">
+                    <h2 class="ad-banner__title" style="color: black;">Колесо фортуны</h2>
+                    <p class="ad-banner__subtitle" style="color: #7A5A43;">Крутите раз в день и получайте внутриигровую валюту.</p>
+                    <img src="./img/Колесо.png" alt="" class="koleso">
+                </div>
+                <div>
+                    <button class="button" id="openWheel">Крутить колесо</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<div class="osnova">
+    <div class="promo-row">
+    <!-- ЛЕВАЯ КАРТОЧКА -->
+    <div class="promo-card">
+        <div class="promo-card__icon">
+            <!-- иконка подарка -->
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="8" width="18" height="13" rx="1.5"/>
+                <path d="M3 12h18"/>
+                <path d="M12 8v13"/>
+                <path d="M12 8c-1.5-3-5-3-5-1s2.5 1 5 1z"/>
+                <path d="M12 8c1.5-3 5-3 5-1s-2.5 1-5 1z"/>
+            </svg>
+        </div>
+    
+        <div class="promo-card__text">
+            <h3 class="promo-card__title">Есть промокод?</h3>
+            <p class="promo-card__subtitle">Впиши секретное слово с открытки или от друзей.</p>
+        </div>
+    
+        <form class="promo-card__form" id="promoForm" onsubmit="event.preventDefault();">
+            <div class="promo-input-wrap">
+                <input type="text" class="promo-input" id="promoInput" placeholder="Например, Сессия2026">
+                <span class="promo-input-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#E5A72C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 12l2 2 4-4"/>
+                        <circle cx="12" cy="12" r="9"/>
+                    </svg>
+                </span>
+            </div>
+            <button type="submit" class="promo-btn">Получить</button>
+        </form>
+    </div>
+    
+    <!-- ПРАВАЯ КАРТОЧКА -->
+    <div class="invite-card">
+        <div class="invite-card__icon">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#E5A72C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 8v4l3 2"/>
+            </svg>
+        </div>
+    
+        <div class="invite-card__text">
+            <h3 class="invite-card__title">Позови друзей в гости</h3>
+            <p class="invite-card__subtitle">Каждому — по 300 шуховских рублей после первой игры.</p>
+            <button type="button" class="invite-card__link">
+                Скопировать ссылку-приглашение
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="11" height="11" rx="2"/>
+                    <path d="M5 15V5a2 2 0 0 1 2-2h10"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+    </div>
+</div>
+
+
+
+
+
+<!-- МОДАЛКА -->
+<div class="wheel-modal" id="wheelModal">
+    <div class="wheel-modal__content">
+        <button class="wheel-modal__close" id="wheelClose">×</button>
+
+        <h3 class="wheel-modal__title">Колесо фортуны</h3>
+
+        <div class="wheel-wrap">
+            <canvas id="wheelCanvas" width="360" height="360"></canvas>
+            <canvas id="wheelPointer" width="360" height="360"></canvas>
+        </div>
+
+        <div class="wheel-modal__actions">
+            <button class="wheel-modal__btn wheel-modal__btn--spin" id="spinBtn">Крутить</button>
+            <button class="wheel-modal__btn wheel-modal__btn--claim" id="claimBtn" disabled>Получить приз</button>
+        </div>
+
+        <p class="wheel-modal__result" id="wheelResult"></p>
+    </div>
+</div>
+
+<div class="section">
+    <section class="games">
+
+    <div class="games__header">
+        <span class="games__label">ПОЛКА С ИГРАМИ</span>
+        <h2 class="games__title">Короткие игры на любой вечер</h2>
+        <p class="games__subtitle">От полутора до шести минут — прогресс сохраняется автоматически.</p>
+        <div class="games__online">
+            <span class="games__online-dot"></span>
+            1488 игроков сейчас
+        </div>
+    </div>
+
+    <div class="games__grid">
+
+        <!-- Карточка 1 -->
+        <article class="game-card">
+            <div class="game-card__image">
+                <img src="./games/game_voenkomat/img/start.png">
+            </div>
+            <div class="game-card__body">
+                <h3 class="game-card__title">Военкомат</h3>
+                <p class="game-card__desc">Попытай свою удачу и не попади в руки военкомата</p>
+                <a href="./games/game_voenkomat/" class="game-card__btn">
+                    Играть
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
+                        stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                </a>
+            </div>
+        </article>
+
+        <!-- Карточка 2 -->
+        <article class="game-card">
+            <div class="game-card__image">
+                <img src="./img/game-2.png">
+            </div>
+            <div class="game-card__body">
+                <h3 class="game-card__title">Домино во дворе</h3>
+                <p class="game-card__desc">Классическая партия с шумными соседями и хитрым дядей</p>
+                <button class="game-card__btn">
+                    Играть
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
+                         stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </article>
+
+        <!-- Карточка 3 -->
+        <article class="game-card">
+            <div class="game-card__image">
+                <img src="./img/game-3.png">
+            </div>
+            <div class="game-card__body">
+                <h3 class="game-card__title">Кот на серванте</h3>
+                <p class="game-card__desc">Прыгай по полкам, не задев хрусталь и фарфоровых рыбок.</p>
+                <button class="game-card__btn">
+                    Играть
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
+                         stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </article>
+
+    </div>
+    </section>
+</div>
+
+
+<footer class="footer">
+    <button class="reset-btn" id="resetBtn">Сбросить данные</button>
+</footer>
+
+
+<script src="./shared/auth-state.js"></script>
+<script src="./shared/header.js"></script>
+<script src="./js/balance.js"></script>
+<script src="./js/ui.js"></script>
+<script src="./js/promo.js"></script>
+<script src="./js/wheel.js"></script>
+<script src="./js/dev.js"></script>
+<script src="./js/main.js"></script>
+</body>
+</html>

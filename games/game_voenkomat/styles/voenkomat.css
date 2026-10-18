@@ -1,0 +1,631 @@
+/* ============================================================
+   ПОЧТОВАЯ ЛИХОРАДКА — стили игры
+   ============================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #F5E9D6;
+    font-family: Georgia, 'Times New Roman', serif;
+    color: #2B1A0F;
+    min-height: 100vh;
+}
+
+.voenkomat {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 24px 60px;
+}
+
+/* ===== Верхняя часть ===== */
+.voenkomat__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+
+.voenkomat__crumbs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.voenkomat__label { color: #C8552B; }
+.voenkomat__dot   { color: #C8552B; }
+.voenkomat__sub   { color: #8A7461; font-weight: 600; }
+
+.voenkomat__back {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #8A7461;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.voenkomat__back:hover { color: #2B1A0F; }
+
+.voenkomat__title {
+    margin: 0 0 6px;
+    font-size: 44px;
+    font-weight: 700;
+    color: #2B1A0F;
+    letter-spacing: -0.5px;
+}
+
+.voenkomat__subtitle {
+    margin: 0 0 28px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #8A7461;
+}
+
+/* ===== Сцена ===== */
+.scene {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 20px;
+    padding: 20px;
+    background: url('../img/scene.png') no-repeat center / cover;
+    border: 1.5px solid #D2C29E;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* затемняющий слой, чтобы текст и ящики читались поверх фото */
+.scene::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25);
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* всё содержимое сцены — над затемнением */
+.scene > * {
+    position: relative;
+    z-index: 1;
+}
+
+.scene__hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.scene__speech {
+    position: relative;
+    background: #FFFCF5;
+    border: 1.5px solid #EAD9B8;
+    border-radius: 14px;
+    padding: 12px 16px;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #3A2A1A;
+    box-shadow: 0 4px 12px rgba(120, 90, 40, 0.1);
+    max-width: 260px;
+}
+
+.scene__speech::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 24px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 10px solid #FFFCF5;
+}
+
+.scene__hero-img {
+    width: 100%;
+    max-width: 240px;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 16px rgba(60, 40, 20, 0.25));
+}
+
+.scene__hero-name {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    color: #8A7461;
+    font-style: italic;
+}
+
+/* ===== Ящики ===== */
+.scene__mail {
+    display: flex;
+    flex-direction: column;
+    background: #4F5A52;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.mail-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 16px;
+    background: #3C463F;
+    border-bottom: 1px solid #2A322C;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: #D4CFC0;
+}
+
+.mail-topbar__label {
+    font-weight: 700;
+    letter-spacing: 1.2px;
+}
+
+.mail-topbar__hint {
+    color: #A5A396;
+    font-size: 10px;
+}
+
+.mail-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 8px;
+    padding: 14px;
+    background: #4F5A52;
+    flex: 1;
+}
+
+.mail-box {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    background: linear-gradient(180deg, #5C6760 0%, #4E5951 100%);
+    border: 2px solid #2A322C;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.25s ease;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+        0 2px 0 #2A322C,
+        0 3px 6px rgba(0, 0, 0, 0.35);
+}
+
+.mail-box__number {
+    position: absolute;
+    top: 5px;
+    left: 7px;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #F4F2EA;
+    text-shadow: 0 1px 0 #2A322C;
+}
+
+.mail-box__keyhole {
+    position: absolute;
+    right: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #2A322C;
+}
+
+.mail-box__keyhole::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 5px;
+    background: #2A322C;
+    border-radius: 1px;
+}
+
+.mail-box::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    bottom: 6px;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.mail-box:hover:not(.is-open) {
+    transform: translateY(-2px);
+    background: linear-gradient(180deg, #6A7570 0%, #5B6660 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 4px 0 #2A322C,
+        0 6px 12px rgba(0, 0, 0, 0.45);
+}
+
+.mail-box.is-open {
+    cursor: default;
+    background: linear-gradient(180deg, #3A443D 0%, #333C36 100%);
+}
+
+.mail-box.is-win {
+    background: linear-gradient(180deg, #4D7A3A 0%, #3D5F2E 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 2px 0 #2A322C,
+        0 0 20px rgba(120, 200, 90, 0.5);
+    animation: winPulse 0.6s ease;
+}
+
+.mail-box.is-lose {
+    background: linear-gradient(180deg, #8A2B2B 0%, #6B1F1F 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 2px 0 #2A322C,
+        0 0 20px rgba(220, 80, 80, 0.5);
+    animation: loseShake 0.4s ease;
+}
+
+.mail-box__result {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 2px;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    color: #fff;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    text-align: center;
+    padding: 4px;
+    line-height: 1.1;
+}
+
+.mail-box.is-open .mail-box__result { opacity: 1; }
+
+.mail-box__result small {
+    font-size: 9px;
+    font-weight: 600;
+    opacity: 0.85;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+@keyframes winPulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes loseShake {
+    0%, 100% { transform: translateX(0); }
+    25%      { transform: translateX(-3px); }
+    50%      { transform: translateX(3px); }
+    75%      { transform: translateX(-2px); }
+}
+
+.mail-bottombar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 16px;
+    background: #3C463F;
+    border-top: 1px solid #2A322C;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    color: #D4CFC0;
+}
+
+.mail-bottombar__counter b {
+    color: #F4F2EA;
+    font-weight: 700;
+}
+
+/* ===== Панель ставки ===== */
+.bet-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 16px;
+    align-items: end;
+    padding: 20px 24px;
+    background: #FFFCF5;
+    border: 1.5px solid #EAD9B8;
+    border-radius: 16px;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 14px rgba(120, 90, 40, 0.06);
+}
+
+.bet-panel__item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.bet-panel__item label {
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #8A7461;
+}
+
+.bet-counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 40px;
+    padding: 0 8px;
+    background: #F5E9D6;
+    border: 1.5px solid #EAD9B8;
+    border-radius: 10px;
+    width: fit-content;
+}
+
+.bet-counter__btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 8px;
+    background: #FFFCF5;
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 700;
+    color: #2B1A0F;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease;
+}
+
+.bet-counter__btn:hover  { background: #F0E2C8; }
+.bet-counter__btn:active { background: #E5D3B0; }
+
+.bet-counter__input {
+    width: 80px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #2B1A0F;
+    text-align: center;
+    outline: none;
+    /* убираем стрелочки у number-инпута */
+    -moz-appearance: textfield;
+}
+
+.bet-counter__input::-webkit-outer-spin-button,
+.bet-counter__input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.bet-panel__hint {
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    color: #B5A28C;
+}
+
+.bet-panel__total,
+.bet-panel__round {
+    font-family: Arial, sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: #2B1A0F;
+    line-height: 1.2;
+}
+
+.bet-panel__total span,
+.bet-panel__round span {
+    font-size: 13px;
+    font-weight: 600;
+    color: #8A7461;
+    margin-left: 4px;
+}
+
+.bet-panel__play {
+    height: 52px;
+    padding: 0 28px;
+    border: none;
+    border-radius: 12px;
+    background: #E5652C;
+    color: #FFFCF5;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.25s ease, transform 0.1s ease;
+    box-shadow: 0 4px 12px rgba(200, 80, 30, 0.25);
+}
+
+.bet-panel__play:hover    { background: #D1541E; }
+.bet-panel__play:active   { background: #B84716; transform: translateY(1px); }
+.bet-panel__play:disabled {
+    background: #B5A28C;
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: 0.7;
+}
+
+/* ===== Что в ящике ===== */
+.info-block { margin-bottom: 32px; }
+
+.info-block__title {
+    margin: 0 0 4px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #2B1A0F;
+}
+
+.info-block__sub {
+    margin: 0 0 18px;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    color: #8A7461;
+}
+
+.info-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+}
+
+.info-card {
+    padding: 18px 20px;
+    background: #FFFCF5;
+    border: 1.5px solid #EAD9B8;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.info-card__icon {
+    font-size: 22px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #F5E9D6;
+    border-radius: 10px;
+    font-family: Arial, sans-serif;
+    font-weight: 800;
+    color: #2B1A0F;
+}
+
+.info-card__title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #2B1A0F;
+}
+
+.info-card__desc {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #8A7461;
+}
+
+/* ===== Правила ===== */
+.rules-block { margin-bottom: 20px; }
+
+.rules-block__title {
+    margin: 0 0 14px;
+    font-size: 22px;
+    font-weight: 700;
+    color: #2B1A0F;
+}
+
+.rules-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.55;
+    color: #6F6A63;
+}
+
+.rules-grid p { margin: 0; }
+
+/* ===== Адаптив ===== */
+@media (max-width: 1200px) {
+    .bet-panel {
+        grid-template-columns: 1fr 1fr;
+    }
+    .bet-panel__play {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+}
+
+@media (max-width: 900px) {
+    .voenkomat { padding: 16px 16px 40px; }
+    .voenkomat__title { font-size: 34px; }
+    .scene { grid-template-columns: 1fr; }
+    .scene__hero { align-items: center; }
+    .scene__speech { max-width: 100%; }
+    .scene__hero-img { max-width: 180px; }
+
+    .mail-grid {
+        grid-template-columns: repeat(6, 1fr);
+        gap: 6px;
+        padding: 10px;
+    }
+
+    .mail-topbar,
+    .mail-bottombar {
+        font-size: 10px;
+        padding: 8px 12px;
+    }
+
+    .info-cards { grid-template-columns: repeat(2, 1fr); }
+    .rules-grid { grid-template-columns: 1fr; gap: 12px; }
+}
+
+@media (max-width: 560px) {
+    .voenkomat { padding: 12px 12px 32px; }
+    .voenkomat__title { font-size: 26px; }
+    .voenkomat__subtitle { font-size: 13px; margin-bottom: 20px; }
+    .voenkomat__top { gap: 8px; }
+    .voenkomat__crumbs { font-size: 10px; letter-spacing: 1px; }
+    .scene { padding: 12px; gap: 12px; }
+
+    .mail-grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 5px;
+        padding: 8px;
+    }
+
+    .mail-box__number { font-size: 10px; top: 3px; left: 5px; }
+    .mail-box__result { font-size: 12px; }
+    .mail-box__result small { font-size: 8px; }
+    .mail-topbar__hint { display: none; }
+
+    .bet-panel {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .bet-counter {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .info-cards { grid-template-columns: 1fr; }
+    .info-card { padding: 14px 16px; }
+}
+

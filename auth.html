@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация — Слот-машина</title>
+
+    <link rel="stylesheet" href="./styles/auth.css">
+</head>
+<body>
+
+    <main class="auth-page">
+        <div class="auth-card">
+
+            <div class="auth-tabs">
+                <button class="auth-tab is-active" data-tab="login">Вход</button>
+                <button class="auth-tab" data-tab="register">Регистрация</button>
+            </div>
+
+            <!-- Вход -->
+            <form class="auth-form is-active" id="loginForm" data-form="login">
+                <h1 class="auth-form__title">Вход</h1>
+
+                <label class="auth-field">
+                    <span>Почта</span>
+                    <input type="email" name="email" required autocomplete="email">
+                </label>
+
+                <label class="auth-field">
+                    <span>Пароль</span>
+                    <input type="password" name="password" required autocomplete="current-password">
+                </label>
+
+                <button type="submit" class="auth-submit">Войти</button>
+                <p class="auth-error" id="loginError"></p>
+            </form>
+
+            <!-- Регистрация -->
+            <form class="auth-form" id="registerForm" data-form="register">
+                <h1 class="auth-form__title">Регистрация</h1>
+
+                <label class="auth-field">
+                    <span>Почта</span>
+                    <input type="email" name="email" required autocomplete="email">
+                </label>
+
+                <label class="auth-field">
+                    <span>Логин</span>
+                    <input type="text" name="username" required minlength="2" maxlength="30" autocomplete="nickname">
+                </label>
+
+                <label class="auth-field">
+                    <span>Пароль</span>
+                    <input type="password" name="password" required minlength="6" autocomplete="new-password">
+                </label>
+
+                <label class="auth-field">
+                    <span>Повторите пароль</span>
+                    <input type="password" name="passwordRepeat" required minlength="6" autocomplete="new-password">
+                </label>
+
+                <label class="auth-agree">
+                    <input type="checkbox" name="agree" required>
+                    <span>Я согласен на обработку персональных данных</span>
+                </label>
+
+                <button type="submit" class="auth-submit">Зарегистрироваться</button>
+                <p class="auth-error" id="registerError"></p>
+            </form>
+
+        </div>
+    </main>
+
+    <script src="./js/auth.js"></script>
+</body>
+</html>

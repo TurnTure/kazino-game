@@ -1,0 +1,171 @@
+
+
+
+/* ===== Модалка колеса ===== */
+.wheel-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 20, 10, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.wheel-modal.is-open {
+    display: flex;
+}
+
+.wheel-modal__content {
+    position: relative;
+    background: #FFFCF5;
+    border-radius: 20px;
+    padding: 28px 32px 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    text-align: center;
+    min-width: 420px;
+}
+
+.wheel-modal__close {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    background: none;
+    border: none;
+    font-size: 26px;
+    line-height: 1;
+    color: #8A7461;
+    cursor: pointer;
+}
+
+.wheel-modal__title {
+    margin: 0 0 18px;
+    font-family: Georgia, serif;
+    font-size: 22px;
+    color: #3A2A1A;
+}
+
+.wheel-wrap {
+    position: relative;
+    width: 360px;
+    height: 360px;
+    margin: 0 auto 20px;
+}
+
+#wheelCanvas {
+    display: block;
+    border-radius: 50%;
+    box-shadow: 0 8px 24px rgba(120, 90, 40, 0.2);
+}
+
+#wheelPointer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.wheel-modal__actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.wheel-modal__btn {
+    height: 44px;
+    padding: 0 26px;
+    border: none;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.25s ease, opacity 0.25s ease;
+}
+
+.wheel-modal__btn--spin {
+    background: #E5A72C;
+    color: #2B1A0F;
+}
+.wheel-modal__btn--spin:hover  { background: #D18B1E; }
+.wheel-modal__btn--spin:active { background: #B06E14; }
+.wheel-modal__btn--spin:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.wheel-modal__btn--claim {
+    background: #2B1A0F;
+    color: #FFFCF5;
+}
+.wheel-modal__btn--claim:hover:not(:disabled)  { background: #3E2716; }
+.wheel-modal__btn--claim:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.wheel-modal__result {
+    margin: 16px 0 0;
+    font-size: 15px;
+    font-weight: 700;
+    min-height: 20px;
+    color: #3A2A1A;
+}
+
+/* ===== Адаптив: модалка колеса ===== */
+
+@media (max-width: 480px) {
+    .wheel-modal__content {
+        min-width: auto;
+        width: calc(100% - 24px);
+        max-width: 400px;
+        padding: 22px 18px 20px;
+        border-radius: 16px;
+        margin: 12px;
+    }
+
+    .wheel-modal__title {
+        font-size: 19px;
+        margin-bottom: 14px;
+    }
+
+    .wheel-modal__close {
+        top: 8px;
+        right: 12px;
+        font-size: 22px;
+    }
+
+    .wheel-wrap {
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+        aspect-ratio: 1 / 1;
+    }
+
+    #wheelCanvas,
+    #wheelPointer {
+        width: 100%;
+        height: 100%;
+    }
+
+    .wheel-modal__actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .wheel-modal__btn {
+        width: 100%;
+        height: 46px;
+    }
+
+    .wheel-modal__result {
+        font-size: 14px;
+    }
+}
+
+
+
+
+
+
+

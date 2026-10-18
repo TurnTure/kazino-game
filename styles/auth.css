@@ -1,0 +1,190 @@
+/* ===== Страница авторизации: минималистичный стиль ===== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    background: #7B7BF0;                /* фиолетовый, как на референсе */
+    font-family: Arial, Helvetica, sans-serif;
+    color: #1A1A1A;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+/* ===== Карточка ===== */
+.auth-card {
+    width: 100%;
+    max-width: 380px;
+    background: #F4F2EE;                 /* светло-бежевый */
+    border-radius: 24px;
+    padding: 36px 32px 40px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== Вкладки ===== */
+.auth-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 26px;
+    background: #E7E4DE;
+    padding: 5px;
+    border-radius: 999px;
+}
+
+.auth-tab {
+    flex: 1;
+    height: 34px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6F6A63;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.auth-tab.is-active {
+    background: #F4F2EE;
+    color: #1A1A1A;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== Формы ===== */
+.auth-form {
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.auth-form.is-active {
+    display: flex;
+}
+
+.auth-form__title {
+    margin: 0 0 6px;
+    font-size: 34px;
+    font-weight: 800;
+    text-align: center;
+    letter-spacing: -0.5px;
+    color: #1A1A1A;
+}
+
+/* ===== Поля ===== */
+.auth-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+    color: #4A4A4A;
+}
+
+.auth-field input {
+    height: 40px;
+    padding: 0 12px;
+    border: none;
+    border-radius: 8px;
+    background: #C9C7C2;                 /* серо-бежевый, как на референсе */
+    font-family: inherit;
+    font-size: 15px;
+    color: #1A1A1A;
+    outline: none;
+    transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.auth-field input:focus {
+    background: #D6D4CF;
+    box-shadow: 0 0 0 2px rgba(43, 43, 220, 0.35);
+}
+
+/* ===== Чекбокс согласия ===== */
+.auth-agree {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #4A4A4A;
+    cursor: pointer;
+    user-select: none;
+    margin-top: 4px;
+}
+
+.auth-agree input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    border: 1.5px solid #4A4A4A;
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.auth-agree input:checked {
+    background: #2B2BDC;
+    border-color: #2B2BDC;
+}
+
+.auth-agree input:checked::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 6px;
+    height: 10px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* ===== Кнопка ===== */
+.auth-submit {
+    margin-top: 6px;
+    height: 52px;
+    border: none;
+    border-radius: 10px;
+    background: #2B2BDC;                 /* насыщенный синий, как на референсе */
+    color: #FFFFFF;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.auth-submit:hover    { background: #1F1FBD; }
+.auth-submit:active   { background: #17178F; }
+.auth-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ===== Ошибка ===== */
+.auth-error {
+    margin: 0;
+    min-height: 18px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #C8552B;
+    text-align: center;
+}
+
+/* ===== Адаптив ===== */
+@media (max-width: 420px) {
+    .auth-card {
+        padding: 28px 22px 32px;
+        border-radius: 20px;
+    }
+
+    .auth-form__title {
+        font-size: 28px;
+    }
+}

@@ -1,0 +1,327 @@
+
+
+.vitrina {
+    background: url(../img/Главная\ витрина.png) no-repeat center / cover;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 20px;
+}
+
+/* ===== РЕКЛАМА (верхний баннер) ===== */
+
+.ad-banner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 1296px;
+    height: 320px;
+    border-radius: 16px;
+    overflow: hidden;
+    font-family: sans-serif;
+    color: #fff;
+    cursor: pointer;
+    margin-bottom: 38px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.ad-banner__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.ad-banner:hover .ad-banner__image {
+    transform: scale(1.05);
+}
+
+.ad-banner__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.75) 0%,
+        rgba(0, 0, 0, 0.45) 50%,
+        rgba(0, 0, 0, 0.15) 100%
+    );
+    z-index: 1;
+}
+
+.ad-banner__content {
+    position: relative;
+    z-index: 2;
+    padding: 24px 32px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    max-width: 65%;
+    box-sizing: border-box;
+}
+
+.ad-banner__label {
+    display: inline-block;
+    align-self: flex-start;
+    padding: 4px 10px;
+    border: 1.5px solid rgba(255, 255, 255, 0.7);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.ad-banner__title {
+    margin: 0;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: #fff;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.ad-banner__subtitle {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.85);
+    letter-spacing: 0.3px;
+}
+
+.ad-banner__arrow {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: #F6E7C8;
+    color: #332211;
+    text-decoration: none;
+    transition: transform 0.25s ease, background-color 0.25s ease;
+}
+
+.ad-banner__arrow:hover {
+    transform: scale(1.1);
+    background-color: #fff;
+}
+
+.ad-banner__arrow svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2.5;
+}
+
+/* ===== КОЛЕСО ФОРТУНЫ (блок в .container) ===== */
+
+.container {
+    background-color: #FFF7E8;
+    border-radius: 15px;
+    display: flex;
+}
+
+.koleso {
+    height: 150px;
+    width: 150px;
+}
+
+.button {
+    position: absolute;
+    left: 220px;
+    bottom: 105px;
+    background-color: #E5A72C;
+    color: #000;
+    font-weight: 700;
+    border: none;
+    padding: 12px 24px;
+    font-family: inherit;
+    font-size: 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    z-index: 3;
+    transition: background-color 0.4s ease;
+}
+
+.button:active {
+    background-color: #B07E1E;
+    transition: background-color 0.1s ease;
+}
+
+.osnova {
+    background-color: #F6E7C8;
+}
+
+/* ===== Глобальная защита от горизонтального переполнения ===== */
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* ============================================
+   АДАПТИВ
+   ============================================ */
+
+/* Планшет: баннер сжимается, но не больше 1296 */
+@media (max-width: 1360px) {
+    .ad-banner {
+        width: 100%;
+        max-width: 1296px;
+    }
+}
+
+/* Планшет вертикально / большой телефон */
+@media (max-width: 900px) {
+
+    /* --- Верхний рекламный баннер --- */
+    .vitrina > .ad-banner {
+        height: 240px;
+        margin-bottom: 24px;
+    }
+
+    .vitrina > .ad-banner .ad-banner__title {
+        font-size: 22px;
+    }
+
+    .vitrina > .ad-banner .ad-banner__content {
+        padding: 20px 24px;
+        max-width: 80%;
+    }
+
+    /* --- Блок с колесом --- */
+    .container {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        padding: 20px;
+        position: relative;
+    }
+
+    /* Внутри контейнера .ad-banner превращается в обычный вертикальный блок */
+    .container .ad-banner {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 0;
+        background: transparent;
+        box-shadow: none;
+        border-radius: 0;
+        cursor: default;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .container .ad-banner__content {
+        position: relative;
+        height: auto;
+        max-width: 100%;
+        padding: 0;
+        gap: 6px;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+
+    .container .ad-banner__title {
+        font-size: 22px;
+        text-shadow: none;
+    }
+
+    .container .ad-banner__subtitle {
+        font-size: 13px;
+    }
+
+    .container .koleso {
+        height: 110px;
+        width: 110px;
+    }
+
+    /* Кнопка перестаёт быть абсолютной */
+    .container .button {
+        position: static;
+        left: auto;
+        bottom: auto;
+        display: block;
+        width: 100%;
+        padding: 14px 24px;
+        font-size: 16px;
+        margin-top: 8px;
+    }
+}
+
+/* Маленький телефон */
+@media (max-width: 600px) {
+    .vitrina {
+        padding: 12px;
+    }
+
+    /* --- Верхний баннер --- */
+    .vitrina > .ad-banner {
+        height: 200px;
+        border-radius: 14px;
+        margin-bottom: 18px;
+    }
+
+    .vitrina > .ad-banner .ad-banner__content {
+        padding: 16px 18px;
+        max-width: 90%;
+        gap: 6px;
+    }
+
+    .vitrina > .ad-banner .ad-banner__title {
+        font-size: 18px;
+        line-height: 1.2;
+    }
+
+    .vitrina > .ad-banner .ad-banner__subtitle {
+        font-size: 11px;
+    }
+
+    .vitrina > .ad-banner .ad-banner__label {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+
+    .vitrina > .ad-banner .ad-banner__arrow {
+        width: 36px;
+        height: 36px;
+        right: 12px;
+        bottom: 12px;
+    }
+
+    .vitrina > .ad-banner .ad-banner__arrow svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* --- Блок колеса --- */
+    .container {
+        padding: 16px;
+    }
+
+    .container .ad-banner__title {
+        font-size: 19px;
+    }
+
+    .container .koleso {
+        height: 90px;
+        width: 90px;
+    }
+
+    .container .button {
+        padding: 12px 20px;
+        font-size: 15px;
+    }
+}

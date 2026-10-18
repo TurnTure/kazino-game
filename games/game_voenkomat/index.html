@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Почтовая лихорадка — Слот-машина</title>
+
+    <link rel="stylesheet" href="../../shared/header.css">
+    <link rel="stylesheet" href="./styles/voenkomat.css">
+</head>
+<body>
+
+<header class="header">
+    <a href="../../index.html" class="logo">
+        <img src="../../img/Знак.png" alt="">
+        <h1>Слот-машина</h1>
+    </a>
+
+    <nav class="header__nav">
+        <a href="#!" class="header__link">Реклама</a>
+        <a href="#!" class="header__link">Промокод</a>
+        <a href="#!" class="header__link">Награды</a>
+    </nav>
+
+    <div class="menu">
+        <div class="rubli">
+            <img src="../../img/Лампочка.png" alt="">
+            <span class="amount" id="balance">0</span>
+            <span class="currency_name">шуховские рубли</span>
+        </div>
+        <div class="header-auth" id="headerAuth"></div>
+    </div>
+</header>
+
+<main class="voenkomat">
+
+    <div class="voenkomat__top">
+        <div class="voenkomat__crumbs">
+            <span class="voenkomat__label">ПОДЪЕЗДНАЯ АРКАДА</span>
+            <span class="voenkomat__dot">•</span>
+            <span class="voenkomat__sub">Без очереди</span>
+        </div>
+        <a href="../../index.html" class="voenkomat__back">← К мини-играм</a>
+    </div>
+
+    <h1 class="voenkomat__title">Военкомат</h1>
+    <p class="voenkomat__subtitle">Загляни в ящики. Вдруг там не только квитанции.</p>
+
+    <section class="scene">
+
+        <div class="scene__hero">
+            <div class="scene__speech" id="heroSpeech">
+                «Мне бы что-нибудь, кроме ЖКХ…»
+            </div>
+            <img src="./img/start.png" alt="Валера" class="scene__hero-img" id="heroImage">
+            <div class="scene__hero-name" style="color: white;">Кондратенко, житель подъезда</div>
+        </div>
+
+        <div class="scene__mail">
+            <div class="mail-topbar">
+                <span class="mail-topbar__label">ПОДЪЕЗД №3 · ПОЧТА ДЛЯ СВОИХ</span>
+                <span class="mail-topbar__hint">30 ящиков · 3 открытия за попытку</span>
+            </div>
+
+            <div class="mail-grid" id="mailGrid"></div>
+
+            <div class="mail-bottombar">
+                <span class="mail-bottombar__status" id="mailStatus">Выбери любой ящик — почта уже разложена.</span>
+                <span class="mail-bottombar__counter">
+                    Осталось открытий <b id="mailLeft">3 / 3</b>
+                </span>
+            </div>
+        </div>
+
+    </section>
+
+    <section class="bet-panel">
+
+        <div class="bet-panel__item">
+            <label>Ставка</label>
+            <div class="bet-counter">
+                <button type="button" class="bet-counter__btn" data-action="minus">−</button>
+                <input type="number" class="bet-counter__input" id="betInput" value="300" min="300" step="50">
+                <button type="button" class="bet-counter__btn" data-action="plus">+</button>
+            </div>
+            <span class="bet-panel__hint" id="betHint">Минимум 300 огоньков</span>
+        </div>
+
+        <div class="bet-panel__item">
+            <label>Итого к оплате</label>
+            <div class="bet-panel__total">
+                <b id="totalValue">300</b> <span>огоньков</span>
+            </div>
+            <span class="bet-panel__hint">Стоимость раунда</span>
+        </div>
+
+        <div class="bet-panel__item">
+            <label>Сумма раунда</label>
+            <div class="bet-panel__round">
+                <b id="roundValue">0</b> <span>огоньков</span>
+            </div>
+            <span class="bet-panel__hint">Доступно 3 открытия</span>
+        </div>
+
+        <button type="button" class="bet-panel__play" id="playBtn">
+            Играть за 300 →
+        </button>
+
+    </section>
+
+    <section class="info-block">
+        <h2 class="info-block__title">Что в ящике?</h2>
+        <p class="info-block__sub">Почтовая всякая всячина</p>
+
+        <div class="info-cards">
+            <div class="info-card">
+                <div class="info-card__icon">📰</div>
+                <h3 class="info-card__title">Бумажный спам</h3>
+                <p class="info-card__desc">Газета, листовки, брошюры. Без награды.</p>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card__icon">×2</div>
+                <h3 class="info-card__title">Множитель</h3>
+                <p class="info-card__desc">Бумажка умножает текущую сумму.</p>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card__icon">🎟</div>
+                <h3 class="info-card__title">Купоны</h3>
+                <p class="info-card__desc">От +100 до +500 огоньков в раунд.</p>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card__icon">📨</div>
+                <h3 class="info-card__title">Повестка</h3>
+                <p class="info-card__desc">Раунд окончен. Его сумма сгорает.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="rules-block">
+        <h2 class="rules-block__title">Правила игры</h2>
+
+        <div class="rules-grid">
+            <p>Выбери ставку от 300 огоньков. Одна игра даёт 3 открытия. Стоимость раунда равна ставке.</p>
+            <p>В каждой игре призы раздаются случайно. Открывай ящики: купоны прибавляют огоньки, множители увеличивают сумму раунда.</p>
+            <p>Повестка завершает раунд: в форме провожают Валеру. Сгорает только текущая сумма раунда — не весь личный баланс.</p>
+        </div>
+    </section>
+
+</main>
+
+
+<script src="../../shared/auth-state.js"></script>
+<script src="../../js/balance.js"></script>
+<script src="../../js/ui.js"></script>
+<script src="../../shared/header.js"></script>
+<script src="../game_voenkomat/js/sounds.js"></script>
+<script src="./js/voenkomat.js"></script>
+
+</body>
+</html>

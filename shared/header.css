@@ -1,0 +1,426 @@
+@import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
+
+
+* {
+    margin: 0;
+    
+}
+
+a{
+    color: #2C201B;
+    text-decoration: none;
+}
+
+h1{
+    font-size: 20px;
+    font-weight: bold;
+    
+}
+
+.header {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    background-color: #F6E7C8;
+
+    padding: 10px 10px 10px 10px;
+    
+}
+.logo {
+    margin: 15px;
+    font-weight: 800;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.header__nav {
+    display: flex;
+    gap: 37px;
+}
+.header__link {
+    color: #716056;
+}
+
+
+/* верстка меню */
+
+.menu{
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.amount {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.currency_name {
+    font-size: 15px;
+}
+
+.rubli {
+    display: inline-grid;
+
+    grid-template-columns: auto 120px;
+    grid-template-rows: auto auto;
+    
+    column-gap: 12px;  
+    row-gap: 0px;      
+    
+    align-items: center;
+    
+    background-color: #FDF5E6;
+    border: 2px solid #D2B48C;
+    border-radius: 50px;
+    padding: 6px 24px 6px 6px;
+}
+
+.rubli img {
+    grid-row: 1 / 3;   /* Растягиваем на 2 строки */
+    grid-column: 1;    /* Первая колонка */
+}
+
+
+/* верстка профиля */
+
+.profile {
+    display: inline-grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    
+    column-gap: 16px;   /* Отступ между аватаркой и текстом */
+    row-gap: 6px;       /* Отступ между именем и статусом */
+    
+    align-items: center;
+    
+    background-color: #FDF5E6;
+    border-radius: 50px;
+    border: 2px solid #D2B48C;
+    padding: 6px 24px 6px 6px;
+    margin-left: 10px;
+    
+    /* margin-left: auto; */ /* если нужно прижать вправо */
+}
+
+.avatarka {
+    grid-row: 1 / 3;   /* Занимает обе строки */
+    grid-column: 1;    /* Первая колонка */
+    
+    display: block;
+    width: 52px;
+    height: 52px;
+    
+    /* Никаких border и box-shadow — обводка уже в картинке */
+}
+
+.avatarka img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* contain, а не cover — чтобы обводка не обрезалась */
+}
+
+/* ===== ИМЯ ===== */
+.profile span:nth-of-type(1) {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end; /* Прижимаем к низу ячейки — ближе к статусу */
+    
+    font-family: sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: #332211;
+    line-height: 1;
+}
+
+/* ===== СТАТУС ("● в сети") ===== */
+.profile span:nth-of-type(2) {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start; /* Прижимаем к верху ячейки — ближе к имени */
+    
+    font-family: sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #2E8B57;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1;
+}
+
+
+.text {
+    display: flex;
+    flex-direction: column;
+    padding-left: 52px;
+    padding-bottom: 18px;
+    gap: 10px;
+    color: #F6E7C8;
+}
+
+.text span:nth-of-type(1) {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;   /* Разрядка между буквами */
+    line-height: 1;
+    opacity: 0.85;           /* Легкая прозрачность для "приглушенности" */
+}
+
+.text span:nth-of-type(2) {
+    font-size: 34px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.85;
+}
+
+/* ===== Блок авторизации ===== */
+.header-auth {
+    display: flex;
+    align-items: center;
+}
+
+.header__login {
+    display: inline-flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 22px;
+    background: #2B1A0F;
+    color: #FFFCF5;
+    border-radius: 999px;
+    font-family: sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color 0.25s ease;
+}
+
+.header__login:hover {
+    background: #3E2716;
+}
+
+/* ===== Профиль с выпадающим меню ===== */
+.profile {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background-color: #FDF5E6;
+    border: 2px solid #D2B48C;
+    border-radius: 50px;
+    padding: 6px 20px 6px 6px;
+
+    position: relative;      /* чтобы dropdown позиционировался от профиля */
+    cursor: pointer;
+    user-select: none;
+}
+
+.profile .avatarka {
+    display: block;
+    width: 40px;
+    height: 40px;
+}
+
+.profile .avatarka img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.profile__name {
+    font-family: sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #332211;
+    white-space: nowrap;
+}
+
+/* ===== Выпадающее меню ===== */
+.profile__dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+
+    min-width: 200px;
+    background: #FFFCF5;
+    border: 1.5px solid #EAD9B8;
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 12px 32px rgba(60, 40, 20, 0.18);
+
+    /* скрыто по умолчанию */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+    z-index: 100;
+}
+
+.profile.is-open .profile__dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.profile__item {
+    display: block;
+    width: 100%;
+    padding: 10px 14px;
+    border: none;
+    background: none;
+    border-radius: 10px;
+
+    font-family: sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #3A2A1A;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+
+    transition: background-color 0.15s ease;
+}
+
+.profile__item:hover {
+    background: #F5E9D6;
+}
+
+.profile__item--danger {
+    color: #C8552B;
+}
+
+
+/* ===== Адаптив: шапка ===== */
+
+@media (max-width: 1024px) {
+    .header {
+        gap: 20px;
+        padding: 8px 14px;
+    }
+
+    .logo {
+        margin: 8px;
+        font-size: 18px;
+    }
+
+    .header__nav {
+        gap: 20px;
+    }
+
+    .rubli {
+        padding: 5px 16px 5px 5px;
+        grid-template-columns: auto 100px;
+        column-gap: 8px;
+    }
+
+    .rubli img {
+        width: 32px;
+        height: 32px;
+    }
+
+    .amount {
+        font-size: 20px;
+    }
+
+    .currency_name {
+        font-size: 12px;
+    }
+
+    .profile {
+        padding: 5px 14px 5px 5px;
+    }
+
+    .profile .avatarka {
+        width: 36px;
+        height: 36px;
+    }
+
+    .profile__name {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* скрываем ссылки навигации */
+    .header__nav {
+        display: none;
+    }
+
+    .header {
+        gap: 12px;
+        padding: 8px 12px;
+    }
+
+    .logo h1 {
+        font-size: 16px;
+    }
+
+    .logo img {
+        width: 32px;
+        height: 32px;
+    }
+
+    /* баланс — компактный, без слова «шуховские рубли» */
+    .currency_name {
+        display: none;
+    }
+
+    .rubli {
+        padding: 5px 12px;
+        grid-template-columns: auto auto;
+        column-gap: 6px;
+        grid-template-rows: auto;
+    }
+
+    .rubli img {
+        width: 26px;
+        height: 26px;
+    }
+
+    .amount {
+        font-size: 17px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo h1 {
+        display: none;   /* оставляем только иконку */
+    }
+
+    .logo {
+        margin: 4px;
+    }
+
+    .profile__name {
+        display: none;   /* оставляем только аватарку */
+    }
+
+    .profile {
+        padding: 4px;
+        gap: 0;
+    }
+
+    .profile .avatarka {
+        width: 34px;
+        height: 34px;
+    }
+
+    .header__login {
+        height: 38px;
+        padding: 0 16px;
+        font-size: 13px;
+    }
+
+    /* выпадающее меню сдвигаем от края, чтобы не уходило за экран */
+    .profile__dropdown {
+        right: -8px;
+        min-width: 180px;
+    }
+}
