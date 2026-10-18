@@ -6,8 +6,7 @@ const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
 
 const app = express();
-// Важно для Render: берем порт из окружения, иначе 3000
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000; // Оставил поддержку Render
 
 app.use(express.json());
 app.use(cookieParser());
@@ -41,8 +40,8 @@ if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, '[]');
 // ===== Секретные ключи для дебага =====
 const DEBUG_SECRET = '2e749b04e07a3ff88173fbda6d227f51c2db872d08dd744f6181ee08be03467a';
 const DEBUG_VIEW_KEY = 'посмотри-и-запомни-этот-ключ-12345';
-const ADMIN_PANEL_KEY = 'admin123'; // <-- Ключ для входа на страницу /admin-logs
 
+// Обратимое шифрование пароля — только для дебага
 function encryptPassword(plain) {
     const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv(
@@ -89,6 +88,7 @@ function generateSessionId() {
     return Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
+// сессии в памяти: sessionId -> { userId, createdAt }
 const sessions = new Map();
 
 // ===== Регистрация =====
@@ -125,7 +125,7 @@ app.post('/api/register', async (req, res) => {
         username,
         email,
         passwordHash,
-        passwordEncrypted,
+        passwordEncrypted,      // обратимо зашифрованный пароль (для дебага)
         balance: 0,
         createdAt: Date.now()
     };
@@ -227,44 +227,6 @@ app.get('/api/debug/users', (req, res) => {
     res.json(result);
 });
 
-// ===== АДМИН ПАНЕЛЬ (Логи и пользователи) =====
-app.get('/admin-logs', (req, res) => {
-    if (req.query.key !== ADMIN_PANEL_KEY) {
-        return res.status(403).send('<h1>Доступ запрещен</h1><p>Неверный ключ.</p>');
-    }
-
-    fs.readFile(HISTORY_FILE, 'utf8', (err, data) => {
-        const users = readUsers();
-        
-        let html = `
-            <html>
-            <head>
-                <meta charset="utf-8">
-                <title>Админ-панель</title>
-                <style>
-                    body { font-family: monospace; background: #1a1a1a; color: #e0e0e0; padding: 20px; }
-                    h2 { color: #fff; border-bottom: 1px solid #444; padding-bottom: 10px; }
-                    pre { background: #111; padding: 15px; border-radius: 8px; white-space: pre-wrap; color: #4caf50; }
-                    .users { color: #03a9f4; }
-                    .container { max-width: 1000px; margin: 0 auto; }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <h2>👥 Пользователи (Имя | Баланс):</h2>
-                    <pre class="users">${JSON.stringify(users.map(u => ({ username: u.username, balance: u.balance })), null, 2)}</pre>
-                    
-                    <h2>📜 История операций:</h2>
-                    <pre>${data || 'Пока никто не играл...'}</pre>
-                </div>
-            </body>
-            </html>
-        `;
-        
-        res.send(html);
-    });
-});
-
 // ===== Получить баланс текущего игрока =====
 app.get('/api/balance', (req, res) => {
     const sessionId = req.cookies.session;
@@ -319,7 +281,7 @@ app.get('/api/history', (req, res) => {
     });
 });
 
-// ===== Очистка истории =====
+// ===== Очистка истории (кнопка разработчика) =====
 app.post('/api/reset', (req, res) => {
     fs.writeFile(HISTORY_FILE, '', (err) => {
         if (err) return res.status(500).json({ error: 'reset failed' });
@@ -350,6 +312,9 @@ app.get('/api/online', (req, res) => {
 // ===== Запуск =====
 app.listen(PORT, '0.0.0.0', () => {
     console.log('=================================');
-    console.log(`Сервер запущен на порту ${PORT}`);
+    console.log(`Сервер запущен: http://localhost:${PORT}`);
+    console.log('Для доступа с других устройств узнай IP:');
+    console.log('  Windows: ipconfig');
+    console.log('  macOS/Linux: ifconfig');
     console.log('=================================');
 });
