@@ -31,7 +31,8 @@ const state = {
     isPlaying: false,   // Идёт ли сейчас процесс открытия
     isFinished: false,  // Завершен ли раунд (успешно или проигрыш)
     isLost: false,
-    consecutiveSpam: 0  // Защита от 3-х спамов подряд
+    consecutiveSpam: 0, // Защита от 3-х спамов подряд
+    boxOutcomes: []     // Массив с заранее заданными исходами для каждого ящика
 };
 
 // ===== ЭЛЕМЕНТЫ =====
@@ -90,7 +91,9 @@ function handleBoxClick(box) {
     if (box.classList.contains('is-open')) return;
     if (state.opensMade >= CONFIG.maxOpens) return;
 
-    const outcome = pickOutcome();
+    const boxIndex = parseInt(box.dataset.index, 10) - 1;
+    const outcome = state.boxOutcomes[boxIndex];
+
     box.classList.add('is-open');
     
     // Звук открытия ящика
@@ -115,7 +118,7 @@ function handleBoxClick(box) {
     // Множитель
     if (outcome.type === 'mult') {
         box.classList.add('is-win');
-        state.multsSum += outcome.value; // Складываем множители
+        state.multsSum += outcome.value;
         resultEl.innerHTML = `${outcome.title}<small>${outcome.sub}</small>`;
         if (typeof soundWinItem === 'function') soundWinItem();
         state.consecutiveSpam = 0;
@@ -123,7 +126,7 @@ function handleBoxClick(box) {
     // Купон
     else if (outcome.type === 'coupon') {
         box.classList.add('is-win');
-        state.couponsSum += outcome.value; // Складываем купоны
+        state.couponsSum += outcome.value;
         resultEl.innerHTML = `${outcome.title}<small>${outcome.sub}</small>`;
         if (typeof soundWinItem === 'function') soundWinItem();
         state.consecutiveSpam = 0;
@@ -136,11 +139,9 @@ function handleBoxClick(box) {
 
     state.opensMade++;
     
-    // Пересчитываем итоговую сумму раунда
     calculateRoundSum();
     updateUI();
 
-    // Если открыли ВСЕ ящики — раунд завершается принудительно
     if (state.opensMade >= CONFIG.maxOpens) {
         state.isFinished = true;
         finishRound(false);
@@ -149,19 +150,15 @@ function handleBoxClick(box) {
 
 // ===== ПОДСЧЕТ ИТОГОВОЙ СУММЫ =====
 function calculateRoundSum() {
-    // Если есть множители, умножаем ставку на их сумму. Иначе множитель = 1 (просто ставка)
     const currentMult = state.multsSum > 0 ? state.multsSum : 1;
     state.roundSum = (state.bet * currentMult) + state.couponsSum;
 }
 
 // ===== ОБНОВЛЕНИЕ ИНТЕРФЕЙСА =====
 function updateUI() {
-    // Проверка корректности ввода ставки
     const currentBet = parseInt(betInput.value, 10);
     if (isNaN(currentBet) || currentBet < CONFIG.minBet || currentBet > getBalance()) {
-        if (betInput.value !== '') {
-            betInput.classList.add('is-invalid');
-        }
+        if (betInput.value !== '') betInput.classList.add('is-invalid');
     } else {
         betInput.classList.remove('is-invalid');
     }
@@ -169,28 +166,27 @@ function updateUI() {
     totalEl.textContent = state.bet;
     roundEl.textContent = state.roundSum;
 
-    // Управление кнопкой и её цветом
     if (state.isPlaying) {
         if (state.opensMade < CONFIG.minOpens) {
             playBtn.textContent = `Откройте ещё ${CONFIG.minOpens - state.opensMade} ящ.`;
             playBtn.disabled = true;
-            playBtn.style.backgroundColor = '#B5A28C'; // Серый
+            playBtn.style.backgroundColor = '#B5A28C';
             playBtn.style.cursor = 'not-allowed';
         } else {
             playBtn.textContent = `Забрать ${state.roundSum} огоньков →`;
             playBtn.disabled = false;
-            playBtn.style.backgroundColor = '#E5652C'; // Оранжевый
+            playBtn.style.backgroundColor = '#E5652C';
             playBtn.style.cursor = 'pointer';
         }
     } else if (state.isFinished && state.isLost) {
         playBtn.textContent = `Новая игра за ${state.bet} →`;
         playBtn.disabled = false;
-        playBtn.style.backgroundColor = '#2B1A0F'; // Коричневый
+        playBtn.style.backgroundColor = '#2B1A0F';
         playBtn.style.cursor = 'pointer';
     } else {
         playBtn.textContent = `Играть за ${state.bet} →`;
         playBtn.disabled = false;
-        playBtn.style.backgroundColor = '#E5652C'; // Оранжевый
+        playBtn.style.backgroundColor = '#E5652C';
         playBtn.style.cursor = 'pointer';
     }
 
@@ -205,7 +201,6 @@ function updatePlayButtonState() {
         playBtn.disabled = true;
         return;
     }
-
     if (state.isPlaying && state.opensMade >= CONFIG.minOpens) {
         playBtn.disabled = false;
         return;
@@ -239,10 +234,22 @@ function tryStartRound() {
 
 // ===== СТАРТ РАУНДА =====
 function startRound() {
+    // Генерируем исходы для всех 30 ящиков заранее
+    state.boxOutcomes = [];
+    state.consecutiveSpam = 0; // сбрасываем счетчик спама для генерации
+
+    for (let i = 0; i < CONFIG.boxesCount; i++) {
+        state.boxOutcomes.push(pickOutcome());
+    }
+    
+    state.consecutiveSpam = 0; // Сбрасываем счетчик спама для самой игры
+
     // Сбрасываем визуал ящиков
     document.querySelectorAll('.mail-box').forEach(box => {
         box.classList.remove('is-open', 'is-win', 'is-lose');
         box.querySelector('.mail-box__result').innerHTML = '';
+        box.style.opacity = '1'; // Возвращаем нормальную видимость
+        box.style.cursor = 'pointer';
     });
 
     state.opensMade = 0;
@@ -252,7 +259,6 @@ function startRound() {
     state.isPlaying = true;
     state.isFinished = false;
     state.isLost = false;
-    state.consecutiveSpam = 0;
 
     heroImg.src = './img/start.png';
     heroSpeech.textContent = '«Ну, посмотрим, что там…»';
@@ -279,6 +285,28 @@ function finishRound(lost) {
         if (typeof soundRoundWin === 'function') soundRoundWin();
     }
 
+    // Открываем все оставшиеся ящики для показа
+    const allBoxes = document.querySelectorAll('.mail-box');
+    allBoxes.forEach((box, index) => {
+        if (box.classList.contains('is-open')) return;
+
+        const outcome = state.boxOutcomes[index];
+        const resultEl = box.querySelector('.mail-box__result');
+
+        box.style.opacity = '0.6'; // Делаем полупрозрачным
+        box.style.cursor = 'default';
+
+        if (outcome.type === 'lose') {
+            box.classList.add('is-lose');
+            resultEl.innerHTML = `${outcome.title}<small>${outcome.sub}</small>`;
+        } else if (outcome.type === 'mult' || outcome.type === 'coupon') {
+            box.classList.add('is-win');
+            resultEl.innerHTML = `${outcome.title}<small>${outcome.sub}</small>`;
+        } else if (outcome.type === 'spam') {
+            resultEl.innerHTML = `${outcome.title}<small>${outcome.sub}</small>`;
+        }
+    });
+
     playBtn.disabled = false;
     updateUI();
 }
@@ -291,7 +319,6 @@ playBtn.addEventListener('click', async () => {
         return;
     }
 
-    // Забираем выигрыш
     if (state.isPlaying) {
         if (state.opensMade >= CONFIG.minOpens) {
             addBalance(state.roundSum, 'voenkomat:win');
@@ -301,7 +328,6 @@ playBtn.addEventListener('click', async () => {
         return;
     }
 
-    // Сброс и старт новой игры
     if (state.isFinished) {
         state.isFinished = false;
         state.isLost = false;
@@ -312,6 +338,8 @@ playBtn.addEventListener('click', async () => {
         document.querySelectorAll('.mail-box').forEach(box => {
             box.classList.remove('is-open', 'is-win', 'is-lose');
             box.querySelector('.mail-box__result').innerHTML = '';
+            box.style.opacity = '1'; // Возвращаем нормальную видимость
+            box.style.cursor = 'pointer';
         });
 
         heroImg.src = './img/start.png';
