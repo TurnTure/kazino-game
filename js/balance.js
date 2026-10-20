@@ -58,7 +58,6 @@ async function addBalance(delta, reason = '') {
 }
 
 // ===== Загружаем баланс, когда узнаём, кто мы =====
-// window.balanceReady — публичный промис, который можно дождаться из других скриптов
 window.balanceReady = (async () => {
     await window.currentUserReady;
     if (window.currentUser) {
