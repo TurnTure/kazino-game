@@ -49,13 +49,7 @@ async function initDB() {
 }
 initDB();
 
-// ===== Блокировка чувствительных файлов =====
-app.use((req, res, next) => {
-    const forbidden = ['/users.json', '/history.txt', '/server.js', '/package.json', '/package-lock.json'];
-    if (forbidden.includes(req.path)) return res.status(403).send('Forbidden');
-    next();
-});
-
+// Раздача статических файлов (HTML, CSS, JS, картинки)
 app.use(express.static(__dirname));
 
 // ===== Секретные ключи для дебага =====
@@ -241,26 +235,6 @@ app.post('/api/balance', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'DB error' });
-    }
-});
-
-// ===== История операций =====
-app.get('/api/history', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM history ORDER BY created_at DESC LIMIT 50');
-        res.json({ text: result.rows });
-    } catch (err) {
-        res.json({ text: [] });
-    }
-});
-
-// ===== Очистка истории =====
-app.post('/api/reset', async (req, res) => {
-    try {
-        await pool.query('TRUNCATE TABLE history');
-        res.json({ ok: true });
-    } catch (err) {
-        res.status(500).json({ error: 'reset failed' });
     }
 });
 
