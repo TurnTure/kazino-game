@@ -1,0 +1,197 @@
+/* Убираем прокрутку */
+body.game-body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #111; /* Темный фон для контраста */
+}
+
+/* Основной экран игры */
+.game-screen {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    /* Сюда встанет картинка шахты */
+    background-image: url("../img/bg.png"); 
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Контейнер для блоков */
+.game-field-wrapper {
+    position: relative;
+    width: 600px;
+    height: 600px;
+    background: #1a1a1a;
+    border: 4px solid #000;
+    box-shadow: 0 0 60px rgba(0,0,0,0.9), inset 0 0 20px #000;
+    margin-top: 60px; /* Чтобы не перекрывалось шапкой */
+}
+
+/* Сетка */
+.game-field {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    width: 100%;
+    height: 100%;
+    opacity: 0.95; /* Чуть прозрачный, чтобы фон шахты проглядывал */
+}
+
+/* Блоки */
+.block {
+    border: 1px solid rgba(0,0,0,0.2);
+    box-sizing: border-box;
+}
+
+.block.dirt {
+    background: linear-gradient(135deg, #654321 0%, #3e2912 100%);
+    box-shadow: inset 2px 2px 5px rgba(255,255,255,0.1), inset -2px -2px 5px rgba(0,0,0,0.5);
+}
+
+.block.stone {
+    background: linear-gradient(135deg, #6b6b6b 0%, #3b3b3b 100%);
+    box-shadow: inset 2px 2px 5px rgba(255,255,255,0.1), inset -2px -2px 5px rgba(0,0,0,0.5);
+}
+
+/* Бур */
+.drill {
+    position: absolute;
+    font-size: 35px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 10%;
+    height: 10%;
+    transition: top 0.4s ease-in-out, left 0.4s ease-in-out;
+    filter: drop-shadow(0 5px 5px rgba(0,0,0,0.8));
+}
+
+/* Левое меню */
+.left-menu {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 100;
+}
+
+.menu-btn {
+    width: 44px;
+    height: 44px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #333;
+    border-radius: 8px;
+    color: #888;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Интерфейс снизу */
+.ui-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    box-sizing: border-box;
+    z-index: 100;
+}
+
+.bonus-btn {
+    background: #111;
+    border: 2px solid #dcb400;
+    color: white;
+    font-family: Arial, sans-serif;
+    font-weight: 900;
+    font-size: 16px;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 8px;
+    line-height: 1.1;
+}
+
+.bottom-panel {
+    display: flex;
+    gap: 80px;
+}
+
+.bottom-panel__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.bottom-panel__label {
+    color: #888;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.bottom-panel__value {
+    color: #fff;
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+    font-weight: 900;
+}
+
+.right-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.bet-controls {
+    display: flex;
+    gap: 5px;
+}
+
+.bet-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #222;
+    border: 2px solid #333;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spin-btn {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #222 0%, #111 100%);
+    border: 3px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(255,255,255,0.1);
+    transition: transform 0.1s;
+}
+
+.spin-btn svg {
+    width: 45px;
+    height: 45px;
+    stroke: #fff;
+}

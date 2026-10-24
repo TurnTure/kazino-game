@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falling Pickaxe — Слот-машина</title>
+    <link rel="stylesheet" href="../../shared/header.css">
+    <link rel="stylesheet" href="./styles/pickaxe.css">
+</head>
+<body class="game-body">
+
+<!-- Шапка -->
+<header class="header">
+    <a href="../../index.html" class="logo">
+        <img src="../../img/Знак.png" alt="">
+        <h1>Слот-машина</h1>
+    </a>
+    <nav class="header__nav">
+        <a href="#!" class="header__link">Реклама</a>
+        <a href="#!" class="header__link">Промокод</a>
+        <a href="#!" class="header__link">Награды</a>
+    </nav>
+    <div class="menu">
+        <div class="rubli">
+            <img src="../../img/Лампочка.png" alt="">
+            <span class="amount" id="balance">0</span>
+            <span class="currency_name">шуховские рубли</span>
+        </div>
+        <div class="header-auth" id="headerAuth"></div>
+    </div>
+</header>
+
+<!-- Основной экран игры -->
+<main class="game-screen" style="background-image: url('./img/bg.jpg');">
+    
+    <!-- Центральное поле с блоками -->
+    <div class="game-field-wrapper">
+        <div class="game-field" id="gameField">
+            <!-- Сетку блоков сгенерирует JS -->
+        </div>
+        <!-- Бур (пока просто статичная картинка поверх сетки) -->
+        <div class="drill" id="drill">
+            <!-- Если есть картинка бура, вставь <img src="./img/drill.png"> -->
+            ⛏️
+        </div>
+    </div>
+
+    <!-- Левая панель меню (заглушка) -->
+    <div class="left-menu">
+        <button class="menu-btn">Y</button>
+        <button class="menu-btn">📝</button>
+        <button class="menu-btn">⚙️</button>
+    </div>
+
+    <!-- Интерфейс (снизу) -->
+    <div class="ui-overlay">
+        <button class="bonus-btn" id="bonusBtn">BONUS<br>BUY</button>
+
+        <div class="bottom-panel">
+            <div class="bottom-panel__item">
+                <span class="bottom-panel__label">CASH (RUB)</span>
+                <span class="bottom-panel__value" id="gameCash">0.00</span>
+            </div>
+            
+            <div class="bottom-panel__item">
+                <span class="bottom-panel__label">BET</span>
+                <span class="bottom-panel__value" id="gameBet">300.00</span>
+            </div>
+        </div>
+
+        <div class="right-controls">
+            <div class="bet-controls">
+                <button class="bet-btn" id="betMinus">−</button>
+                <button class="bet-btn" id="betPlus">+</button>
+            </div>
+            <button class="spin-btn" id="spinBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path>
+                    <path d="M21 3v5h-5"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+</main>
+
+<!-- Модалка Bonus Buy (пока скрыта) -->
+<div class="modal" id="bonusModal">
+    <div class="modal__content">
+        <button class="modal__close" id="closeModal">×</button>
+        <h2 class="modal__title">BUY BONUS</h2>
+        <p style="color: #aaa; text-align: center;">Здесь будут карточки с бурами.</p>
+    </div>
+</div>
+
+<script src="../../shared/auth-state.js"></script>
+<script src="../../js/balance.js"></script>
+<script src="../../js/ui.js"></script>
+<script src="../../shared/header.js"></script>
+<script src="./js/pickaxe.js"></script>
+
+</body>
+</html>
