@@ -47,30 +47,39 @@ function generateField() {
 
 // ===== Проверка коллизий =====
 function isSolid(px, py) {
-    if (px < 0 || px >= 600 || py < 0 || py >= 600) return true;
+    // Убрали проверку py < 0, чтобы бур мог лететь сверху вниз
+    if (px < 0 || px >= 600 || py >= 600) return true;
+    // Если мы над сеткой, там нет блоков
+    if (py < 0) return false;
+    
     const col = Math.floor(px / BLOCK_W);
     const row = Math.floor(py / BLOCK_H);
+    
+    if (!blocks[row] || !blocks[row][col]) return true;
+    
     const block = blocks[row][col];
-    return block && block.style.opacity !== '0';
+    return block.style.opacity !== '0';
 }
 
 // ===== Ломаем блок с эффектом "кратера" =====
 function breakBlocksAround(centerX, centerY) {
-    // Проверяем радиус вокруг бура
     for (let dx = -SIZE; dx <= SIZE; dx += BLOCK_W / 2) {
         for (let dy = -SIZE; dy <= SIZE; dy += BLOCK_H / 2) {
             const px = centerX + dx;
             const py = centerY + dy;
+            
+            // Ломаем только внутри сетки (не задевая стены)
             if (px > 60 && px < 540 && py > 0 && py < 600) {
                 const col = Math.floor(px / BLOCK_W);
                 const row = Math.floor(py / BLOCK_H);
-                const block = blocks[row][col];
                 
-                // Ломаем только если близко к центру
-                if (block && block.style.opacity !== '0') {
-                     block.style.opacity = '0';
-                     block.style.border = 'none';
-                     block.style.transform = 'scale(0.8)'; // Легкий эффект
+                if (blocks[row] && blocks[row][col]) {
+                    const block = blocks[row][col];
+                    if (block.style.opacity !== '0') {
+                         block.style.opacity = '0';
+                         block.style.border = 'none';
+                         block.style.transform = 'scale(0.8)'; 
+                    }
                 }
             }
         }
@@ -86,9 +95,8 @@ function loop() {
 
     // 2. Плавное движение по X
     let nextX = x + vx;
-    // Проверяем только центр для движения вбок, чтобы не застревать
     if (isSolid(nextX + SIZE/2, y + SIZE/2)) {
-        vx = -vx * 0.8; // Отскок
+        vx = -vx * 0.8; 
     } else {
         x = nextX;
     }
@@ -96,12 +104,11 @@ function loop() {
     // 3. Плавное движение по Y
     let nextY = y + vy;
     if (isSolid(x + SIZE/2, nextY + SIZE/2)) {
-        // Врезались в блок снизу
         breakBlocksAround(x + SIZE/2, nextY + SIZE/2);
         
         // Отскок вверх
-        vy = -Math.abs(vy) * 0.5; 
-        if (Math.abs(vy) < 2) vy = -6; // Если слабо — подкидываем
+        vy = -Math.abs(vy) * 0.6; 
+        if (Math.abs(vy) < 2) vy = -6; 
         
         // Слегка отлетаем в сторону
         vx += (Math.random() - 0.5) * 4;
@@ -112,7 +119,7 @@ function loop() {
     // 4. Вращение
     angle += ROTATION_SPEED;
 
-    // 5. Ограничение по низу
+    // 5. Ограничение по низу (если упал на дно)
     if (y >= 600 - SIZE) {
         stopGame();
         return;
@@ -133,9 +140,9 @@ function startGame() {
 
     // Ставим по центру (5-я колонка)
     x = 250; 
-    y = -60; 
+    y = -40; // Чуть ближе к сетке
     vx = 2; 
-    vy = 3; 
+    vy = 8;  // ДАЕМ СИЛЬНЫЙ ИМПУЛЬС ВНИЗ, чтобы пробить первый блок
     angle = 0;
 
     drill.style.opacity = '1';
