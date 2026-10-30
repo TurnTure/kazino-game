@@ -7,8 +7,9 @@ const ROWS = 10;
 const COLS = 10;
 
 // Координаты бура
-let drillRow = 5;
-let drillCol = 5;
+let drillRow = 0;
+let drillCol = 0;
+let isFalling = false; // Флаг, чтобы бур не падал дважды одновременно
 
 // ===== Генерация блоков =====
 function generateField() {
@@ -40,23 +41,81 @@ function updateDrillPosition() {
     drill.style.left = `${drillCol * blockSizePercent}%`;
 }
 
+// ===== Функция падения бура =====
+function startFall() {
+    if (isFalling) return; // Если уже падает — ничего не делаем
+    isFalling = true;
+
+    // Закрываем модалку, если она открыта
+    const bonusModal = document.getElementById('bonusModal');
+    if (bonusModal) bonusModal.classList.remove('is-open');
+
+    // Запускаем интервал: каждые 300мс бур опускается на 1 блок
+    const fallInterval = setInterval(() => {
+        // 1. Ломаем блок, в котором сейчас стоит бур
+        breakBlock(drillRow, drillCol);
+
+        // 2. Двигаем бур вниз
+        drillRow++;
+
+        // 3. Если бур дошел до низа
+        if (drillRow >= ROWS) {
+            clearInterval(fallInterval);
+            isFalling = false;
+            drillRow = 0; // Возвращаем бур наверх для следующей игры
+            
+            // Скрываем бур, пока не начнется новый раунд
+            drill.style.opacity = '0'; 
+            updateDrillPosition();
+            
+            // Можно вернуть его обратно через пару секунд (для теста)
+            setTimeout(() => {
+                drill.style.opacity = '1';
+                generateField(); // Перегенерируем поле
+            }, 2000);
+
+            return;
+        }
+
+        // 4. Обновляем позицию на экране
+        updateDrillPosition();
+
+    }, 300); // Скорость падения (300 миллисекунд на 1 блок)
+}
+
+// ===== Функция разрушения блока =====
+function breakBlock(row, col) {
+    // Находим блок по его координатам
+    const block = document.querySelector(`.block[data-row="${row}"][data-col="${col}"]`);
+    
+    if (block) {
+        // Добавляем класс, чтобы блок стал невидимым (плавно)
+        block.style.transition = 'opacity 0.2s';
+        block.style.opacity = '0';
+        
+        // Полностью удаляем блок из сетки через 200мс
+        setTimeout(() => {
+            block.style.display = 'none';
+        }, 200);
+    }
+}
+
 // ===== Модалка Бонусов =====
 const bonusBtn = document.getElementById('bonusBtn');
-const bonusModal = document.getElementById('bonusModal');
 const closeModal = document.getElementById('closeModal');
 const spinBtn = document.getElementById('spinBtn');
 
 // Открыть по кнопке Bonus Buy
 if (bonusBtn) {
     bonusBtn.addEventListener('click', () => {
-        bonusModal.classList.add('is-open');
+        if (!isFalling) bonusModal.classList.add('is-open');
     });
 }
 
-// Открыть по центральной кнопке "Крутить"
+// Открыть по центральной кнопке "Крутить" (у нас она теперь тоже запускает падение)
 if (spinBtn) {
     spinBtn.addEventListener('click', () => {
-        bonusModal.classList.add('is-open');
+        startFall();
     });
 }
 
@@ -75,6 +134,13 @@ if (bonusModal) {
         }
     });
 }
+
+// ===== Кнопки внутри модалки (Активировать) =====
+document.querySelectorAll('.bonus-card__activate').forEach(btn => {
+    btn.addEventListener('click', () => {
+        startFall();
+    });
+});
 
 // ===== Старт =====
 generateField();
