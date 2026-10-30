@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Falling Pickaxe — Слот-машина</title>
-    <!-- ИСПРАВЛЕНО: убрал одну ../ (было ../../../) -->
-    <link rel="stylesheet" href="../../shared/header.css">
+    <!-- Оставил твои пути -->
+    <link rel="stylesheet" href="../../../shared/header.css">
     <link rel="stylesheet" href="./styles/pickaxe.css">
 </head>
 <body class="game-body">
 
 <!-- Шапка -->
 <header class="header">
-    <a href="../../index.html" class="logo">
-        <img src="../../img/Знак.png" alt="">
+    <a href="../../../index.html" class="logo">
+        <img src="../../../img/Знак.png" alt="">
         <h1>Слот-машина</h1>
     </a>
     <nav class="header__nav">
@@ -23,7 +23,7 @@
     </nav>
     <div class="menu">
         <div class="rubli">
-            <img src="../../img/Лампочка.png" alt="">
+            <img src="../../../img/Лампочка.png" alt="">
             <span class="amount" id="balance">0</span>
             <span class="currency_name">шуховские рубли</span>
         </div>
@@ -32,8 +32,8 @@
 </header>
 
 <!-- Основной экран игры -->
-<!-- ИСПРАВЛЕНО: путь к фону теперь относительный от папки с игрой -->
-<main class="game-screen" style="background-image: url('./img/bg.png');">
+<!-- Твой путь к фону -->
+<main class="game-screen" style="background-image: url('../falling_pickaxe/img/bg.png');">
     
     <!-- Центральное поле с блоками -->
     <div class="game-field-wrapper">
@@ -153,11 +153,11 @@
     </div>
 </div>
 
-<!-- ИСПРАВЛЕНО: пути к скриптам -->
-<script src="../../shared/auth-state.js"></script>
-<script src="../../js/balance.js"></script>
-<script src="../../js/ui.js"></script>
-<script src="../../shared/header.js"></script>
+<!-- Оставил твои пути к скриптам -->
+<script src="../../../shared/auth-state.js"></script>
+<script src="../../../js/balance.js"></script>
+<script src="../../../js/ui.js"></script>
+<script src="../../../shared/header.js"></script>
 <script src="./js/pickaxe.js"></script>
 
 </body>
