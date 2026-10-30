@@ -4,30 +4,29 @@ const gameField = document.getElementById('gameField');
 const drill = document.getElementById('drill');
 const spinBtn = document.getElementById('spinBtn');
 
-const ROWS = 10;
+// Настройки
+const GRAVITY = 0.3;       // Скорость падения
+const BOUNCE = -0.6;       // Сила отскока (отрицательная, т.к. летим вверх)
+const SPEED = 5;           // Скорость движения вбок
+const SIZE = 40;           // Размер бура
+
+// Размеры сетки (жестко 600х600)
+const BLOCK_W = 60;
+const BLOCK_H = 60;
 const COLS = 10;
+const ROWS = 10;
 
-// Физические параметры
-const GRAVITY = 0.4;       
-const BOUNCE = 0.6;        
-const ROTATION_SPEED = 8;  
-
-let blocks = []; 
+// Переменные
 let isPlaying = false;
-let animationId = null;
+let reqId = null;
+let blocks = [];
 
-let drillX = 0;
-let drillY = 0;
-let velX = 0;
-let velY = 0;
-let drillAngle = 0;
-
-// Размеры (в пикселях)
-let fieldWidth = 600; // Ставим жестко 600, так как сетка у нас 600х600
-let fieldHeight = 600;
-let blockWidth = 60;
-let blockHeight = 60;
-const drillSize = 40;
+// Физика бура
+let x = 0;
+let y = 0;
+let vx = 0;
+let vy = 0;
+let angle = 0;
 
 // ===== Генерация поля =====
 function generateField() {
@@ -43,11 +42,8 @@ function generateField() {
             if (c === 0 || c === COLS - 1) {
                 block.classList.add('indestructible');
             } else {
-                if (Math.random() > 0.7) {
-                    block.classList.add('dirt');
-                } else {
-                    block.classList.add('stone');
-                }
+                if (Math.random() > 0.7) block.classList.add('dirt');
+                else block.classList.add('stone');
             }
 
             gameField.appendChild(block);
@@ -57,23 +53,24 @@ function generateField() {
     }
 }
 
-// ===== Проверка на столкновение =====
-function checkCollision(x, y) {
-    const col = Math.floor(x / blockWidth);
-    const row = Math.floor(y / blockHeight);
-
-    if (col < 0 || col >= COLS || row < 0 || row >= ROWS) return true; 
-
+// ===== Проверка: есть ли блок в координатах (x, y) =====
+function isSolid(px, py) {
+    // Если вылетели за границы сетки — это стена
+    if (px < 0 || px >= 600 || py < 0 || py >= 600) return true;
+    
+    const col = Math.floor(px / BLOCK_W);
+    const row = Math.floor(py / BLOCK_H);
+    
     const block = blocks[row][col];
     return block && block.style.opacity !== '0';
 }
 
 // ===== Ломаем блок =====
-function breakBlock(x, y) {
-    const col = Math.floor(x / blockWidth);
-    const row = Math.floor(y / blockHeight);
-
-    if (col <= 0 || col >= COLS - 1) return; 
+function breakBlock(px, py) {
+    if (px < 60 || px >= 540) return; // Боковые стены не ломаем
+    
+    const col = Math.floor(px / BLOCK_W);
+    const row = Math.floor(py / BLOCK_H);
     
     const block = blocks[row][col];
     if (block && block.style.opacity !== '0') {
@@ -83,76 +80,79 @@ function breakBlock(x, y) {
 }
 
 // ===== Игровой цикл =====
-function gameLoop() {
+function loop() {
     if (!isPlaying) return;
 
-    velY += GRAVITY;
+    // Гравитация
+    vy += GRAVITY;
 
-    let nextX = drillX + velX;
-    if (checkCollision(nextX + drillSize/2, drillY + drillSize/2)) {
-        breakBlock(nextX + drillSize/2, drillY + drillSize/2); 
-        velX *= -BOUNCE; 
+    // 1. Проверяем движение по X (влево/вправо)
+    let nextX = x + vx;
+    // Проверяем центр бура
+    if (isSolid(nextX + SIZE/2, y + SIZE/2)) {
+        // Если врезались — ломаем и отскакиваем
+        breakBlock(nextX + SIZE/2, y + SIZE/2);
+        vx = -vx * BOUNCE;
     } else {
-        drillX = nextX;
+        x = nextX;
     }
 
-    let nextY = drillY + velY;
-    if (checkCollision(drillX + drillSize/2, nextY + drillSize/2)) {
-        breakBlock(drillX + drillSize/2, nextY + drillSize/2);
-        
-        if (velY > 0) {
-            velY = -velY * BOUNCE;
-            if (Math.abs(velY) < 3) velY = -6; 
-            velX = (Math.random() - 0.5) * 10; 
-        }
+    // 2. Проверяем движение по Y (вниз/вверх)
+    let nextY = y + vy;
+    if (isSolid(x + SIZE/2, nextY + SIZE/2)) {
+        // Если врезались — ломаем
+        breakBlock(x + SIZE/2, nextY + SIZE/2);
+        // Отскок вверх
+        vy = vy * BOUNCE;
+        if (Math.abs(vy) < 2) vy = -8; // Если слишком слабо отскочил — подкидываем
     } else {
-        drillY = nextY;
+        y = nextY;
     }
 
-    drillAngle += ROTATION_SPEED;
+    // Вращение
+    angle += SPEED;
 
     // Если бур упал на дно
-    if (drillY >= fieldHeight - drillSize) {
-        endGame();
+    if (y >= 600 - SIZE) {
+        stopGame();
         return;
     }
 
-    drill.style.transform = `translate(${drillX}px, ${drillY}px) rotate(${drillAngle}deg)`;
-    animationId = requestAnimationFrame(gameLoop);
+    // Применяем координаты
+    drill.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
+    
+    reqId = requestAnimationFrame(loop);
 }
 
-// ===== Старт игры =====
+// ===== Старт =====
 function startGame() {
     if (isPlaying) return;
     
-    // Закрываем модалку
-    const bonusModal = document.getElementById('bonusModal');
-    if (bonusModal) bonusModal.classList.remove('is-open');
+    const modal = document.getElementById('bonusModal');
+    if (modal) modal.classList.remove('is-open');
 
-    // Ставим бур в центр (используем жесткие размеры 600x600)
-    drillX = (600 / 2) - (drillSize / 2);
-    drillY = -60; 
-    
-    velX = (Math.random() - 0.5) * 4; 
-    velY = 2; 
-    drillAngle = 0;
-    
+    // Ставим бур ровно в центр по X, чуть выше сетки по Y
+    x = 300 - (SIZE / 2); 
+    y = -60; 
+    vx = (Math.random() - 0.5) * 4; 
+    vy = 5; // Начальная скорость падения
+    angle = 0;
+
     drill.style.opacity = '1';
     isPlaying = true;
     
-    // Запускаем цикл
-    animationId = requestAnimationFrame(gameLoop);
+    reqId = requestAnimationFrame(loop);
 
-    // Останавливаем через 15 секунд
+    // Останавливаем через 15 секунд, чтобы не залипал
     setTimeout(() => {
-        if (isPlaying) endGame();
+        if (isPlaying) stopGame();
     }, 15000);
 }
 
-// ===== Конец игры =====
-function endGame() {
+// ===== Стоп =====
+function stopGame() {
     isPlaying = false;
-    cancelAnimationFrame(animationId);
+    cancelAnimationFrame(reqId);
     drill.style.opacity = '0';
 
     setTimeout(() => {
@@ -160,15 +160,10 @@ function endGame() {
     }, 1500);
 }
 
-// ===== Привязка кнопок =====
-if (spinBtn) {
-    spinBtn.addEventListener('click', startGame);
-}
-
-document.querySelectorAll('.bonus-card__activate').forEach(btn => {
-    btn.addEventListener('click', startGame);
-});
+// ===== Кнопки =====
+if (spinBtn) spinBtn.addEventListener('click', startGame);
+document.querySelectorAll('.bonus-card__activate').forEach(btn => btn.addEventListener('click', startGame));
 
 // ===== Старт =====
 generateField();
-drill.style.opacity = '0'; 
+drill.style.opacity = '0';
