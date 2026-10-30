@@ -6,12 +6,10 @@ body.game-body {
     background: #111; /* Темный фон для контраста */
 }
 
-/* Основной экран игры */
 .game-screen {
     position: relative;
     width: 100vw;
     height: 100vh;
-    /* Сюда встанет картинка шахты */
     background-image: url("../img/bg.png"); 
     background-size: cover;
     background-position: center;
@@ -19,7 +17,7 @@ body.game-body {
     justify-content: center;
     align-items: center;
     
-    /* ДОБАВЛЕНО: Это не даст буру улететь за пределы всего экрана */
+    /* Обрезаем на уровне экрана, чтобы бур не улетал за страницу */
     overflow: hidden; 
 }
 

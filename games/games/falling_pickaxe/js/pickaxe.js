@@ -1,4 +1,4 @@
-// ===== FALLING PICKAXE (Пиксельная физика) =====
+// ===== FALLING PICKAXE =====
 
 const gameField = document.getElementById('gameField');
 const drill = document.getElementById('drill');
@@ -12,34 +12,22 @@ const GRAVITY = 0.4;
 const BOUNCE = 0.6;        
 const ROTATION_SPEED = 8;  
 
-// Состояние игры
 let blocks = []; 
 let isPlaying = false;
 let animationId = null;
 
-// Позиция и скорость бура
 let drillX = 0;
 let drillY = 0;
 let velX = 0;
 let velY = 0;
-let drillAngle = 0; 
+let drillAngle = 0;
 
-// Размеры поля
-let fieldWidth = 0;
-let fieldHeight = 0;
-let blockWidth = 0;
-let blockHeight = 0;
-const drillSize = 40; 
-
-// ===== Инициализация размеров =====
-function updateSizes() {
-    const rect = gameField.getBoundingClientRect();
-    fieldWidth = rect.width;
-    fieldHeight = rect.height;
-    blockWidth = fieldWidth / COLS;
-    blockHeight = fieldHeight / ROWS;
-}
-window.addEventListener('resize', updateSizes);
+// Размеры (в пикселях)
+let fieldWidth = 600; // Ставим жестко 600, так как сетка у нас 600х600
+let fieldHeight = 600;
+let blockWidth = 60;
+let blockHeight = 60;
+const drillSize = 40;
 
 // ===== Генерация поля =====
 function generateField() {
@@ -52,7 +40,6 @@ function generateField() {
             const block = document.createElement('div');
             block.className = 'block';
 
-            // Боковые стены неразрушаемые
             if (c === 0 || c === COLS - 1) {
                 block.classList.add('indestructible');
             } else {
@@ -68,10 +55,9 @@ function generateField() {
         }
         blocks.push(rowBlocks);
     }
-    updateSizes();
 }
 
-// ===== Проверка на столкновение (по центру бура) =====
+// ===== Проверка на столкновение =====
 function checkCollision(x, y) {
     const col = Math.floor(x / blockWidth);
     const row = Math.floor(y / blockHeight);
@@ -87,7 +73,7 @@ function breakBlock(x, y) {
     const col = Math.floor(x / blockWidth);
     const row = Math.floor(y / blockHeight);
 
-    if (col <= 0 || col >= COLS - 1) return; // Стены не ломаем
+    if (col <= 0 || col >= COLS - 1) return; 
     
     const block = blocks[row][col];
     if (block && block.style.opacity !== '0') {
@@ -100,54 +86,38 @@ function breakBlock(x, y) {
 function gameLoop() {
     if (!isPlaying) return;
 
-    // 1. Притяжение
     velY += GRAVITY;
 
-    // 2. Движение по X
     let nextX = drillX + velX;
-    // Проверяем центр и края бура (учитывая его размер)
     if (checkCollision(nextX + drillSize/2, drillY + drillSize/2)) {
         breakBlock(nextX + drillSize/2, drillY + drillSize/2); 
         velX *= -BOUNCE; 
-        // Небольшой случайный импульс, чтобы не застревал
-        velX += (Math.random() - 0.5) * 2;
     } else {
         drillX = nextX;
     }
 
-    // 3. Движение по Y
     let nextY = drillY + velY;
     if (checkCollision(drillX + drillSize/2, nextY + drillSize/2)) {
         breakBlock(drillX + drillSize/2, nextY + drillSize/2);
         
-        if (velY > 0) { // Если падаем вниз
+        if (velY > 0) {
             velY = -velY * BOUNCE;
-            if (Math.abs(velY) < 3) velY = -6; // Гарантированный отскок
-            velX = (Math.random() - 0.5) * 10; // Отлетаем в сторону
+            if (Math.abs(velY) < 3) velY = -6; 
+            velX = (Math.random() - 0.5) * 10; 
         }
     } else {
         drillY = nextY;
     }
 
-    // 4. Вращение
     drillAngle += ROTATION_SPEED;
 
-    // 5. Ограничение, чтобы бур не улетал за верх экрана
-    if (drillY < -100) {
-        drillY = -100;
-        if (velY < 0) velY = 0;
-    }
-
-    // 6. Условие окончания игры (если бур упал на дно)
-    if (drillY >= fieldHeight - drillSize - 10) {
+    // Если бур упал на дно
+    if (drillY >= fieldHeight - drillSize) {
         endGame();
         return;
     }
 
-    // 7. Отрисовка
     drill.style.transform = `translate(${drillX}px, ${drillY}px) rotate(${drillAngle}deg)`;
-    
-    // 8. Следующий кадр
     animationId = requestAnimationFrame(gameLoop);
 }
 
@@ -155,25 +125,25 @@ function gameLoop() {
 function startGame() {
     if (isPlaying) return;
     
+    // Закрываем модалку
     const bonusModal = document.getElementById('bonusModal');
     if (bonusModal) bonusModal.classList.remove('is-open');
 
-    // Получаем размеры прямо перед стартом
-    updateSizes();
-
-    // Ставим бур в центр, строго НАД сеткой
-    drillX = fieldWidth / 2 - drillSize / 2;
-    drillY = -50; // Чуть выше 0, чтобы красиво залетел
-    velX = (Math.random() - 0.5) * 6; 
+    // Ставим бур в центр (используем жесткие размеры 600x600)
+    drillX = (600 / 2) - (drillSize / 2);
+    drillY = -60; 
+    
+    velX = (Math.random() - 0.5) * 4; 
     velY = 2; 
     drillAngle = 0;
     
     drill.style.opacity = '1';
     isPlaying = true;
     
+    // Запускаем цикл
     animationId = requestAnimationFrame(gameLoop);
 
-    // Ограничение по времени
+    // Останавливаем через 15 секунд
     setTimeout(() => {
         if (isPlaying) endGame();
     }, 15000);
