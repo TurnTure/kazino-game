@@ -3,11 +3,10 @@
 const gameField = document.getElementById('gameField');
 const drill = document.getElementById('drill');
 
-// Размер сетки
 const ROWS = 10;
 const COLS = 10;
 
-// Координаты бура (начинаем с 5-й строки, 5-го столбца — центр)
+// Координаты бура
 let drillRow = 5;
 let drillCol = 5;
 
@@ -20,40 +19,23 @@ function generateField() {
             const block = document.createElement('div');
             block.className = 'block';
 
-            // Делаем случайный блок (земля или камень)
+            // Случайно выбираем землю или камень
             if (Math.random() > 0.7) {
                 block.classList.add('dirt');
             } else {
                 block.classList.add('stone');
             }
 
-            // Сохраняем координаты блока
             block.dataset.row = r;
             block.dataset.col = c;
-
             gameField.appendChild(block);
         }
     }
 }
 
-// ===== Движение бура =====
-function moveDrillDown() {
-    // Проверка, чтобы бур не вышел за нижнюю границу (последняя строка — 9)
-    if (drillRow >= ROWS - 1) {
-        console.log('Бур упал на дно!');
-        return; // Останавливаем движение
-    }
-
-    drillRow++; // Увеличиваем строку (двигаемся вниз)
-    updateDrillPosition(); // Обновляем визуальную позицию
-}
-
-// ===== Обновление позиции бура на экране =====
+// ===== Обновление позиции бура =====
 function updateDrillPosition() {
-    // 100% ширины / 10 колонок = 10% на один блок
     const blockSizePercent = 100 / COLS;
-    
-    // Устанавливаем позицию в процентах
     drill.style.top = `${drillRow * blockSizePercent}%`;
     drill.style.left = `${drillCol * blockSizePercent}%`;
 }
@@ -62,24 +44,38 @@ function updateDrillPosition() {
 const bonusBtn = document.getElementById('bonusBtn');
 const bonusModal = document.getElementById('bonusModal');
 const closeModal = document.getElementById('closeModal');
-
-bonusBtn.addEventListener('click', () => {
-    bonusModal.classList.add('is-open');
-});
-
-closeModal.addEventListener('click', () => {
-    bonusModal.classList.remove('is-open');
-});
-
-// ===== Кнопка "Крутить" =====
 const spinBtn = document.getElementById('spinBtn');
-const bonusModal = document.getElementById('bonusModal');
 
-spinBtn.addEventListener('click', () => {
-    // Открываем меню покупки бонуса
-    bonusModal.classList.add('is-open');
-});
+// Открыть по кнопке Bonus Buy
+if (bonusBtn) {
+    bonusBtn.addEventListener('click', () => {
+        bonusModal.classList.add('is-open');
+    });
+}
+
+// Открыть по центральной кнопке "Крутить"
+if (spinBtn) {
+    spinBtn.addEventListener('click', () => {
+        bonusModal.classList.add('is-open');
+    });
+}
+
+// Закрыть по крестику
+if (closeModal) {
+    closeModal.addEventListener('click', () => {
+        bonusModal.classList.remove('is-open');
+    });
+}
+
+// Закрыть по клику на фон
+if (bonusModal) {
+    bonusModal.addEventListener('click', (e) => {
+        if (e.target === bonusModal) {
+            bonusModal.classList.remove('is-open');
+        }
+    });
+}
 
 // ===== Старт =====
 generateField();
-updateDrillPosition(); // Ставим бур на стартовую позицию
+updateDrillPosition();
