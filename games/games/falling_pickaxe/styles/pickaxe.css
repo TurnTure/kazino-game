@@ -64,15 +64,19 @@ body.game-body {
     position: absolute;
     top: 0;
     left: 0;
-    font-size: 40px;
-    z-index: 10;
+    /* Ставим жесткие размеры, чтобы математика сходилась */
     width: 40px;
     height: 40px;
+    font-size: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 999; /* Поднимаем его на самый верх */
     filter: drop-shadow(0 5px 5px rgba(0,0,0,0.8));
-    will-change: transform; /* Говорим браузеру, что мы будем часто двигать этот элемент (для плавности) */
+    
+    /* Важно: убираем любые transition, чтобы анимация шла через JS */
+    transition: none !important; 
+    will-change: transform;
 }
 
 /* Левое меню */
