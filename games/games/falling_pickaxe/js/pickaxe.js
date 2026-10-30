@@ -1,4 +1,4 @@
-// ===== FALLING PICKAXE (Физика) =====
+// ===== FALLING PICKAXE (Простая физика по клеткам) =====
 
 const gameField = document.getElementById('gameField');
 const drill = document.getElementById('drill');
@@ -7,29 +7,29 @@ const spinBtn = document.getElementById('spinBtn');
 const ROWS = 10;
 const COLS = 10;
 
-// Физические параметры
-const GRAVITY = 0.5;        // Сила притяжения
-const BOUNCE_FORCE = -8;    // Сила отскока (отрицательная, т.к. летим вверх)
-const MOVE_SPEED = 4;       // Скорость движения по горизонтали
-
-// Состояние игры
-let blocks = []; // Массив со ссылками на DOM-элементы блоков
-let isPlaying = false;
-
-// Позиция и скорость бура
-let drillX = 0;
-let drillY = 0;
-let velX = 0;
-let velY = 0;
-
-// Размеры (в процентах)
+// Размеры (в процентах, для отрисовки)
 const blockW = 100 / COLS;
 const blockH = 100 / ROWS;
+
+// Состояние игры
+let blocks = []; 
+let isPlaying = false;
+
+// Позиция бура (в клетках)
+let drillRow = 0;
+let drillCol = 1;
+
+// Направление (1 = вправо, -1 = влево)
+let direction = 1; 
+
+// Таймер игры
+let gameTimer = null;
+let fallTimer = null;
 
 // ===== Генерация поля =====
 function generateField() {
     gameField.innerHTML = '';
-    blocks = []; // Очищаем массив
+    blocks = [];
 
     for (let r = 0; r < ROWS; r++) {
         const rowBlocks = [];
@@ -37,11 +37,11 @@ function generateField() {
             const block = document.createElement('div');
             block.className = 'block';
 
-            // Делаем боковые стенки неразрушаемыми
+            // Боковые стены неразрушаемые
             if (c === 0 || c === COLS - 1) {
                 block.classList.add('indestructible');
             } else {
-                // Рандомно заполняем центр
+                // Внутри — земля и камень
                 if (Math.random() > 0.7) {
                     block.classList.add('dirt');
                 } else {
@@ -56,115 +56,113 @@ function generateField() {
     }
 }
 
-// ===== Проверка, есть ли блок в координатах =====
-// col, row - индексы сетки
-function isSolid(col, row) {
-    if (col < 0 || col >= COLS || row < 0 || row >= ROWS) return true; // За пределами — стена
-    const block = blocks[row][col];
-    return block && block.style.opacity !== '0'; // Блок существует и не сломан
+// ===== Отрисовка бура =====
+function updateDrillVisual() {
+    drill.style.top = `${drillRow * blockH}%`;
+    drill.style.left = `${drillCol * blockW}%`;
 }
 
-// ===== Разрушение блока =====
-function breakBlock(col, row) {
-    if (col <= 0 || col >= COLS - 1) return; // Боковые не ломаем
+// ===== Ломаем блок =====
+function breakBlock(row, col) {
+    if (col <= 0 || col >= COLS - 1) return; // Стены не ломаем
     
     const block = blocks[row][col];
     if (block && block.style.opacity !== '0') {
         block.style.opacity = '0';
         block.style.border = 'none';
-        
-        // Эффект: бур отскакивает вверх от сломанного блока
-        velY = BOUNCE_FORCE; 
-        
-        // Немного отлетает в сторону
-        velX = (Math.random() > 0.5 ? 1 : -1) * MOVE_SPEED;
     }
 }
 
-// ===== Игровой цикл =====
-function gameLoop() {
+// ===== Шаг падения (вызывается по таймеру) =====
+function stepFall() {
     if (!isPlaying) return;
 
-    // 1. Применяем гравитацию
-    velY += GRAVITY;
+    // 1. Проверяем, есть ли блок прямо под нами
+    let nextRow = drillRow + 1;
+    
+    if (nextRow >= ROWS) {
+        // Достигли дна
+        endGame();
+        return;
+    }
 
-    // 2. Двигаем бур
-    drillX += velX;
-    drillY += velY;
-
-    // 3. Проверяем столкновение с полом
-    // Если бур опустился ниже 10-й строки
-    if (drillY > ROWS - 1) {
-        drillY = ROWS - 1;
-        velY = BOUNCE_FORCE; // Отскок от пола
-        
+    // 2. Если под нами есть блок (не сломан), мы его ломаем и отскакиваем
+    // (В нашей сетке все блоки изначально есть, кроме сломанных)
+    if (blocks[nextRow][drillCol] && blocks[nextRow][drillCol].style.opacity !== '0') {
         // Ломаем блок под нами
-        const col = Math.round(drillX);
-        breakBlock(col, ROWS - 1);
+        breakBlock(nextRow, drillCol);
+
+        // Бур "отскакивает" — сначала летит вбок
+        // Двигаем вбок на 1 клетку в текущем направлении
+        let nextCol = drillCol + direction;
+
+        // Проверяем, не врезались ли мы в стену или боковой блок
+        if (nextCol <= 0 || nextCol >= COLS - 1 || (blocks[drillRow][nextCol] && blocks[drillRow][nextCol].style.opacity !== '0')) {
+            // Если врезались — меняем направление
+            direction *= -1;
+            nextCol = drillCol + direction;
+        }
+
+        // Если и в другую сторону нельзя (зажаты), просто стоим на месте
+        if (nextCol > 0 && nextCol < COLS - 1) {
+            drillCol = nextCol;
+        }
+        
+        // Сдвигаем бур вниз (он падает в образовавшуюся дырку)
+        drillRow = nextRow;
+
+    } else {
+        // Под нами пусто — просто падаем вниз
+        drillRow = nextRow;
     }
 
-    // 4. Проверяем столкновение со стенами (левая и правая колонки)
-    if (drillX < 1) {
-        drillX = 1;
-        velX *= -1; // Отскок от стены
-    }
-    if (drillX > COLS - 2) {
-        drillX = COLS - 2;
-        velX *= -1;
-    }
-
-    // 5. Проверяем столкновение с блоками по бокам
-    // Если движемся вправо и справа блок
-    if (velX > 0 && isSolid(Math.ceil(drillX) + 1, Math.round(drillY))) {
-        velX *= -1; // Отскок
-        drillX = Math.ceil(drillX) - 0.1;
-    }
-    // Если движемся влево и слева блок
-    if (velX < 0 && isSolid(Math.floor(drillX) - 1, Math.round(drillY))) {
-        velX *= -1;
-        drillX = Math.floor(drillX) + 0.1;
-    }
-
-    // 6. Обновляем визуал на экране
-    drill.style.top = `${drillY * blockH}%`;
-    drill.style.left = `${drillX * blockW}%`;
-
-    // 7. Продолжаем цикл
-    requestAnimationFrame(gameLoop);
+    // Обновляем картинку
+    updateDrillVisual();
 }
 
-// ===== Запуск игры =====
+// ===== Конец игры =====
+function endGame() {
+    isPlaying = false;
+    clearInterval(fallTimer);
+    clearInterval(gameTimer);
+    
+    // Скрываем бур
+    drill.style.opacity = '0';
+
+    // Перезапускаем игру через 2 секунды
+    setTimeout(() => {
+        generateField();
+        drillRow = 0;
+        drillCol = 1;
+        direction = 1;
+        updateDrillVisual();
+    }, 2000);
+}
+
+// ===== Старт игры =====
 function startGame() {
     if (isPlaying) return;
-    isPlaying = true;
-
-    // Закрываем модалку, если открыта
+    
+    // Закрываем модалку
     const bonusModal = document.getElementById('bonusModal');
     if (bonusModal) bonusModal.classList.remove('is-open');
 
-    // Стартуем с левого верхнего угла
-    drillX = 1;
-    drillY = 0;
-    velX = MOVE_SPEED; // Начинаем двигаться вправо
-    velY = 2;
-
-    drill.style.opacity = '1';
+    // Сбрасываем позицию
+    drillRow = 0;
+    drillCol = 1;
+    direction = 1;
+    isPlaying = true;
     
-    // Запускаем игровой цикл
-    requestAnimationFrame(gameLoop);
+    drill.style.opacity = '1';
+    updateDrillVisual();
 
-    // Останавливаем игру через 10 секунд (для теста)
-    setTimeout(() => {
-        isPlaying = false;
-        drill.style.opacity = '0';
-        setTimeout(() => {
-            generateField();
-            drillX = 1;
-            drillY = 0;
-            drill.style.top = `${drillY * blockH}%`;
-            drill.style.left = `${drillX * blockW}%`;
-        }, 1000);
-    }, 8000);
+    // Запускаем цикл падения (каждые 400мс бур делает шаг)
+    fallTimer = setInterval(stepFall, 400);
+
+    // Максимальное время игры — 15 секунд (чтобы не залипал навсегда)
+    gameTimer = setTimeout(() => {
+        if (isPlaying) endGame();
+    }, 15000);
 }
 
 // ===== Привязка кнопок =====
@@ -178,4 +176,5 @@ document.querySelectorAll('.bonus-card__activate').forEach(btn => {
 
 // ===== Старт =====
 generateField();
-drill.style.opacity = '0'; // Изначально бур скрыт
+drill.style.opacity = '0'; // Прячем бур до начала игры
+updateDrillVisual();
