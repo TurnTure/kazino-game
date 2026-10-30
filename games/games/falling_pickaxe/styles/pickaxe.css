@@ -18,6 +18,9 @@ body.game-body {
     display: flex;
     justify-content: center;
     align-items: center;
+    
+    /* ДОБАВЛЕНО: Это не даст буру улететь за пределы всего экрана */
+    overflow: hidden; 
 }
 
 /* Контейнер для блоков */
@@ -29,7 +32,7 @@ body.game-body {
     border: 4px solid #000;
     box-shadow: 0 0 60px rgba(0,0,0,0.9), inset 0 0 20px #000;
     margin-top: 60px; /* Чтобы не перекрывалось шапкой */
-    overflow: hidden;
+    /* УБРАНО: overflow: hidden; Теперь бур может появляться над сеткой */
 }
 
 /* Сетка */
@@ -70,7 +73,6 @@ body.game-body {
     display: flex;
     align-items: center;
     justify-content: center;
-    /* Убираем transition, так как теперь у нас покадровая анимация (requestAnimationFrame) */
     filter: drop-shadow(0 5px 5px rgba(0,0,0,0.8));
     will-change: transform; /* Говорим браузеру, что мы будем часто двигать этот элемент (для плавности) */
 }
