@@ -5,12 +5,12 @@ const drill = document.getElementById('drill');
 const spinBtn = document.getElementById('spinBtn');
 
 // Настройки
-const GRAVITY = 0.3;       // Скорость падения
-const BOUNCE = -0.6;       // Сила отскока (отрицательная, т.к. летим вверх)
-const SPEED = 5;           // Скорость движения вбок
-const SIZE = 40;           // Размер бура
+const GRAVITY = 0.4;       
+const BOUNCE = -0.6;       
+const SPEED = 8;           
+const SIZE = 40;           
 
-// Размеры сетки (жестко 600х600)
+// Размеры сетки
 const BLOCK_W = 60;
 const BLOCK_H = 60;
 const COLS = 10;
@@ -39,6 +39,7 @@ function generateField() {
             const block = document.createElement('div');
             block.className = 'block';
 
+            // Стены по краям
             if (c === 0 || c === COLS - 1) {
                 block.classList.add('indestructible');
             } else {
@@ -53,9 +54,8 @@ function generateField() {
     }
 }
 
-// ===== Проверка: есть ли блок в координатах (x, y) =====
+// ===== Проверка коллизий (учитываем углы бура) =====
 function isSolid(px, py) {
-    // Если вылетели за границы сетки — это стена
     if (px < 0 || px >= 600 || py < 0 || py >= 600) return true;
     
     const col = Math.floor(px / BLOCK_W);
@@ -65,12 +65,21 @@ function isSolid(px, py) {
     return block && block.style.opacity !== '0';
 }
 
+// ===== Проверка, врезались ли мы во что-то =====
+function checkHit(px, py) {
+    // Проверяем 4 угла бура
+    return isSolid(px, py) || 
+           isSolid(px + SIZE, py) || 
+           isSolid(px, py + SIZE) || 
+           isSolid(px + SIZE, py + SIZE);
+}
+
 // ===== Ломаем блок =====
 function breakBlock(px, py) {
-    if (px < 60 || px >= 540) return; // Боковые стены не ломаем
-    
     const col = Math.floor(px / BLOCK_W);
     const row = Math.floor(py / BLOCK_H);
+    
+    if (col <= 0 || col >= COLS - 1) return; // Стены не трогаем
     
     const block = blocks[row][col];
     if (block && block.style.opacity !== '0') {
@@ -86,25 +95,27 @@ function loop() {
     // Гравитация
     vy += GRAVITY;
 
-    // 1. Проверяем движение по X (влево/вправо)
+    // 1. Движение по X
     let nextX = x + vx;
-    // Проверяем центр бура
-    if (isSolid(nextX + SIZE/2, y + SIZE/2)) {
-        // Если врезались — ломаем и отскакиваем
+    if (checkHit(nextX, y)) {
         breakBlock(nextX + SIZE/2, y + SIZE/2);
-        vx = -vx * BOUNCE;
+        vx = -vx * 0.8; // Меняем направление
     } else {
         x = nextX;
     }
 
-    // 2. Проверяем движение по Y (вниз/вверх)
+    // 2. Движение по Y
     let nextY = y + vy;
-    if (isSolid(x + SIZE/2, nextY + SIZE/2)) {
-        // Если врезались — ломаем
+    if (checkHit(x, nextY)) {
         breakBlock(x + SIZE/2, nextY + SIZE/2);
-        // Отскок вверх
-        vy = vy * BOUNCE;
-        if (Math.abs(vy) < 2) vy = -8; // Если слишком слабо отскочил — подкидываем
+        
+        // Если летели вниз — отскакиваем вверх
+        if (vy > 0) {
+            vy = -Math.abs(vy) * 0.7; 
+            if (Math.abs(vy) < 3) vy = -8; // Гарантированный подскок
+        } else {
+            vy = 0; // Если бились головой об потолок — просто гасим скорость
+        }
     } else {
         y = nextY;
     }
@@ -131,11 +142,13 @@ function startGame() {
     const modal = document.getElementById('bonusModal');
     if (modal) modal.classList.remove('is-open');
 
-    // Ставим бур ровно в центр по X, чуть выше сетки по Y
-    x = 300 - (SIZE / 2); 
-    y = -60; 
-    vx = (Math.random() - 0.5) * 4; 
-    vy = 5; // Начальная скорость падения
+    // Ставим бур ровно по центру 5-й колонки
+    // 5-я колонка начинается с 4 * 60 = 240px. Центр блока = 240 + 30 = 270px.
+    // Чтобы бур (40px) был по центру, его X = 270 - 20 = 250px.
+    x = 250; 
+    y = -60; // Чуть выше сетки
+    vx = 3; // Даем начальный импульс вправо
+    vy = 2; 
     angle = 0;
 
     drill.style.opacity = '1';
@@ -143,7 +156,7 @@ function startGame() {
     
     reqId = requestAnimationFrame(loop);
 
-    // Останавливаем через 15 секунд, чтобы не залипал
+    // Останавливаем через 15 секунд
     setTimeout(() => {
         if (isPlaying) stopGame();
     }, 15000);
