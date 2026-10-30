@@ -58,21 +58,22 @@ function startFall() {
         // 2. Двигаем бур вниз
         drillRow++;
 
-        // 3. Если бур дошел до низа
+        // 3. Если бур дошел до низа (10-я строка, считая с 0)
         if (drillRow >= ROWS) {
             clearInterval(fallInterval);
             isFalling = false;
-            drillRow = 0; // Возвращаем бур наверх для следующей игры
             
-            // Скрываем бур, пока не начнется новый раунд
+            // Скрываем бур на секунду
             drill.style.opacity = '0'; 
-            updateDrillPosition();
             
-            // Можно вернуть его обратно через пару секунд (для теста)
+            // Возвращаем бур наверх и генерируем НОВОЕ поле ТОЛЬКО когда он упал
             setTimeout(() => {
+                drillRow = 0;
+                drillCol = 0;
+                updateDrillPosition();
                 drill.style.opacity = '1';
-                generateField(); // Перегенерируем поле
-            }, 2000);
+                generateField(); // Пересоздаем поле для новой игры
+            }, 1500);
 
             return;
         }
@@ -89,11 +90,12 @@ function breakBlock(row, col) {
     const block = document.querySelector(`.block[data-row="${row}"][data-col="${col}"]`);
     
     if (block) {
-        // Добавляем класс, чтобы блок стал невидимым (плавно)
-        block.style.transition = 'opacity 0.2s';
+        // Плавно скрываем блок
+        block.style.transition = 'opacity 0.2s, transform 0.2s';
         block.style.opacity = '0';
+        block.style.transform = 'scale(0.5)'; // Немного уменьшаем
         
-        // Полностью удаляем блок из сетки через 200мс
+        // Полностью убираем блок через 200мс
         setTimeout(() => {
             block.style.display = 'none';
         }, 200);
