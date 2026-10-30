@@ -5,8 +5,7 @@ const drill = document.getElementById('drill');
 const spinBtn = document.getElementById('spinBtn');
 
 // Физические параметры
-const GRAVITY = 0.4;       
-const BOUNCE = -0.5;       
+const GRAVITY = 0.6;        // Чуть увеличил гравитацию, чтобы падала быстрее
 const ROTATION_SPEED = 10; 
 const SIZE = 40;           
 
@@ -61,8 +60,8 @@ function isSolid(px, py) {
 
 // ===== Ломаем блок с эффектом "кратера" =====
 function breakBlocksAround(centerX, centerY) {
-    for (let dx = -SIZE; dx <= SIZE; dx += BLOCK_W / 2) {
-        for (let dy = -SIZE; dy <= SIZE; dy += BLOCK_H / 2) {
+    for (let dx = -SIZE/2; dx <= SIZE/2; dx += BLOCK_W / 2) {
+        for (let dy = -SIZE/2; dy <= SIZE/2; dy += BLOCK_H / 2) {
             const px = centerX + dx;
             const py = centerY + dy;
             
@@ -90,10 +89,10 @@ function loop() {
     // 1. Гравитация
     vy += GRAVITY;
 
-    // 2. Движение по X
+    // 2. Движение по X (с отскоком от стен)
     let nextX = x + vx;
     if (isSolid(nextX + SIZE/2, y + SIZE/2)) {
-        vx = -vx * 0.8; 
+        vx = -vx * 0.5; // Гасим скорость при ударе об стену
     } else {
         x = nextX;
     }
@@ -113,12 +112,11 @@ function loop() {
         // Ломаем вокруг (для кратера)
         breakBlocksAround(x + SIZE/2, nextY + SIZE/2);
         
-        // Отскок вверх (гарантированный)
-        vy = -Math.abs(vy) * 0.8; 
-        if (Math.abs(vy) < 4) vy = -8; // Если слабо, подкидываем
+        // ОЧЕНЬ СЛАБЫЙ ОТСКОК
+        vy = -Math.abs(vy) * 0.1; // Оставляем всего 10% от скорости падения
         
-        // Отлетаем в сторону
-        vx = (Math.random() > 0.5 ? 1 : -1) * (3 + Math.random() * 3);
+        // Слегка отлетаем в сторону
+        vx = (Math.random() > 0.5 ? 1 : -1) * (1 + Math.random() * 1.5);
     } else {
         y = nextY;
     }
