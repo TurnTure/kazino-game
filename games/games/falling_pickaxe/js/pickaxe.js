@@ -72,8 +72,12 @@ closeModal.addEventListener('click', () => {
 });
 
 // ===== Кнопка "Крутить" =====
-document.getElementById('spinBtn').addEventListener('click', () => {
-    moveDrillDown();
+const spinBtn = document.getElementById('spinBtn');
+const bonusModal = document.getElementById('bonusModal');
+
+spinBtn.addEventListener('click', () => {
+    // Открываем меню покупки бонуса
+    bonusModal.classList.add('is-open');
 });
 
 // ===== Старт =====

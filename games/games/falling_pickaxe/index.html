@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Falling Pickaxe — Слот-машина</title>
-    <link rel="stylesheet" href="../../../shared/header.css">
+    <!-- ИСПРАВЛЕНО: убрал одну ../ (было ../../../) -->
+    <link rel="stylesheet" href="../../shared/header.css">
     <link rel="stylesheet" href="./styles/pickaxe.css">
 </head>
 <body class="game-body">
@@ -31,16 +32,16 @@
 </header>
 
 <!-- Основной экран игры -->
-<main class="game-screen" style="background-image: url('../falling_pickaxe/img/bg.png');">
+<!-- ИСПРАВЛЕНО: путь к фону теперь относительный от папки с игрой -->
+<main class="game-screen" style="background-image: url('./img/bg.png');">
     
     <!-- Центральное поле с блоками -->
     <div class="game-field-wrapper">
         <div class="game-field" id="gameField">
             <!-- Сетку блоков сгенерирует JS -->
         </div>
-        <!-- Бур (пока просто статичная картинка поверх сетки) -->
+        <!-- Бур -->
         <div class="drill" id="drill">
-            <!-- Если есть картинка бура, вставь <img src="./img/drill.png"> -->
             ⛏️
         </div>
     </div>
@@ -84,19 +85,79 @@
 
 </main>
 
-<!-- Модалка Bonus Buy (пока скрыта) -->
+<!-- Модалка Bonus Buy -->
 <div class="modal" id="bonusModal">
     <div class="modal__content">
         <button class="modal__close" id="closeModal">×</button>
-        <h2 class="modal__title">BUY BONUS</h2>
-        <p style="color: #aaa; text-align: center;">Здесь будут карточки с бурами.</p>
+        
+        <div class="modal__header">
+            <span class="modal__arrow">‹</span>
+            <h2 class="modal__title">BUY BONUS</h2>
+            <span class="modal__arrow">›</span>
+        </div>
+
+        <div class="bonus-cards">
+            <!-- Карточка 1 -->
+            <div class="bonus-card">
+                <h3 class="bonus-card__title">Stone Pickaxe</h3>
+                <p class="bonus-card__desc">The reel is guaranteed to land on a Stone Pickaxe (150 HP).</p>
+                <div class="bonus-card__img">
+                    <!-- Если есть картинка, раскомментируй -->
+                    <!-- <img src="./img/stone.png" alt="Stone Pickaxe"> -->
+                    🪨
+                </div>
+                <button class="bonus-card__activate" data-type="stone">ACTIVATE</button>
+                <div class="bonus-card__price">bet will be 55.30</div>
+            </div>
+
+            <!-- Карточка 2 -->
+            <div class="bonus-card">
+                <h3 class="bonus-card__title">Iron Pickaxe</h3>
+                <p class="bonus-card__desc">The reel is guaranteed to land on an Iron Pickaxe (200 HP).</p>
+                <div class="bonus-card__img">
+                    <!-- <img src="./img/iron.png" alt="Iron Pickaxe"> -->
+                    ⛏️
+                </div>
+                <button class="bonus-card__activate" data-type="iron">ACTIVATE</button>
+                <div class="bonus-card__price">bet will be 84.70</div>
+            </div>
+
+            <!-- Карточка 3 -->
+            <div class="bonus-card">
+                <h3 class="bonus-card__title">Diamond Pickaxe</h3>
+                <p class="bonus-card__desc">The reel is guaranteed to land on a Diamond Pickaxe (400 HP).</p>
+                <div class="bonus-card__img">
+                    <!-- <img src="./img/diamond.png" alt="Diamond Pickaxe"> -->
+                    💎
+                </div>
+                <button class="bonus-card__activate" data-type="diamond">ACTIVATE</button>
+                <div class="bonus-card__price">bet will be 107.00</div>
+            </div>
+        </div>
+
+        <div class="modal__bet-section">
+            <h3 class="modal__bet-title">BASE BET</h3>
+            <div class="modal__bet-controls">
+                <span class="modal__bet-min">Min<br>10</span>
+                <div class="modal__bet-input">
+                    <button>−</button>
+                    <input type="number" value="10" id="modalBetInput">
+                    <button>+</button>
+                </div>
+                <span class="modal__bet-max">Max<br>10000</span>
+            </div>
+            <div class="modal__slider">
+                <input type="range" min="10" max="10000" value="10">
+            </div>
+        </div>
     </div>
 </div>
 
-<script src="../../../shared/auth-state.js"></script>
-<script src="../../../js/balance.js"></script>
-<script src="../../../js/ui.js"></script>
-<script src="../../../shared/header.js"></script>
+<!-- ИСПРАВЛЕНО: пути к скриптам -->
+<script src="../../shared/auth-state.js"></script>
+<script src="../../js/balance.js"></script>
+<script src="../../js/ui.js"></script>
+<script src="../../shared/header.js"></script>
 <script src="./js/pickaxe.js"></script>
 
 </body>
