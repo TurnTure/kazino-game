@@ -1,8 +1,8 @@
-// ===== FALLING PICKAXE (Бесконечная шахта + Жилы + HP) =====
+// ===== FALLING PICKAXE (Бесконечная шахта + Жилы + HP + Бонусы) =====
 
 const gameField = document.getElementById('gameField');
 const drill = document.getElementById('drill');
-const drillHp = document.getElementById('drillHp'); 
+const drillHp = document.getElementById('drillHp');
 const drillHpText = document.getElementById('drillHpText');
 const spinBtn = document.getElementById('spinBtn');
 const bonusBtn = document.getElementById('bonusBtn');
@@ -27,16 +27,14 @@ let blocks = [];
 
 let x = 0, y = 0, vx = 0, vy = 0, angle = 0;
 
-// Переменные для логики модалки
+// Переменные для логики
 let currentBet = 300;
 let currentPickaxe = null; 
 let currentPickaxeHp = 150; 
 
-// Переменные для генерации жил
 let currentDepth = 0;
 let veinData = { type: null, remaining: 0 };
 
-// Переменные для здоровья
 let maxHp = 150;
 let currentHp = 150;
 
@@ -53,6 +51,23 @@ function createBlock(depth, col) {
     let type = 'stone';
     let hp = 0;
 
+    // === СПЕЦИАЛЬНЫЕ БЛОКИ (Верстак и Динамит) ===
+    // 1 на каждые 5 слоев, начиная с 10-го
+    if (depth >= 10 && depth % 5 === 0 && Math.random() < 0.2) {
+        if (Math.random() > 0.5) {
+            type = 'dynamite';
+            hp = 1; // Динамит взрывается от 1 удара
+        } else {
+            type = 'workbench';
+            hp = 3; // Верстак покрепче
+        }
+        block.dataset.type = type;
+        block.dataset.hp = hp;
+        block.classList.add(type);
+        return block;
+    }
+
+    // === ОБЫЧНЫЕ БЛОКИ ===
     if (depth < 10) {
         if (Math.random() > 0.5) { type = 'dirt'; hp = 0; }
         else { type = 'stone'; hp = 0; }
@@ -139,6 +154,45 @@ function checkCollision(px, py) {
            isSolid(px + SIZE, py + SIZE);
 }
 
+// ===== Взрыв динамита (4x4) =====
+function explode(centerX, centerY) {
+    // Ломаем блоки в радиусе 2-х клеток (4х4)
+    for (let r = -2; r <= 2; r++) {
+        for (let c = -2; c <= 2; c++) {
+            const px = centerX + (c * BLOCK_W);
+            const py = centerY + (r * BLOCK_H);
+            
+            const col = Math.floor(px / BLOCK_W);
+            const row = Math.floor(py / BLOCK_H);
+
+            if (col > 0 && col < COLS - 1 && row >= 0 && row < ROWS) {
+                if (blocks[row] && blocks[row][col]) {
+                    const b = blocks[row][col];
+                    if (b.style.opacity !== '0' && b.dataset.type !== 'indestructible') {
+                        b.style.opacity = '0';
+                        b.style.border = 'none';
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ===== Апгрейд кирки =====
+function upgradePickaxe() {
+    if (currentPickaxe === 'stone') {
+        currentPickaxe = 'iron';
+        currentPickaxeHp = 200;
+    } else if (currentPickaxe === 'iron') {
+        currentPickaxe = 'diamond';
+        currentPickaxeHp = 400;
+    }
+    
+    maxHp = currentPickaxeHp;
+    currentHp = maxHp;
+    updateHp();
+}
+
 // ===== Нанесение урона блоку =====
 function hitBlock(px, py) {
     const col = Math.floor(px / BLOCK_W);
@@ -150,12 +204,11 @@ function hitBlock(px, py) {
     const block = blocks[row][col];
     if (block.style.opacity === '0') return;
 
-    // ===== ЛОГИКА УРОНА В ЗАВИСИМОСТИ ОТ БЛОКА =====
     const blockType = block.dataset.type;
-    let damageToDrill = 5; // По умолчанию 5 (для руды и булыжника)
+    let damageToDrill = 5; 
 
     if (blockType === 'dirt' || blockType === 'stone') {
-        damageToDrill = 1; // Земля и камень ломаются легко
+        damageToDrill = 1; 
     }
 
     currentHp -= damageToDrill;
@@ -165,13 +218,21 @@ function hitBlock(px, py) {
         stopGame();
         return;
     }
-    // ===============================================
 
     let hp = parseInt(block.dataset.hp) || 0;
     
     if (hp === 0) {
+        // Мгновенное разрушение (земля, камень)
         block.style.opacity = '0';
         block.style.border = 'none';
+
+        // Эффекты для особых блоков
+        if (blockType === 'dynamite') {
+            explode(px, py);
+        }
+        if (blockType === 'workbench') {
+            upgradePickaxe();
+        }
     } else {
         hp -= DAMAGE;
         block.dataset.hp = hp;
@@ -179,6 +240,14 @@ function hitBlock(px, py) {
         if (hp <= 0) {
             block.style.opacity = '0';
             block.style.border = 'none';
+
+            // Эффекты для особых блоков
+            if (blockType === 'dynamite') {
+                explode(px, py);
+            }
+            if (blockType === 'workbench') {
+                upgradePickaxe();
+            }
         } else {
             block.style.opacity = 0.5 + (hp * 0.1); 
             
@@ -242,10 +311,8 @@ function loop() {
     if (y > (ROWS - 3) * BLOCK_H) shiftCamera();
     if (y >= 600 - SIZE) y = 600 - SIZE;
 
-    // Двигаем бур
     drill.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
     
-    // Двигаем полоску HP (отдельно, без вращения)
     if (drillHp) {
         drillHp.style.left = `${x + SIZE/2}px`;
         drillHp.style.top = `${y - 10}px`;
@@ -270,7 +337,7 @@ function startGame() {
     updateHp();
 
     drill.style.opacity = '1';
-    if (drillHp) drillHp.style.opacity = '1'; // Показываем HP
+    if (drillHp) drillHp.style.opacity = '1'; 
     
     isPlaying = true;
     
@@ -282,7 +349,7 @@ function stopGame() {
     isPlaying = false;
     cancelAnimationFrame(reqId);
     drill.style.opacity = '0';
-    if (drillHp) drillHp.style.opacity = '0'; // Скрываем HP
+    if (drillHp) drillHp.style.opacity = '0'; 
 
     setTimeout(() => {
         generateField();

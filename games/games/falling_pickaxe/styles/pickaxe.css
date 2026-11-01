@@ -466,3 +466,29 @@ body.game-body {
 .drill__heart {
     font-size: 18px;
 }
+
+/* Динамит (черно-красный) */
+.block.dynamite {
+    background: repeating-linear-gradient(
+        45deg,
+        #8B0000, /* Темно-красный */
+        #8B0000 10px,
+        #222 10px, /* Черный */
+        #222 20px
+    ) !important;
+    border: 1px solid #000 !important;
+    box-shadow: inset 0 0 10px #ff0000 !important;
+    animation: dynamitePulse 1s infinite alternate;
+}
+
+@keyframes dynamitePulse {
+    from { filter: brightness(1); }
+    to { filter: brightness(1.5); }
+}
+
+/* Верстак (коричневый) */
+.block.workbench {
+    background: linear-gradient(135deg, #8B4513 0%, #5c2e0b 100%) !important;
+    border: 2px solid #3e1f08 !important;
+    box-shadow: inset 0 0 15px rgba(139, 69, 19, 0.8) !important;
+}
