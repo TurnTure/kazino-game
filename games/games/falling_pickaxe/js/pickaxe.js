@@ -38,7 +38,6 @@ function createBlock(depth, col) {
     const block = document.createElement('div');
     block.className = 'block';
 
-    // Края — неразрушаемые (стены)
     if (col === 0 || col === 9) {
         block.classList.add('indestructible');
         return block;
@@ -48,11 +47,9 @@ function createBlock(depth, col) {
     let hp = 0;
 
     if (depth < 10) {
-        // Первые 10 строк — только земля и камень
         if (Math.random() > 0.5) { type = 'dirt'; hp = 0; }
         else { type = 'stone'; hp = 0; }
     } else {
-        // Глубокие слои: жилы и булыжник
         if (veinData.remaining > 0) {
             type = veinData.type;
             hp = veinData.type === 'iron' ? 2 : (veinData.type === 'diamond' ? 3 : 4);
@@ -61,7 +58,6 @@ function createBlock(depth, col) {
             const rand = Math.random() * 100;
             
             if (rand < 15) {
-                // Шанс 15% создать жилу
                 const oreRand = Math.random() * 100;
                 if (oreRand < 60) {
                     type = 'iron';     
@@ -77,7 +73,6 @@ function createBlock(depth, col) {
                     veinData = { type: 'emerald', remaining: 1 }; 
                 }
             } else {
-                // Иначе — булыжник
                 type = 'cobblestone';
                 hp = 2;
             }
@@ -94,7 +89,6 @@ function createBlock(depth, col) {
 function createRow(depth) {
     const rowBlocks = [];
     
-    // Жила не может тянуться бесконечно
     if (Math.random() > 0.5) veinData.remaining = 0; 
 
     for (let c = 0; c < COLS; c++) {
@@ -164,9 +158,9 @@ function hitBlock(px, py) {
         } else {
             block.style.opacity = 0.5 + (hp * 0.1); 
             
-            // Слабый отскок
-            vy = -Math.abs(vy) * 0.3 - 1; 
-            vx = (Math.random() > 0.5 ? 1 : -1) * (1 + Math.random() * 1);
+            // ОЧЕНЬ СЛАБЫЙ ОТСКОК
+            vy = -Math.abs(vy) * 0.1 - 0.5; 
+            vx = (Math.random() > 0.5 ? 1 : -1) * (0.5 + Math.random() * 0.5);
         }
     }
 }
@@ -195,7 +189,7 @@ function loop() {
         hitBlock(nextX + SIZE, y); 
         hitBlock(nextX, y + SIZE); 
         hitBlock(nextX + SIZE, y + SIZE); 
-        vx = -vx * 0.5; 
+        vx = -vx * 0.3; 
     } else {
         x = nextX;
     }
@@ -207,9 +201,9 @@ function loop() {
         hitBlock(x, nextY + SIZE);
         hitBlock(x + SIZE, nextY + SIZE);
         
-        // Средний отскок
-        vy = -Math.abs(vy) * 0.4 - 1.5; 
-        vx = (Math.random() > 0.5 ? 1 : -1) * (1.5 + Math.random() * 1.5);
+        // Слабый отскок
+        vy = -Math.abs(vy) * 0.2 - 1; 
+        vx = (Math.random() > 0.5 ? 1 : -1) * (1 + Math.random() * 1);
     } else {
         y = nextY;
     }
