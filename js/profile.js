@@ -9,7 +9,6 @@ async function loadProfileStats() {
         }
         const data = await res.json();
 
-        // Форматирование чисел (например, 12500 -> 12 500)
         const formatMoney = (num) => {
             return Math.round(num).toLocaleString('ru-RU') + ' ШР';
         };
@@ -18,8 +17,7 @@ async function loadProfileStats() {
         const nameEl = document.getElementById('profileName');
         if (nameEl) nameEl.textContent = data.userName;
 
-        // 2. Заполняем карточки
-        // В твоем HTML нужно добавить id к значениям: id="statWon", id="statBet", id="statNet"
+        // 2. Заполняем верхние карточки (общие)
         const wonEl = document.getElementById('statWon');
         if (wonEl) wonEl.textContent = formatMoney(data.totalWon);
 
@@ -29,29 +27,41 @@ async function loadProfileStats() {
         const netEl = document.getElementById('statNet');
         if (netEl) {
             netEl.textContent = (data.netResult > 0 ? '+' : '') + formatMoney(data.netResult);
-            // Меняем цвет в зависимости от результата
             if (data.netResult >= 0) {
                 netEl.parentElement.classList.remove('stat-card--negative');
-                netEl.parentElement.classList.add('stat-card--positive'); // нужно будет добавить этот класс в CSS
+                netEl.parentElement.classList.add('stat-card--positive');
             }
         }
 
-        // 3. Заполняем таблицу (пример для одной строки)
-        // В HTML мы можем поменять заглушки на эти данные
+        const sessionsEl = document.getElementById('statSessions');
+        if (sessionsEl) sessionsEl.textContent = data.sessionsCount;
+
+        // 3. Заполняем таблицу по играм
         const tableBody = document.querySelector('.stats-table tbody');
         if (tableBody) {
-            // Пока выводим общую статистику, так как у нас нет разделения по играм в этой таблице
-            tableBody.innerHTML = `
-                <tr>
-                    <td><img src="./img/Знак.png" width="24" style="vertical-align: middle; margin-right: 8px;"> Все игры</td>
-                    <td>${Math.round(data.totalBet)}</td>
-                    <td>${Math.round(data.totalWon)}</td>
-                    <td class="${data.netResult >= 0 ? 'text-green' : 'text-red'}">${Math.round(data.netResult)}</td>
-                    <td>-</td>
-                    <td>${data.sessionsCount}</td>
-                </tr>
-            `;
+            tableBody.innerHTML = '';
+
+            if (!data.games || data.games.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Вы ещё не играли в игры</td></tr>';
+            } else {
+                data.games.forEach(game => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><img src="./img/Знак.png" width="24" style="vertical-align: middle; margin-right: 8px;"> ${game.name}</td>
+                        <td>${Math.round(game.bet)}</td>
+                        <td>${Math.round(game.won)}</td>
+                        <td class="${game.net >= 0 ? 'text-green' : 'text-red'}">${Math.round(game.net)}</td>
+                        <td>-</td>
+                        <td>${game.sessions}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
         }
+
+        // 4. Обновляем блок "Сессии и привычки" (общее количество)
+        const sessionsCountEl = document.getElementById('sessionsCount');
+        if (sessionsCountEl) sessionsCountEl.textContent = data.sessionsCount;
 
     } catch (e) {
         console.error('Не удалось загрузить статистику:', e);

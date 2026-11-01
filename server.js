@@ -238,7 +238,7 @@ app.post('/api/balance', async (req, res) => {
     }
 });
 
-// ===== СТАТИСТИКА ДЛЯ ПРОФИЛЯ =====
+// ===== СТАТИСТИКА ДЛЯ ПРОФИЛЯ (С РАЗБИВКОЙ ПО ИГРАМ) =====
 app.get('/api/profile/stats', async (req, res) => {
     const sessionId = req.cookies.session;
     if (!sessionId) return res.status(401).json({ error: 'not logged in' });
@@ -247,34 +247,48 @@ app.get('/api/profile/stats', async (req, res) => {
     if (!session) return res.status(401).json({ error: 'session expired' });
 
     try {
-        // Получаем имя пользователя
         const userResult = await pool.query('SELECT username FROM users WHERE id = $1', [session.userId]);
         if (userResult.rows.length === 0) return res.status(401).json({ error: 'user not found' });
         const username = userResult.rows[0].username;
 
-        // Считаем статистику из истории
+        // Запрос, который группирует данные по типу игры
         const statsResult = await pool.query(`
             SELECT 
+                CASE 
+                    WHEN reason LIKE '%pickaxe%' THEN 'Falling Pickaxe'
+                    WHEN reason LIKE '%wheel%' THEN 'Почтовая лихорадка'
+                    WHEN reason LIKE '%game%' THEN 'Колесо фортуны'
+                    ELSE 'Другое'
+                END as game_name,
                 COALESCE(SUM(CASE WHEN delta > 0 THEN delta ELSE 0 END), 0) as total_won,
                 COALESCE(SUM(CASE WHEN delta < 0 THEN ABS(delta) ELSE 0 END), 0) as total_bet,
                 COUNT(CASE WHEN reason LIKE '%bet%' OR reason LIKE '%spin%' THEN 1 END) as sessions_count
             FROM history 
             WHERE username = $1
+            GROUP BY game_name
+            HAVING COUNT(*) > 0
         `, [username]);
 
-        const stats = statsResult.rows[0];
-        
-        const totalWon = parseInt(stats.total_won, 10) || 0;
-        const totalBet = parseInt(stats.total_bet, 10) || 0;
-        const netResult = totalWon - totalBet;
-        const sessionsCount = parseInt(stats.sessions_count, 10) || 0;
+        const games = statsResult.rows.map(row => ({
+            name: row.game_name,
+            won: parseInt(row.total_won, 10),
+            bet: parseInt(row.total_bet, 10),
+            net: parseInt(row.total_won, 10) - parseInt(row.total_bet, 10),
+            sessions: parseInt(row.sessions_count, 10)
+        }));
+
+        // Считаем общую статистику
+        const totalWon = games.reduce((sum, g) => sum + g.won, 0);
+        const totalBet = games.reduce((sum, g) => sum + g.bet, 0);
+        const totalSessions = games.reduce((sum, g) => sum + g.sessions, 0);
 
         res.json({
             userName: username,
             totalWon: totalWon,
             totalBet: totalBet,
-            netResult: netResult,
-            sessionsCount: sessionsCount
+            netResult: totalWon - totalBet,
+            sessionsCount: totalSessions,
+            games: games // <-- Передаем массив игр
         });
 
     } catch (err) {
