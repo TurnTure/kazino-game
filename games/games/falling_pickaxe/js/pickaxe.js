@@ -39,15 +39,14 @@ let maxHp = 150;
 let currentHp = 150;
 let currentCash = 0;
 
-// Цены за блоки
-// Цены за блоки (сильно уменьшены)
+// Цены за блоки (сильно уменьшены, чтобы было сложно выиграть)
 const BLOCK_VALUES = {
-    'dirt': 0,       // Земля - почти ничего
-    'stone': 0,      // Камень - копейки
-    'cobblestone': 0,  // Булыжник - 1 рубль
-    'iron': 0.7,        // Железо - 10 рублей
-    'diamond': 30,     // Алмаз - 30 рублей
-    'emerald': 100,    // Изумруд - 100 рублей
+    'dirt': 0,
+    'stone': 0,
+    'cobblestone': 0.5,
+    'iron': 5,
+    'diamond': 20,
+    'emerald': 100,
     'dynamite': 0,
     'workbench': 0
 };
@@ -160,6 +159,9 @@ function checkCollision(px, py) {
 
 // ===== Взрыв динамита =====
 function explode(centerX, centerY) {
+    // Коэффициент для начисления денег
+    const betMultiplier = currentBet / 300;
+    
     for (let r = -2; r <= 2; r++) {
         for (let c = -2; c <= 2; c++) {
             const px = centerX + (c * BLOCK_W);
@@ -174,9 +176,9 @@ function explode(centerX, centerY) {
                         b.style.opacity = '0';
                         b.style.border = 'none';
                         
-                        // НАЧИСЛЯЕМ ДЕНЬГИ ЗА ВЗОРВАННЫЙ БЛОК
                         const bType = b.dataset.type;
-                        currentCash += (BLOCK_VALUES[bType] || 0);
+                        const basePrice = BLOCK_VALUES[bType] || 0;
+                        currentCash += basePrice * betMultiplier;
                         updateCash();
                     }
                 }
@@ -228,10 +230,14 @@ function hitBlock(px, py) {
 
     let hp = parseInt(block.dataset.hp) || 0;
     
+    // Коэффициент для начисления денег
+    const betMultiplier = currentBet / 300;
+    const basePrice = BLOCK_VALUES[blockType] || 0;
+    
     if (hp === 0) {
         block.style.opacity = '0';
         block.style.border = 'none';
-        currentCash += (BLOCK_VALUES[blockType] || 0);
+        currentCash += basePrice * betMultiplier;
         updateCash();
         if (blockType === 'dynamite') explode(px, py);
         if (blockType === 'workbench') upgradePickaxe();
@@ -242,7 +248,7 @@ function hitBlock(px, py) {
         if (hp <= 0) {
             block.style.opacity = '0';
             block.style.border = 'none';
-            currentCash += (BLOCK_VALUES[blockType] || 0);
+            currentCash += basePrice * betMultiplier;
             updateCash();
             if (blockType === 'dynamite') explode(px, py);
             if (blockType === 'workbench') upgradePickaxe();
@@ -313,15 +319,23 @@ function loop() {
 async function startGame() {
     if (isPlaying) return;
 
-    // 1. Проверяем, хватает ли денег на ставку
-    if (typeof canAfford === 'function' && !canAfford(currentBet)) {
+    // 1. Считаем реальную стоимость игры (базовая ставка * множитель кирки)
+    let multiplier = 1.1; // По умолчанию для каменной
+    if (currentPickaxe === 'iron') multiplier = 1.7;
+    if (currentPickaxe === 'diamond') multiplier = 2.1;
+    
+    // Итоговая ставка (та, что на желтом фоне)
+    const realBet = currentBet * multiplier;
+
+    // 2. Проверяем, хватает ли денег на ИТОГОВУЮ ставку
+    if (typeof canAfford === 'function' && !canAfford(realBet)) {
         showMessage('Недостаточно средств', '#C8552B');
         return;
     }
 
-    // 2. Списываем ставку с баланса
+    // 3. Списываем ИТОГОВУЮ ставку
     if (typeof addBalance === 'function') {
-        addBalance(-currentBet, 'pickaxe:bet');
+        addBalance(-realBet, 'pickaxe:bet');
     }
 
     if (bonusModal) bonusModal.classList.remove('is-open');
