@@ -2,7 +2,7 @@
 
 const gameField = document.getElementById('gameField');
 const drill = document.getElementById('drill');
-const drillHp = document.getElementById('drillHp'); // <-- Блок с HP
+const drillHp = document.getElementById('drillHp'); 
 const drillHpText = document.getElementById('drillHpText');
 const spinBtn = document.getElementById('spinBtn');
 const bonusBtn = document.getElementById('bonusBtn');
@@ -150,13 +150,22 @@ function hitBlock(px, py) {
     const block = blocks[row][col];
     if (block.style.opacity === '0') return;
 
-    currentHp -= 5;
+    // ===== ЛОГИКА УРОНА В ЗАВИСИМОСТИ ОТ БЛОКА =====
+    const blockType = block.dataset.type;
+    let damageToDrill = 5; // По умолчанию 5 (для руды и булыжника)
+
+    if (blockType === 'dirt' || blockType === 'stone') {
+        damageToDrill = 1; // Земля и камень ломаются легко
+    }
+
+    currentHp -= damageToDrill;
     updateHp();
 
     if (currentHp <= 0) {
         stopGame();
         return;
     }
+    // ===============================================
 
     let hp = parseInt(block.dataset.hp) || 0;
     
