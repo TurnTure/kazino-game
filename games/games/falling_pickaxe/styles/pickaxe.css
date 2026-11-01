@@ -446,11 +446,9 @@ body.game-body {
 }
 
 /* Полоска здоровья бура */
+/* Полоска здоровья бура */
 .drill__hp {
     position: absolute;
-    top: -30px;
-    left: 50%;
-    transform: translateX(-50%);
     display: flex;
     align-items: center;
     gap: 4px;
@@ -460,7 +458,10 @@ body.game-body {
     color: #fff;
     text-shadow: 1px 1px 2px #000, -1px -1px 2px #000;
     white-space: nowrap;
-    pointer-events: none; /* чтобы не мешало кликать */
+    pointer-events: none;
+    z-index: 20;
+    opacity: 0; /* Скрыта по умолчанию */
+    transform: translate(-50%, -50%); /* Центрируем */
 }
 .drill__heart {
     font-size: 18px;

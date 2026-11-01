@@ -2,6 +2,7 @@
 
 const gameField = document.getElementById('gameField');
 const drill = document.getElementById('drill');
+const drillHp = document.getElementById('drillHp'); // <-- Блок с HP
 const drillHpText = document.getElementById('drillHpText');
 const spinBtn = document.getElementById('spinBtn');
 const bonusBtn = document.getElementById('bonusBtn');
@@ -29,6 +30,7 @@ let x = 0, y = 0, vx = 0, vy = 0, angle = 0;
 // Переменные для логики модалки
 let currentBet = 300;
 let currentPickaxe = null; 
+let currentPickaxeHp = 150; 
 
 // Переменные для генерации жил
 let currentDepth = 0;
@@ -148,7 +150,6 @@ function hitBlock(px, py) {
     const block = blocks[row][col];
     if (block.style.opacity === '0') return;
 
-    // Наносим урон буру за каждый удар
     currentHp -= 5;
     updateHp();
 
@@ -172,7 +173,6 @@ function hitBlock(px, py) {
         } else {
             block.style.opacity = 0.5 + (hp * 0.1); 
             
-            // ОЧЕНЬ СЛАБЫЙ ОТСКОК
             vy = -Math.abs(vy) * 0.1 - 0.5; 
             vx = (Math.random() > 0.5 ? 1 : -1) * (0.5 + Math.random() * 0.5);
         }
@@ -233,7 +233,14 @@ function loop() {
     if (y > (ROWS - 3) * BLOCK_H) shiftCamera();
     if (y >= 600 - SIZE) y = 600 - SIZE;
 
+    // Двигаем бур
     drill.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
+    
+    // Двигаем полоску HP (отдельно, без вращения)
+    if (drillHp) {
+        drillHp.style.left = `${x + SIZE/2}px`;
+        drillHp.style.top = `${y - 10}px`;
+    }
     
     reqId = requestAnimationFrame(loop);
 }
@@ -249,12 +256,13 @@ function startGame() {
     vy = 4; 
     angle = 0;
 
-    // Сбрасываем HP
-    maxHp = 150;
+    maxHp = currentPickaxeHp; 
     currentHp = maxHp;
     updateHp();
 
     drill.style.opacity = '1';
+    if (drillHp) drillHp.style.opacity = '1'; // Показываем HP
+    
     isPlaying = true;
     
     reqId = requestAnimationFrame(loop);
@@ -265,6 +273,7 @@ function stopGame() {
     isPlaying = false;
     cancelAnimationFrame(reqId);
     drill.style.opacity = '0';
+    if (drillHp) drillHp.style.opacity = '0'; // Скрываем HP
 
     setTimeout(() => {
         generateField();
@@ -316,6 +325,7 @@ if (bonusBtn) {
 document.querySelectorAll('.bonus-card__activate').forEach(btn => {
     btn.addEventListener('click', () => {
         currentPickaxe = btn.dataset.type; 
+        currentPickaxeHp = parseInt(btn.dataset.hp) || 150; 
         startGame();
     });
 });
@@ -332,4 +342,5 @@ if (bonusModal) {
 // ===== Старт =====
 generateField();
 drill.style.opacity = '0';
+if (drillHp) drillHp.style.opacity = '0';
 updateBet(currentBet);

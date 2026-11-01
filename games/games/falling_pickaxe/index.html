@@ -41,13 +41,16 @@
             <!-- Сетку блоков сгенерирует JS -->
         </div>
         <!-- Бур -->
-        <div class="drill" id="drill">
-            <div class="drill__hp">
-                <span class="drill__heart">❤️</span>
-                <span id="drillHpText">150/150</span>
-            </div>
-            ⛏️
+        <!-- Полоска HP отдельно от бура -->
+        <div class="drill__hp" id="drillHp">
+            <span class="drill__heart">❤️</span>
+            <span id="drillHpText">150/150</span>
         </div>
+
+        <!-- Сам бур -->
+        <div class="drill" id="drill">
+            ⛏️
+        </div>  
     </div>
 
     <!-- Левая панель меню (заглушка) -->
@@ -110,7 +113,7 @@
                     <!-- <img src="./img/stone.png" alt="Stone Pickaxe"> -->
                     🪨
                 </div>
-                <button class="bonus-card__activate" data-type="stone">ACTIVATE</button>
+                <button class="bonus-card__activate" data-type="stone" data-hp="150">ACTIVATE</button>
                 <div class="bonus-card__price">bet will be 55.30</div>
             </div>
 
@@ -122,7 +125,7 @@
                     <!-- <img src="./img/iron.png" alt="Iron Pickaxe"> -->
                     ⛏️
                 </div>
-                <button class="bonus-card__activate" data-type="iron">ACTIVATE</button>
+                <button class="bonus-card__activate" data-type="iron" data-hp="200">ACTIVATE</button>
                 <div class="bonus-card__price">bet will be 84.70</div>
             </div>
 
@@ -134,7 +137,7 @@
                     <!-- <img src="./img/diamond.png" alt="Diamond Pickaxe"> -->
                     💎
                 </div>
-                <button class="bonus-card__activate" data-type="diamond">ACTIVATE</button>
+                <button class="bonus-card__activate" data-type="diamond" data-hp="400">ACTIVATE</button>
                 <div class="bonus-card__price">bet will be 107.00</div>
             </div>
         </div>
