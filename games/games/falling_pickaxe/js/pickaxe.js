@@ -40,15 +40,16 @@ let currentHp = 150;
 let currentCash = 0;
 
 // Цены за блоки
+// Цены за блоки (сильно уменьшены)
 const BLOCK_VALUES = {
-    'dirt': 1,
-    'stone': 2,
-    'cobblestone': 5,
-    'iron': 20,
-    'diamond': 50,
-    'emerald': 100,
-    'dynamite': 0, 
-    'workbench': 0 
+    'dirt': 0,       // Земля - почти ничего
+    'stone': 0,      // Камень - копейки
+    'cobblestone': 0,  // Булыжник - 1 рубль
+    'iron': 0.7,        // Железо - 10 рублей
+    'diamond': 30,     // Алмаз - 30 рублей
+    'emerald': 100,    // Изумруд - 100 рублей
+    'dynamite': 0,
+    'workbench': 0
 };
 
 // ===== Создание одного блока =====
@@ -358,6 +359,15 @@ function updateBet(value) {
     currentBet = Math.max(10, Math.min(10000, value));
     if (betInput) betInput.value = currentBet;
     if (slider) slider.value = currentBet;
+
+    // Обновляем цены на карточках
+    const cardPrices = document.querySelectorAll('.bonus-card__price');
+    if (cardPrices.length === 3) {
+        // Каменная - дороже ставки (x1.1), Железная (x1.7), Алмазная (x2.1)
+        cardPrices[0].textContent = `bet will be ${(currentBet * 1.1).toFixed(2)}`;
+        cardPrices[1].textContent = `bet will be ${(currentBet * 1.7).toFixed(2)}`;
+        cardPrices[2].textContent = `bet will be ${(currentBet * 2.1).toFixed(2)}`;
+    }
 }
 
 if (slider) slider.addEventListener('input', (e) => updateBet(parseInt(e.target.value)));
