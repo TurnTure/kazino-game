@@ -10,12 +10,12 @@ async function loadBalance() {
         const res = await fetch('/api/balance');
         if (!res.ok) {
             balance = 0;
-            balanceEl.textContent = '0';
+            balanceEl.textContent = '0.00';
             return;
         }
         const data = await res.json();
         balance = data.balance;
-        balanceEl.textContent = balance;
+        balanceEl.textContent = balance.toFixed(2); // <-- ОКРУГЛЕНИЕ
     } catch (e) {
         console.error('Не удалось получить баланс:', e);
     }
@@ -33,7 +33,7 @@ function canAfford(amount) {
 async function addBalance(delta, reason = '') {
     // показываем сразу, чтобы UI не тормозил
     balance = Math.max(0, balance + delta);
-    balanceEl.textContent = balance;
+    balanceEl.textContent = balance.toFixed(2); // <-- ОКРУГЛЕНИЕ
 
     if (typeof window.showBalanceDiff === 'function') {
         window.showBalanceDiff(delta);
@@ -50,7 +50,7 @@ async function addBalance(delta, reason = '') {
         // синхронизация с сервером — он источник истины
         if (typeof data.balance === 'number') {
             balance = data.balance;
-            balanceEl.textContent = balance;
+            balanceEl.textContent = balance.toFixed(2); // <-- ОКРУГЛЕНИЕ
         }
     } catch (e) {
         console.error('Не удалось сохранить баланс:', e);
@@ -63,6 +63,6 @@ window.balanceReady = (async () => {
     if (window.currentUser) {
         await loadBalance();
     } else {
-        balanceEl.textContent = '0';
+        balanceEl.textContent = '0.00'; // <-- ОКРУГЛЕНИЕ
     }
 })();
