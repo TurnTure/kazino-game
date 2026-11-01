@@ -1,4 +1,4 @@
-// ===== FALLING PICKAXE (Бесконечная шахта + Блоки) =====
+// ===== FALLING PICKAXE (Бесконечная шахта + Жилы) =====
 
 const gameField = document.getElementById('gameField');
 const drill = document.getElementById('drill');
@@ -12,7 +12,7 @@ const GRAVITY = 0.15;
 const MAX_FALL_SPEED = 6;    
 const ROTATION_SPEED = 5;    
 const SIZE = 40;           
-const DAMAGE = 1; // Сколько урона наносит бур за один удар
+const DAMAGE = 1; 
 
 const BLOCK_W = 60;
 const BLOCK_H = 60;
@@ -29,45 +29,58 @@ let x = 0, y = 0, vx = 0, vy = 0, angle = 0;
 let currentBet = 300;
 let currentPickaxe = null; 
 
-// ===== Создание блока с учетом глубины =====
-function createBlock(depth) {
+// Переменные для генерации жил
+let currentDepth = 0;
+let veinData = { type: null, remaining: 0 };
+
+// ===== Создание одного блока =====
+function createBlock(depth, col) {
     const block = document.createElement('div');
     block.className = 'block';
 
-    // Края — неразрушаемые
-    if (Math.random() < 0) { } // заглушка
-    // Мы не знаем колонку здесь, поэтому края сделаем в createRow
+    // Края — неразрушаемые (стены)
+    if (col === 0 || col === 9) {
+        block.classList.add('indestructible');
+        return block;
+    }
 
-    // Определяем тип блока в зависимости от глубины
-    // depth = 0 (верх), depth = 10 (середина), depth = 20 (низ)
-    
     let type = 'stone';
     let hp = 0;
 
-    if (depth < 3) {
-        // Верхние слои: только земля и камень (ломаются с 1 раза)
+    if (depth < 10) {
+        // Первые 10 строк (включая стартовые экраны) — только земля и камень
         if (Math.random() > 0.5) { type = 'dirt'; hp = 0; }
         else { type = 'stone'; hp = 0; }
     } else {
-        // Глубокие слои: появляются руды и булыжник
-        const rand = Math.random() * 100;
-        
-        if (rand < 60) {
-            // Булыжник (60%)
-            type = 'cobblestone';
-            hp = 2; // Ломается за 2 удара
-        } else if (rand < 85) {
-            // Железо (25%)
-            type = 'iron';
-            hp = 1;
-        } else if (rand < 95) {
-            // Алмаз (10%)
-            type = 'diamond';
-            hp = 1;
+        // Глубокие слои: жилы и булыжник
+        if (veinData.remaining > 0) {
+            type = veinData.type;
+            hp = veinData.type === 'iron' ? 2 : (veinData.type === 'diamond' ? 3 : 4);
+            veinData.remaining--;
         } else {
-            // Изумруд (5%)
-            type = 'emerald';
-            hp = 1;
+            const rand = Math.random() * 100;
+            
+            if (rand < 15) {
+                // Шанс 15% создать жилу
+                const oreRand = Math.random() * 100;
+                if (oreRand < 60) {
+                    type = 'iron';     
+                    hp = 2; 
+                    veinData = { type: 'iron', remaining: 2 + Math.floor(Math.random() * 3) }; // 2-4 блока
+                } else if (oreRand < 90) {
+                    type = 'diamond';  
+                    hp = 3; 
+                    veinData = { type: 'diamond', remaining: 1 + Math.floor(Math.random() * 2) }; // 1-2 блока
+                } else {
+                    type = 'emerald';  
+                    hp = 4; 
+                    veinData = { type: 'emerald', remaining: 1 }; // 1 блок
+                }
+            } else {
+                // Иначе — булыжник
+                type = 'cobblestone';
+                hp = 2;
+            }
         }
     }
 
@@ -80,15 +93,12 @@ function createBlock(depth) {
 // ===== Генерация одной строки =====
 function createRow(depth) {
     const rowBlocks = [];
+    
+    // Жила не может тянуться бесконечно, сбрасываем её иногда
+    if (Math.random() > 0.5) veinData.remaining = 0; 
+
     for (let c = 0; c < COLS; c++) {
-        let block;
-        if (c === 0 || c === COLS - 1) {
-            // Края — неразрушаемые стены
-            block = document.createElement('div');
-            block.className = 'block indestructible';
-        } else {
-            block = createBlock(depth);
-        }
+        const block = createBlock(depth, c);
         gameField.appendChild(block);
         rowBlocks.push(block);
     }
@@ -96,8 +106,6 @@ function createRow(depth) {
 }
 
 // ===== Инициализация поля =====
-let currentDepth = 0; // Счетчик глубины
-
 function generateField() {
     gameField.innerHTML = '';
     blocks = [];
@@ -141,24 +149,22 @@ function hitBlock(px, py) {
     const block = blocks[row][col];
     if (block.style.opacity === '0') return;
 
-    // Получаем текущую прочность
     let hp = parseInt(block.dataset.hp) || 0;
     
-    // Если прочность 0 — ломаем сразу
     if (hp === 0) {
         block.style.opacity = '0';
         block.style.border = 'none';
     } else {
-        // Уменьшаем HP
         hp -= DAMAGE;
         block.dataset.hp = hp;
-        
-        // Визуальный эффект "трещины" (легкая прозрачность)
-        block.style.opacity = 1 - (DAMAGE / (parseInt(block.dataset.hp) + DAMAGE)) * 0.5;
 
         if (hp <= 0) {
             block.style.opacity = '0';
             block.style.border = 'none';
+        } else {
+            block.style.opacity = 0.5 + (hp * 0.1); 
+            vy = 0; 
+            vx = 0;
         }
     }
 }
