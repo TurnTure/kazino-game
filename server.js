@@ -27,7 +27,7 @@ async function initDB() {
                 email VARCHAR(100) UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,
                 password_encrypted TEXT,
-                balance INTEGER DEFAULT 0,
+                balance NUMERIC(10,2) DEFAULT 0,
                 created_at BIGINT
             )
         `);
@@ -36,9 +36,9 @@ async function initDB() {
             CREATE TABLE IF NOT EXISTS history (
                 id SERIAL PRIMARY KEY,
                 username VARCHAR(50),
-                delta INTEGER,
+                delta NUMERIC(10,2),
                 reason VARCHAR(100),
-                balance INTEGER,
+                balance NUMERIC(10,2),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
@@ -201,7 +201,12 @@ app.get('/api/balance', async (req, res) => {
     try {
         const result = await pool.query('SELECT balance FROM users WHERE id = $1', [session.userId]);
         if (result.rows.length === 0) return res.status(401).json({ error: 'user not found' });
-        res.json({ balance: result.rows[0].balance });
+        
+        // ПРЕВРАЩАЕМ В ЧИСЛО
+        let balance = Number(result.rows[0].balance);
+        if (isNaN(balance)) balance = 0;
+
+        res.json({ balance: balance });
     } catch (err) {
         res.status(500).json({ error: 'DB error' });
     }
@@ -223,7 +228,11 @@ app.post('/api/balance', async (req, res) => {
         const user = result.rows[0];
         if (!user) return res.status(401).json({ error: 'user not found' });
 
-        const newBalance = Math.max(0, user.balance + delta);
+        // ПРЕВРАЩАЕМ В ЧИСЛО ПЕРЕД МАТЕМАТИКОЙ
+        let currentBalance = Number(user.balance);
+        if (isNaN(currentBalance)) currentBalance = 0;
+
+        const newBalance = Math.max(0, currentBalance + delta);
         await pool.query('UPDATE users SET balance = $1 WHERE id = $2', [newBalance, session.userId]);
 
         await pool.query(
@@ -251,7 +260,6 @@ app.get('/api/profile/stats', async (req, res) => {
         if (userResult.rows.length === 0) return res.status(401).json({ error: 'user not found' });
         const username = userResult.rows[0].username;
 
-        // Запрос, который группирует данные по типу игры
         const statsResult = await pool.query(`
             SELECT 
                 CASE 
@@ -271,13 +279,12 @@ app.get('/api/profile/stats', async (req, res) => {
 
         const games = statsResult.rows.map(row => ({
             name: row.game_name,
-            won: parseInt(row.total_won, 10),
-            bet: parseInt(row.total_bet, 10),
-            net: parseInt(row.total_won, 10) - parseInt(row.total_bet, 10),
+            won: Number(row.total_won) || 0,
+            bet: Number(row.total_bet) || 0,
+            net: (Number(row.total_won) || 0) - (Number(row.total_bet) || 0),
             sessions: parseInt(row.sessions_count, 10)
         }));
 
-        // Считаем общую статистику
         const totalWon = games.reduce((sum, g) => sum + g.won, 0);
         const totalBet = games.reduce((sum, g) => sum + g.bet, 0);
         const totalSessions = games.reduce((sum, g) => sum + g.sessions, 0);
@@ -288,7 +295,7 @@ app.get('/api/profile/stats', async (req, res) => {
             totalBet: totalBet,
             netResult: totalWon - totalBet,
             sessionsCount: totalSessions,
-            games: games // <-- Передаем массив игр
+            games: games
         });
 
     } catch (err) {
