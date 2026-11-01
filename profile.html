@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой профиль — Слот-машина</title>
+    <link rel="stylesheet" href="./shared/header.css">
+    <link rel="stylesheet" href="./styles/profile.css">
+</head>
+<body class="profile-body">
+
+<!-- Шапка (такая же, как на главной) -->
+<header class="header">
+    <a href="./index.html" class="logo">
+        <img src="./img/Знак.png" alt="">
+        <h1>Слот-машина</h1>
+    </a>
+    <nav class="header__nav">
+        <a href="#!" class="header__link">Реклама</a>
+        <a href="#!" class="header__link">Промокод</a>
+        <a href="#!" class="header__link">Награды</a>
+    </nav>
+    <div class="menu">
+        <div class="rubli">
+            <img src="./img/Лампочка.png" alt="">
+            <span class="amount" id="balance">0.00</span>
+            <span class="currency_name">шуховские рубли</span>
+            <span class="balance-diff" id="balanceDiff"></span>
+        </div>
+        <div class="header-auth" id="headerAuth"></div>
+    </div>
+</header>
+
+<main class="profile-layout">
+    <!-- Сайдбар слева (сокращенная версия со скрина) -->
+    <aside class="sidebar">
+        <div class="sidebar__user">
+            <img src="./img/Аватар.png" alt="Аватар">
+            <h2 id="profileName">Загрузка...</h2>
+        </div>
+        <nav class="sidebar__nav">
+            <a href="#!" class="sidebar__link active">Статистика</a>
+            <a href="./index.html" class="sidebar__link">На главную</a>
+        </nav>
+    </aside>
+
+    <!-- Основной контент -->
+    <div class="profile-content">
+        <h1 class="page-title">Моя игровая активность</h1>
+        <p class="page-subtitle">Маша, здесь видно, сколько валюты и времени уходит на игры — и когда пора сделать паузу.</p>
+
+        <!-- Верхние карточки -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-card__label">Все начисления</span>
+                <div class="stat-card__value">12 500 ШР</div>
+                <span class="stat-card__hint">Выигрыши за 7 дней</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-card__label">Сумма ставок</span>
+                <div class="stat-card__value">18 000 ШР</div>
+                <span class="stat-card__hint">Поставлено за 7 дней</span>
+            </div>
+            <div class="stat-card stat-card--negative">
+                <span class="stat-card__label">Чистый результат</span>
+                <div class="stat-card__value" id="netResult">-5 500 ШР</div>
+                <span class="stat-card__hint">Начисления минус ставки</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-card__label">Время в играх</span>
+                <div class="stat-card__value">8 ч 40 м</div>
+                <span class="stat-card__hint">За 7 дней</span>
+            </div>
+        </div>
+
+        <!-- Блок предупреждения -->
+        <div class="alert-block">
+            <div class="alert-block__icon">⚠️</div>
+            <div class="alert-block__text">
+                <h3>Самая длинная сессия — 95 мин</h3>
+                <p>Из 35 сессий 5 длились больше 60 мин. Частые потери и всплеск скуки — тоже маркер. Возьми паузу.</p>
+            </div>
+        </div>
+
+        <!-- Таблица истории игр -->
+        <div class="table-section">
+            <div class="table-header">
+                <h2>В какие игры уходят время и валюта</h2>
+                <span>Последние 7 дней</span>
+            </div>
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>Игра</th>
+                        <th>Ставки</th>
+                        <th>Начисления</th>
+                        <th>Результат</th>
+                        <th>Время</th>
+                        <th>Сессий</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><img src="./img/Знак.png" width="24"> Почтовая лихорадка</td>
+                        <td>8 000</td>
+                        <td>3 500</td>
+                        <td class="text-red">-2 500</td>
+                        <td>3 ч 20 м</td>
+                        <td>12</td>
+                    </tr>
+                    <tr>
+                        <td><img src="./img/Знак.png" width="24"> Falling Pickaxe</td>
+                        <td>10 000</td>
+                        <td>9 000</td>
+                        <td class="text-green">-1 000</td>
+                        <td>5 ч 20 м</td>
+                        <td>23</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Блок ограничений -->
+        <div class="limits-block">
+            <h3>Мои ограничения</h3>
+            <div class="limit-item">
+                <span>Частые потери за 7 дней</span>
+                <span class="limit-value">4 000 ШР</span>
+            </div>
+            <div class="limit-item">
+                <span>Сессия</span>
+                <span class="limit-value">60 мин</span>
+            </div>
+            <button class="btn-outline">Взять паузу</button>
+        </div>
+    </div>
+</main>
+
+<script src="./shared/auth-state.js"></script>
+<script src="./shared/header.js"></script>
+<script src="./js/balance.js"></script>
+</body>
+</html>
