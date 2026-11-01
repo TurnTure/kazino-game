@@ -3,9 +3,12 @@
 const gameField = document.getElementById('gameField');
 const drill = document.getElementById('drill');
 const spinBtn = document.getElementById('spinBtn');
+const bonusBtn = document.getElementById('bonusBtn');
+const bonusModal = document.getElementById('bonusModal');
+const closeModal = document.getElementById('closeModal');
 
 // Физические параметры
-const GRAVITY = 0.6;        // Чуть увеличил гравитацию, чтобы падала быстрее
+const GRAVITY = 0.6;        
 const ROTATION_SPEED = 10; 
 const SIZE = 40;           
 
@@ -47,7 +50,7 @@ function generateField() {
 // ===== Проверка коллизий =====
 function isSolid(px, py) {
     if (px < 0 || px >= 600 || py >= 600) return true;
-    if (py < 0) return false; // Над сеткой пусто
+    if (py < 0) return false; 
     
     const col = Math.floor(px / BLOCK_W);
     const row = Math.floor(py / BLOCK_H);
@@ -86,21 +89,17 @@ function breakBlocksAround(centerX, centerY) {
 function loop() {
     if (!isPlaying) return;
 
-    // 1. Гравитация
     vy += GRAVITY;
 
-    // 2. Движение по X (с отскоком от стен)
     let nextX = x + vx;
     if (isSolid(nextX + SIZE/2, y + SIZE/2)) {
-        vx = -vx * 0.5; // Гасим скорость при ударе об стену
+        vx = -vx * 0.5; 
     } else {
         x = nextX;
     }
 
-    // 3. Движение по Y (с гарантированной поломкой)
     let nextY = y + vy;
     if (isSolid(x + SIZE/2, nextY + SIZE/2)) {
-        // Принудительно ломаем конкретный блок, в который врезались
         const hitCol = Math.floor((x + SIZE/2) / BLOCK_W);
         const hitRow = Math.floor((nextY + SIZE/2) / BLOCK_H);
         
@@ -109,28 +108,22 @@ function loop() {
             blocks[hitRow][hitCol].style.border = 'none';
         }
 
-        // Ломаем вокруг (для кратера)
         breakBlocksAround(x + SIZE/2, nextY + SIZE/2);
         
-        // ОЧЕНЬ СЛАБЫЙ ОТСКОК
-        vy = -Math.abs(vy) * 0.1; // Оставляем всего 10% от скорости падения
+        vy = -Math.abs(vy) * 0.1; 
         
-        // Слегка отлетаем в сторону
         vx = (Math.random() > 0.5 ? 1 : -1) * (1 + Math.random() * 1.5);
     } else {
         y = nextY;
     }
 
-    // 4. Вращение
     angle += ROTATION_SPEED;
 
-    // 5. Ограничение по низу
     if (y >= 600 - SIZE) {
         stopGame();
         return;
     }
 
-    // 6. Отрисовка
     drill.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
     
     reqId = requestAnimationFrame(loop);
@@ -140,8 +133,7 @@ function loop() {
 function startGame() {
     if (isPlaying) return;
     
-    const modal = document.getElementById('bonusModal');
-    if (modal) modal.classList.remove('is-open');
+    if (bonusModal) bonusModal.classList.remove('is-open');
 
     x = 250; 
     y = -40; 
@@ -170,9 +162,43 @@ function stopGame() {
     }, 1500);
 }
 
-// ===== Кнопки =====
-if (spinBtn) spinBtn.addEventListener('click', startGame);
-document.querySelectorAll('.bonus-card__activate').forEach(btn => btn.addEventListener('click', startGame));
+// ===== ОТКРЫТИЕ МОДАЛКИ =====
+// Кнопка "Крутить" открывает модалку
+if (spinBtn) {
+    spinBtn.addEventListener('click', () => {
+        if (!isPlaying) bonusModal.classList.add('is-open');
+    });
+}
+
+// Кнопка "Bonus Buy" тоже открывает модалку
+if (bonusBtn) {
+    bonusBtn.addEventListener('click', () => {
+        if (!isPlaying) bonusModal.classList.add('is-open');
+    });
+}
+
+// Кнопка "Активировать" внутри модалки запускает игру
+document.querySelectorAll('.bonus-card__activate').forEach(btn => {
+    btn.addEventListener('click', () => {
+        startGame();
+    });
+});
+
+// Закрытие модалки по крестику
+if (closeModal) {
+    closeModal.addEventListener('click', () => {
+        bonusModal.classList.remove('is-open');
+    });
+}
+
+// Закрытие модалки по клику на фон
+if (bonusModal) {
+    bonusModal.addEventListener('click', (e) => {
+        if (e.target === bonusModal) {
+            bonusModal.classList.remove('is-open');
+        }
+    });
+}
 
 // ===== Старт =====
 generateField();
