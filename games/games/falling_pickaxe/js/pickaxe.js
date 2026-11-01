@@ -159,16 +159,14 @@ function hitBlock(px, py) {
         block.dataset.hp = hp;
 
         if (hp <= 0) {
-            // Блок сломан
             block.style.opacity = '0';
             block.style.border = 'none';
         } else {
-            // Блок НЕ сломан, показываем трещину
             block.style.opacity = 0.5 + (hp * 0.1); 
             
-            // Отскок: бьем вверх и в сторону
-            vy = -Math.abs(vy) * 0.5 - 2; 
-            vx = (Math.random() > 0.5 ? 1 : -1) * (2 + Math.random() * 2);
+            // Слабый отскок
+            vy = -Math.abs(vy) * 0.3 - 1; 
+            vx = (Math.random() > 0.5 ? 1 : -1) * (1 + Math.random() * 1);
         }
     }
 }
@@ -197,7 +195,7 @@ function loop() {
         hitBlock(nextX + SIZE, y); 
         hitBlock(nextX, y + SIZE); 
         hitBlock(nextX + SIZE, y + SIZE); 
-        vx = -vx * 0.8; 
+        vx = -vx * 0.5; 
     } else {
         x = nextX;
     }
@@ -209,9 +207,9 @@ function loop() {
         hitBlock(x, nextY + SIZE);
         hitBlock(x + SIZE, nextY + SIZE);
         
-        // Увеличенный отскок вверх и в сторону
-        vy = -Math.abs(vy) * 0.6 - 3; 
-        vx = (Math.random() > 0.5 ? 1 : -1) * (3 + Math.random() * 3);
+        // Средний отскок
+        vy = -Math.abs(vy) * 0.4 - 1.5; 
+        vx = (Math.random() > 0.5 ? 1 : -1) * (1.5 + Math.random() * 1.5);
     } else {
         y = nextY;
     }
