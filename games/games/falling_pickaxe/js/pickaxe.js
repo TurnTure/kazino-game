@@ -99,6 +99,7 @@ function shiftCamera() {
 }
 
 // ===== Игровой цикл =====
+// ===== Игровой цикл =====
 function loop() {
     if (!isPlaying) return;
 
@@ -107,8 +108,12 @@ function loop() {
     // 1. Движение по X
     let nextX = x + vx;
     if (checkCollision(nextX, y)) {
-        // Врезались боком — ломаем этот блок
-        breakBlock(nextX + SIZE/2, y + SIZE/2);
+        // Ломаем блоки, в которые попали углы
+        breakBlock(nextX, y); // левый верх
+        breakBlock(nextX + SIZE, y); // правый верх
+        breakBlock(nextX, y + SIZE); // левый низ
+        breakBlock(nextX + SIZE, y + SIZE); // правый низ
+        
         vx = -vx * 0.5; 
     } else {
         x = nextX;
@@ -117,10 +122,13 @@ function loop() {
     // 2. Движение по Y
     let nextY = y + vy;
     if (checkCollision(x, nextY)) {
-        // Врезались снизу/сверху — ломаем
-        breakBlock(x + SIZE/2, nextY + SIZE/2);
+        // Ломаем блоки, в которые попали углы
+        breakBlock(x, nextY);
+        breakBlock(x + SIZE, nextY);
+        breakBlock(x, nextY + SIZE);
+        breakBlock(x + SIZE, nextY + SIZE);
         
-        vy = -Math.abs(vy) * 0.1; // Очень слабый отскок
+        vy = -Math.abs(vy) * 0.1; 
         vx = (Math.random() > 0.5 ? 1 : -1) * (1 + Math.random() * 1.5);
     } else {
         y = nextY;
