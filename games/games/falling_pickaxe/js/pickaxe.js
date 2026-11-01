@@ -39,7 +39,7 @@ let maxHp = 150;
 let currentHp = 150;
 let currentCash = 0;
 
-// Цены за блоки (сильно уменьшены, чтобы было сложно выиграть)
+// Цены за блоки
 const BLOCK_VALUES = {
     'dirt': 0,
     'stone': 0,
@@ -50,6 +50,26 @@ const BLOCK_VALUES = {
     'dynamite': 0,
     'workbench': 0
 };
+
+// ===== Функция всплывающего текста =====
+function showFloatingCash(px, py, amount) {
+    if (amount <= 0) return;
+
+    const text = document.createElement('div');
+    text.className = 'floating-text';
+    text.textContent = `+${amount.toFixed(2)}`;
+    
+    // Позиционируем по центру разбитого блока
+    text.style.left = `${px}px`;
+    text.style.top = `${py}px`;
+
+    gameField.appendChild(text);
+
+    // Удаляем элемент через секунду (когда анимация закончится)
+    setTimeout(() => {
+        text.remove();
+    }, 1000);
+}
 
 // ===== Создание одного блока =====
 function createBlock(depth, col) {
@@ -64,7 +84,7 @@ function createBlock(depth, col) {
     let type = 'stone';
     let hp = 0;
 
-    // Специальные блоки (теперь 1 на каждые 15 слоев)
+    // Специальные блоки
     if (depth >= 10 && depth % 15 === 0 && Math.random() < 0.3) {
         if (Math.random() > 0.5) {
             type = 'dynamite';
@@ -159,7 +179,6 @@ function checkCollision(px, py) {
 
 // ===== Взрыв динамита =====
 function explode(centerX, centerY) {
-    // Коэффициент для начисления денег
     const betMultiplier = currentBet / 300;
     
     for (let r = -2; r <= 2; r++) {
@@ -178,8 +197,13 @@ function explode(centerX, centerY) {
                         
                         const bType = b.dataset.type;
                         const basePrice = BLOCK_VALUES[bType] || 0;
-                        currentCash += basePrice * betMultiplier;
+                        const cashEarned = basePrice * betMultiplier;
+                        
+                        currentCash += cashEarned;
                         updateCash();
+                        
+                        // Всплывающий текст при взрыве
+                        showFloatingCash(px + 15, py + 15, cashEarned);
                     }
                 }
             }
@@ -230,15 +254,19 @@ function hitBlock(px, py) {
 
     let hp = parseInt(block.dataset.hp) || 0;
     
-    // Коэффициент для начисления денег
     const betMultiplier = currentBet / 300;
     const basePrice = BLOCK_VALUES[blockType] || 0;
+    const cashEarned = basePrice * betMultiplier;
     
     if (hp === 0) {
         block.style.opacity = '0';
         block.style.border = 'none';
-        currentCash += basePrice * betMultiplier;
+        currentCash += cashEarned;
         updateCash();
+        
+        // Всплывающий текст при разрушении
+        showFloatingCash(px - 15, py - 15, cashEarned);
+        
         if (blockType === 'dynamite') explode(px, py);
         if (blockType === 'workbench') upgradePickaxe();
     } else {
@@ -248,8 +276,12 @@ function hitBlock(px, py) {
         if (hp <= 0) {
             block.style.opacity = '0';
             block.style.border = 'none';
-            currentCash += basePrice * betMultiplier;
+            currentCash += cashEarned;
             updateCash();
+            
+            // Всплывающий текст при разрушении
+            showFloatingCash(px - 15, py - 15, cashEarned);
+            
             if (blockType === 'dynamite') explode(px, py);
             if (blockType === 'workbench') upgradePickaxe();
         } else {
@@ -319,21 +351,17 @@ function loop() {
 async function startGame() {
     if (isPlaying) return;
 
-    // 1. Считаем реальную стоимость игры (базовая ставка * множитель кирки)
-    let multiplier = 1.1; // По умолчанию для каменной
+    let multiplier = 1.1; 
     if (currentPickaxe === 'iron') multiplier = 1.7;
     if (currentPickaxe === 'diamond') multiplier = 2.1;
     
-    // Итоговая ставка (та, что на желтом фоне)
     const realBet = currentBet * multiplier;
 
-    // 2. Проверяем, хватает ли денег на ИТОГОВУЮ ставку
     if (typeof canAfford === 'function' && !canAfford(realBet)) {
         showMessage('Недостаточно средств', '#C8552B');
         return;
     }
 
-    // 3. Списываем ИТОГОВУЮ ставку
     if (typeof addBalance === 'function') {
         addBalance(-realBet, 'pickaxe:bet');
     }
@@ -357,7 +385,6 @@ function stopGame() {
     drill.style.opacity = '0';
     if (drillHp) drillHp.style.opacity = '0'; 
 
-    // Начисление выигрыша
     if (currentCash > 0 && typeof addBalance === 'function') {
         addBalance(currentCash, 'pickaxe:win');
     }
@@ -372,19 +399,14 @@ const slider = document.querySelector('.modal__slider input[type="range"]');
 function updateBet(value) {
     currentBet = Math.max(10, Math.min(10000, value));
     
-    // Обновляем поле ввода в модалке
     if (betInput) betInput.value = currentBet;
-    
-    // Обновляем ползунок
     if (slider) slider.value = currentBet;
 
-    // Обновляем надпись "BET" внизу экрана
     const gameBetEl = document.getElementById('gameBet');
     if (gameBetEl) {
         gameBetEl.textContent = currentBet.toFixed(2);
     }
 
-    // Обновляем цены на карточках
     const cardPrices = document.querySelectorAll('.bonus-card__price');
     if (cardPrices.length === 3) {
         cardPrices[0].textContent = `bet will be ${(currentBet * 1.1).toFixed(2)}`;
