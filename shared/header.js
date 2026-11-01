@@ -38,7 +38,7 @@ async function initHeader() {
                 <span class="profile__name">${escapeHtml(user.username)}</span>
 
                 <div class="profile__dropdown">
-                    <a href="./profile.html" class="profile__item">Профиль</a>
+                    <a href="/profile.html" class="profile__item">Профиль</a>
                     <button class="profile__item profile__item--danger" id="logoutBtn">Выйти из аккаунта</button>
                 </div>
             </div>
