@@ -256,8 +256,8 @@ app.get('/api/profile/stats', async (req, res) => {
             SELECT 
                 CASE 
                     WHEN reason LIKE '%pickaxe%' THEN 'Falling Pickaxe'
-                    WHEN reason LIKE '%wheel%' THEN 'Почтовая лихорадка'
-                    WHEN reason LIKE '%game%' THEN 'Колесо фортуны'
+                    WHEN reason LIKE '%voenkomat%' OR reason LIKE '%mail%' THEN 'Почтовая лихорадка'
+                    WHEN reason LIKE '%wheel%' OR reason LIKE '%game%' THEN 'Колесо фортуны'
                     ELSE 'Другое'
                 END as game_name,
                 COALESCE(SUM(CASE WHEN delta > 0 THEN delta ELSE 0 END), 0) as total_won,
