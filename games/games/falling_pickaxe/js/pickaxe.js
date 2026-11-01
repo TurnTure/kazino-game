@@ -1,10 +1,10 @@
-// ===== FALLING PICKAXE (Бесконечная шахта + Жилы + HP + Экономика) =====
+// ===== FALLING PICKAXE (Финальная версия) =====
 
 const gameField = document.getElementById('gameField');
 const drill = document.getElementById('drill');
 const drillHp = document.getElementById('drillHp');
 const drillHpText = document.getElementById('drillHpText');
-const gameCashText = document.getElementById('gameCash'); // Счетчик денег на экране
+const gameCashText = document.getElementById('gameCash');
 
 const spinBtn = document.getElementById('spinBtn');
 const bonusBtn = document.getElementById('bonusBtn');
@@ -29,20 +29,14 @@ let blocks = [];
 
 let x = 0, y = 0, vx = 0, vy = 0, angle = 0;
 
-// Логика модалки
+// Логика
 let currentBet = 300;
 let currentPickaxe = null; 
 let currentPickaxeHp = 150; 
-
-// Генерация
 let currentDepth = 0;
 let veinData = { type: null, remaining: 0 };
-
-// Здоровье
 let maxHp = 150;
 let currentHp = 150;
-
-// Деньги
 let currentCash = 0;
 
 // Цены за блоки
@@ -53,8 +47,8 @@ const BLOCK_VALUES = {
     'iron': 20,
     'diamond': 50,
     'emerald': 100,
-    'dynamite': 0, // Динамит не дает денег, он взрывает
-    'workbench': 0 // Верстак не дает денег, он апгрейдит
+    'dynamite': 0, 
+    'workbench': 0 
 };
 
 // ===== Создание одного блока =====
@@ -96,7 +90,6 @@ function createBlock(depth, col) {
             veinData.remaining--;
         } else {
             const rand = Math.random() * 100;
-            
             if (rand < 15) {
                 const oreRand = Math.random() * 100;
                 if (oreRand < 60) {
@@ -129,7 +122,6 @@ function createBlock(depth, col) {
 function createRow(depth) {
     const rowBlocks = [];
     if (Math.random() > 0.5) veinData.remaining = 0; 
-
     for (let c = 0; c < COLS; c++) {
         const block = createBlock(depth, c);
         gameField.appendChild(block);
@@ -140,10 +132,10 @@ function createRow(depth) {
 
 // ===== Инициализация поля =====
 function generateField() {
+    if (!gameField) return; 
     gameField.innerHTML = '';
     blocks = [];
     currentDepth = 0;
-
     for (let r = 0; r < ROWS; r++) {
         blocks.push(createRow(currentDepth));
         currentDepth++;
@@ -154,21 +146,15 @@ function generateField() {
 function isSolid(px, py) {
     if (px < 0 || px >= 600) return true; 
     if (py < 0) return false; 
-    
     const col = Math.floor(px / BLOCK_W);
     const row = Math.floor(py / BLOCK_H);
-    
     if (!blocks[row] || !blocks[row][col]) return false;
-    
-    const block = blocks[row][col];
-    return block.style.opacity !== '0';
+    return blocks[row][col].style.opacity !== '0';
 }
 
 function checkCollision(px, py) {
-    return isSolid(px, py) || 
-           isSolid(px + SIZE, py) || 
-           isSolid(px, py + SIZE) || 
-           isSolid(px + SIZE, py + SIZE);
+    return isSolid(px, py) || isSolid(px + SIZE, py) || 
+           isSolid(px, py + SIZE) || isSolid(px + SIZE, py + SIZE);
 }
 
 // ===== Взрыв динамита =====
@@ -186,7 +172,6 @@ function explode(centerX, centerY) {
                     if (b.style.opacity !== '0' && b.dataset.type !== 'indestructible') {
                         b.style.opacity = '0';
                         b.style.border = 'none';
-                        // За взорванные блоки деньги не даем
                     }
                 }
             }
@@ -210,9 +195,7 @@ function upgradePickaxe() {
 
 // ===== Обновление счета =====
 function updateCash() {
-    if (gameCashText) {
-        gameCashText.textContent = currentCash.toFixed(2);
-    }
+    if (gameCashText) gameCashText.textContent = currentCash.toFixed(2);
 }
 
 // ===== Нанесение урона блоку =====
@@ -227,11 +210,7 @@ function hitBlock(px, py) {
     if (block.style.opacity === '0') return;
 
     const blockType = block.dataset.type;
-    let damageToDrill = 5; 
-
-    if (blockType === 'dirt' || blockType === 'stone') {
-        damageToDrill = 1; 
-    }
+    let damageToDrill = (blockType === 'dirt' || blockType === 'stone') ? 1 : 5;
 
     currentHp -= damageToDrill;
     updateHp();
@@ -246,11 +225,8 @@ function hitBlock(px, py) {
     if (hp === 0) {
         block.style.opacity = '0';
         block.style.border = 'none';
-
-        // Начисляем деньги
         currentCash += (BLOCK_VALUES[blockType] || 0);
         updateCash();
-
         if (blockType === 'dynamite') explode(px, py);
         if (blockType === 'workbench') upgradePickaxe();
     } else {
@@ -260,11 +236,8 @@ function hitBlock(px, py) {
         if (hp <= 0) {
             block.style.opacity = '0';
             block.style.border = 'none';
-
-            // Начисляем деньги
             currentCash += (BLOCK_VALUES[blockType] || 0);
             updateCash();
-
             if (blockType === 'dynamite') explode(px, py);
             if (blockType === 'workbench') upgradePickaxe();
         } else {
@@ -279,7 +252,6 @@ function hitBlock(px, py) {
 function shiftCamera() {
     const newRow = createRow(currentDepth);
     currentDepth++;
-    
     const topRow = blocks.shift(); 
     topRow.forEach(block => block.remove());
     blocks.push(newRow);
@@ -288,9 +260,7 @@ function shiftCamera() {
 
 // ===== Обновление HP =====
 function updateHp() {
-    if (drillHpText) {
-        drillHpText.textContent = `${currentHp}/${maxHp}`;
-    }
+    if (drillHpText) drillHpText.textContent = `${currentHp}/${maxHp}`;
 }
 
 // ===== Игровой цикл =====
@@ -302,10 +272,8 @@ function loop() {
 
     let nextX = x + vx;
     if (checkCollision(nextX, y)) {
-        hitBlock(nextX, y); 
-        hitBlock(nextX + SIZE, y); 
-        hitBlock(nextX, y + SIZE); 
-        hitBlock(nextX + SIZE, y + SIZE); 
+        hitBlock(nextX, y); hitBlock(nextX + SIZE, y); 
+        hitBlock(nextX, y + SIZE); hitBlock(nextX + SIZE, y + SIZE); 
         vx = -vx * 0.3; 
     } else {
         x = nextX;
@@ -313,11 +281,8 @@ function loop() {
 
     let nextY = y + vy;
     if (checkCollision(x, nextY)) {
-        hitBlock(x, nextY);
-        hitBlock(x + SIZE, nextY);
-        hitBlock(x, nextY + SIZE);
-        hitBlock(x + SIZE, nextY + SIZE);
-        
+        hitBlock(x, nextY); hitBlock(x + SIZE, nextY);
+        hitBlock(x, nextY + SIZE); hitBlock(x + SIZE, nextY + SIZE);
         vy = -Math.abs(vy) * 0.2 - 1; 
         vx = (Math.random() > 0.5 ? 1 : -1) * (1 + Math.random() * 1);
     } else {
@@ -335,42 +300,20 @@ function loop() {
         drillHp.style.left = `${x + SIZE/2}px`;
         drillHp.style.top = `${y - 10}px`;
     }
-    
     reqId = requestAnimationFrame(loop);
 }
 
 // ===== Старт =====
 async function startGame() {
     if (isPlaying) return;
-    
-    // Проверка и списание ставки (если у тебя есть функция canAfford и addBalance)
-    // Если они не подключены, этот блок можно временно закомментировать
-    if (typeof canAfford === 'function' && !canAfford(currentBet)) {
-        showMessage('Недостаточно средств', '#C8552B');
-        return;
-    }
-    if (typeof addBalance === 'function') {
-        addBalance(-currentBet, 'pickaxe:bet');
-    }
-
     if (bonusModal) bonusModal.classList.remove('is-open');
 
-    x = 250; 
-    y = -40; 
-    vx = 2; 
-    vy = 4; 
-    angle = 0;
-    
-    currentCash = 0;
-    updateCash();
-
-    maxHp = currentPickaxeHp; 
-    currentHp = maxHp;
-    updateHp();
+    x = 250; y = -40; vx = 2; vy = 4; angle = 0;
+    currentCash = 0; updateCash();
+    maxHp = currentPickaxeHp; currentHp = maxHp; updateHp();
 
     drill.style.opacity = '1';
     if (drillHp) drillHp.style.opacity = '1'; 
-    
     isPlaying = true;
     reqId = requestAnimationFrame(loop);
 }
@@ -382,15 +325,58 @@ function stopGame() {
     drill.style.opacity = '0';
     if (drillHp) drillHp.style.opacity = '0'; 
 
-    // Начисление выигрыша на баланс
+    // Начисление выигрыша, если функция есть
     if (currentCash > 0 && typeof addBalance === 'function') {
         addBalance(currentCash, 'pickaxe:win');
-        showMessage(`Выигрыш: +${currentCash.toFixed(2)} ₽`, '#2E7D32');
-    } else {
-        showMessage('Вы ничего не заработали', '#C8552B');
     }
 
-    setTimeout(() => {
-        generateField();
-    }, 1500);
+    setTimeout(() => { generateField(); }, 1500);
 }
+
+// ===== Ползунок =====
+const betInput = document.getElementById('modalBetInput');
+const slider = document.querySelector('.modal__slider input[type="range"]');
+
+function updateBet(value) {
+    currentBet = Math.max(10, Math.min(10000, value));
+    if (betInput) betInput.value = currentBet;
+    if (slider) slider.value = currentBet;
+}
+
+if (slider) slider.addEventListener('input', (e) => updateBet(parseInt(e.target.value)));
+if (betInput) betInput.addEventListener('input', (e) => updateBet(parseInt(e.target.value) || 10));
+
+// ===== Кнопки =====
+if (spinBtn) {
+    spinBtn.addEventListener('click', () => {
+        if (!isPlaying) {
+            if (currentPickaxe === null) bonusModal.classList.add('is-open');
+            else startGame();
+        }
+    });
+}
+
+if (bonusBtn) {
+    bonusBtn.addEventListener('click', () => {
+        if (!isPlaying) bonusModal.classList.add('is-open');
+    });
+}
+
+document.querySelectorAll('.bonus-card__activate').forEach(btn => {
+    btn.addEventListener('click', () => {
+        currentPickaxe = btn.dataset.type; 
+        currentPickaxeHp = parseInt(btn.dataset.hp) || 150; 
+        startGame();
+    });
+});
+
+if (closeModal) closeModal.addEventListener('click', () => bonusModal.classList.remove('is-open'));
+if (bonusModal) bonusModal.addEventListener('click', (e) => {
+    if (e.target === bonusModal) bonusModal.classList.remove('is-open');
+});
+
+// ===== Старт =====
+generateField();
+drill.style.opacity = '0';
+if (drillHp) drillHp.style.opacity = '0';
+updateBet(currentBet);
