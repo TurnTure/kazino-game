@@ -261,3 +261,252 @@
     background: #C8552B;
     color: #FFF;
 }
+
+/* ===== Нижняя сетка ===== */
+.bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+/* Сессии и привычки */
+.sessions-block {
+    background: #FFFCF5;
+    border: 1.5px solid #EAD9B8;
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.sessions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.sessions-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #2B1A0F;
+}
+
+.badge {
+    background: #F5E9D6;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-family: sans-serif;
+    font-size: 12px;
+    color: #8A7461;
+}
+
+.sessions-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.sessions-stat-item {
+    text-align: center;
+}
+
+.sessions-stat-item .value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2B1A0F;
+}
+
+.sessions-stat-item .label {
+    font-family: sans-serif;
+    font-size: 11px;
+    color: #8A7461;
+}
+
+.sessions-hint {
+    font-family: sans-serif;
+    font-size: 12px;
+    color: #B5A28C;
+    margin-bottom: 20px;
+}
+
+.session-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.session-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #F5E9D6;
+    font-family: sans-serif;
+    font-size: 14px;
+}
+
+.session-name small {
+    color: #B5A28C;
+    font-size: 11px;
+}
+
+.session-time {
+    color: #8A7461;
+}
+
+.warning-text {
+    margin-top: 15px;
+    font-family: sans-serif;
+    font-size: 12px;
+    color: #C8552B;
+}
+
+/* Мои ограничения */
+.limits-block {
+    background: #FFFCF5;
+    border: 1.5px solid #EAD9B8;
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.limits-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.limits-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #2B1A0F;
+}
+
+.limits-subtitle {
+    font-family: sans-serif;
+    font-size: 12px;
+    color: #8A7461;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+.limit-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #F5E9D6;
+}
+
+.limit-info .limit-title {
+    font-family: sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+    color: #2B1A0F;
+    margin-bottom: 4px;
+}
+
+.limit-info .limit-desc {
+    font-family: sans-serif;
+    font-size: 11px;
+    color: #8A7461;
+}
+
+.limit-badge {
+    background: #F5E9D6;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    color: #2B1A0F;
+    white-space: nowrap;
+}
+
+.pause-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.btn-pause {
+    background: #8B0000;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: sans-serif;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Карточки статусов */
+.cards-info-block {
+    background: #FFFCF5;
+    border: 1.5px solid #EAD9B8;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 40px;
+}
+
+.cards-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.cards-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #2B1A0F;
+}
+
+.cards-header span {
+    font-family: sans-serif;
+    font-size: 12px;
+    color: #B5A28C;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.card-status {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    border-radius: 12px;
+    font-family: sans-serif;
+    font-size: 13px;
+}
+
+.card-status__icon {
+    font-size: 24px;
+}
+
+.card-status strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.card-status p {
+    margin: 0;
+    font-size: 11px;
+    opacity: 0.8;
+}
+
+.card-status--green { background: #E8F5E9; border: 1px solid #C8E6C9; color: #2E7D32; }
+.card-status--yellow { background: #FFF8E1; border: 1px solid #FFECB3; color: #F57F17; }
+.card-status--red { background: #FFEBEE; border: 1px solid #FFCDD2; color: #C62828; }
+
+.cards-footer {
+    font-family: sans-serif;
+    font-size: 12px;
+    color: #8A7461;
+    margin: 0;
+}
