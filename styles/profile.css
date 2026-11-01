@@ -3,7 +3,8 @@
 .profile-body {
     background-color: #F5E9D6;
     margin: 0;
-    padding: 0;
+    /* Добавляем отступ сверху, чтобы шапка не перекрывала контент */
+    padding-top: 90px; 
     font-family: Georgia, 'Times New Roman', serif;
 }
 
