@@ -311,6 +311,18 @@ function loop() {
 // ===== Старт =====
 async function startGame() {
     if (isPlaying) return;
+
+    // 1. Проверяем, хватает ли денег на ставку
+    if (typeof canAfford === 'function' && !canAfford(currentBet)) {
+        showMessage('Недостаточно средств', '#C8552B');
+        return;
+    }
+
+    // 2. Списываем ставку с баланса
+    if (typeof addBalance === 'function') {
+        addBalance(-currentBet, 'pickaxe:bet');
+    }
+
     if (bonusModal) bonusModal.classList.remove('is-open');
 
     x = 250; y = -40; vx = 2; vy = 4; angle = 0;
