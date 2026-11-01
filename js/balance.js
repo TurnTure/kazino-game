@@ -14,7 +14,7 @@ async function loadBalance() {
             return;
         }
         const data = await res.json();
-        balance = data.balance;
+        balance = Number(data.balance) || 0; // Превращаем строку в число
         balanceEl.textContent = balance.toFixed(2); // <-- ОКРУГЛЕНИЕ
     } catch (e) {
         console.error('Не удалось получить баланс:', e);
@@ -48,9 +48,9 @@ async function addBalance(delta, reason = '') {
         const data = await res.json();
 
         // синхронизация с сервером — он источник истины
-        if (typeof data.balance === 'number') {
-            balance = data.balance;
-            balanceEl.textContent = balance.toFixed(2); // <-- ОКРУГЛЕНИЕ
+        if (data.balance !== undefined) {
+            balance = Number(data.balance) || 0;
+            balanceEl.textContent = balance.toFixed(2);
         }
     } catch (e) {
         console.error('Не удалось сохранить баланс:', e);
