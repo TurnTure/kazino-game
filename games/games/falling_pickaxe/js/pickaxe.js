@@ -8,8 +8,9 @@ const bonusModal = document.getElementById('bonusModal');
 const closeModal = document.getElementById('closeModal');
 
 // Физические параметры
-const GRAVITY = 0.6;        
-const ROTATION_SPEED = 10; 
+const GRAVITY = 0.15;        // Уменьшили притяжение
+const MAX_FALL_SPEED = 6;    // Ограничение скорости падения
+const ROTATION_SPEED = 5;    // Замедлили вращение
 const SIZE = 40;           
 
 const BLOCK_W = 60;
@@ -99,20 +100,24 @@ function shiftCamera() {
 }
 
 // ===== Игровой цикл =====
-// ===== Игровой цикл =====
 function loop() {
     if (!isPlaying) return;
 
+    // Гравитация
     vy += GRAVITY;
+    
+    // Ограничиваем максимальную скорость падения
+    if (vy > MAX_FALL_SPEED) {
+        vy = MAX_FALL_SPEED;
+    }
 
     // 1. Движение по X
     let nextX = x + vx;
     if (checkCollision(nextX, y)) {
-        // Ломаем блоки, в которые попали углы
-        breakBlock(nextX, y); // левый верх
-        breakBlock(nextX + SIZE, y); // правый верх
-        breakBlock(nextX, y + SIZE); // левый низ
-        breakBlock(nextX + SIZE, y + SIZE); // правый низ
+        breakBlock(nextX, y); 
+        breakBlock(nextX + SIZE, y); 
+        breakBlock(nextX, y + SIZE); 
+        breakBlock(nextX + SIZE, y + SIZE); 
         
         vx = -vx * 0.5; 
     } else {
@@ -122,7 +127,6 @@ function loop() {
     // 2. Движение по Y
     let nextY = y + vy;
     if (checkCollision(x, nextY)) {
-        // Ломаем блоки, в которые попали углы
         breakBlock(x, nextY);
         breakBlock(x + SIZE, nextY);
         breakBlock(x, nextY + SIZE);
@@ -134,6 +138,7 @@ function loop() {
         y = nextY;
     }
 
+    // Вращение
     angle += ROTATION_SPEED;
 
     // Сдвиг камеры
@@ -158,7 +163,7 @@ function startGame() {
     x = 250; 
     y = -40; 
     vx = 2; 
-    vy = 8; 
+    vy = 4; // Уменьшили начальную скорость падения (было 8)
     angle = 0;
 
     drill.style.opacity = '1';
