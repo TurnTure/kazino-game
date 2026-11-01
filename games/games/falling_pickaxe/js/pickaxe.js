@@ -357,13 +357,22 @@ const slider = document.querySelector('.modal__slider input[type="range"]');
 
 function updateBet(value) {
     currentBet = Math.max(10, Math.min(10000, value));
+    
+    // Обновляем поле ввода в модалке
     if (betInput) betInput.value = currentBet;
+    
+    // Обновляем ползунок
     if (slider) slider.value = currentBet;
+
+    // Обновляем надпись "BET" внизу экрана
+    const gameBetEl = document.getElementById('gameBet');
+    if (gameBetEl) {
+        gameBetEl.textContent = currentBet.toFixed(2);
+    }
 
     // Обновляем цены на карточках
     const cardPrices = document.querySelectorAll('.bonus-card__price');
     if (cardPrices.length === 3) {
-        // Каменная - дороже ставки (x1.1), Железная (x1.7), Алмазная (x2.1)
         cardPrices[0].textContent = `bet will be ${(currentBet * 1.1).toFixed(2)}`;
         cardPrices[1].textContent = `bet will be ${(currentBet * 1.7).toFixed(2)}`;
         cardPrices[2].textContent = `bet will be ${(currentBet * 2.1).toFixed(2)}`;
