@@ -34,12 +34,11 @@ body.game-body {
 
 /* Сетка */
 .game-field {
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    grid-template-rows: repeat(10, 1fr);
+    display: flex;
+    flex-direction: column; /* Строки идут друг за другом */
     width: 100%;
     height: 100%;
-    opacity: 0.95; /* Чуть прозрачный, чтобы фон шахты проглядывал */
+    opacity: 0.95;
 }
 
 /* Блоки */

@@ -1,4 +1,4 @@
-// ===== FALLING PICKAXE (Плавная физика) =====
+// ===== FALLING PICKAXE (Бесконечная шахта) =====
 
 const gameField = document.getElementById('gameField');
 const drill = document.getElementById('drill');
@@ -14,75 +14,87 @@ const SIZE = 40;
 
 const BLOCK_W = 60;
 const BLOCK_H = 60;
-const ROWS = 10;
+const ROWS = 10; // Сколько строк помещается на экране
 const COLS = 10;
 
 let isPlaying = false;
 let reqId = null;
-let blocks = [];
+let blocks = []; // Двумерный массив (строки)
 
 let x = 0, y = 0, vx = 0, vy = 0, angle = 0;
 
-// ===== Генерация поля =====
+// ===== Генерация одной строки блоков =====
+function createRow() {
+    const rowBlocks = [];
+    for (let c = 0; c < COLS; c++) {
+        const block = document.createElement('div');
+        block.className = 'block';
+
+        if (c === 0 || c === COLS - 1) {
+            block.classList.add('indestructible');
+        } else {
+            if (Math.random() > 0.7) block.classList.add('dirt');
+            else block.classList.add('stone');
+        }
+        gameField.appendChild(block);
+        rowBlocks.push(block);
+    }
+    return rowBlocks;
+}
+
+// ===== Инициализация поля =====
 function generateField() {
     gameField.innerHTML = '';
     blocks = [];
 
+    // Создаем 10 строк (заполняем экран)
     for (let r = 0; r < ROWS; r++) {
-        const rowBlocks = [];
-        for (let c = 0; c < COLS; c++) {
-            const block = document.createElement('div');
-            block.className = 'block';
-
-            if (c === 0 || c === COLS - 1) {
-                block.classList.add('indestructible');
-            } else {
-                if (Math.random() > 0.7) block.classList.add('dirt');
-                else block.classList.add('stone');
-            }
-            gameField.appendChild(block);
-            rowBlocks.push(block);
-        }
-        blocks.push(rowBlocks);
+        blocks.push(createRow());
     }
 }
 
 // ===== Проверка коллизий =====
 function isSolid(px, py) {
-    if (px < 0 || px >= 600 || py >= 600) return true;
-    if (py < 0) return false; 
+    if (px < 0 || px >= 600) return true;
+    if (py < 0) return false; // Над сеткой пусто
     
+    // Если бур ушел ниже наших строк, значит там ничего нет (пока)
     const col = Math.floor(px / BLOCK_W);
     const row = Math.floor(py / BLOCK_H);
     
-    if (!blocks[row] || !blocks[row][col]) return true;
+    if (!blocks[row] || !blocks[row][col]) return false;
     
     const block = blocks[row][col];
     return block.style.opacity !== '0';
 }
 
-// ===== Ломаем блок с эффектом "кратера" =====
-function breakBlocksAround(centerX, centerY) {
-    for (let dx = -SIZE/2; dx <= SIZE/2; dx += BLOCK_W / 2) {
-        for (let dy = -SIZE/2; dy <= SIZE/2; dy += BLOCK_H / 2) {
-            const px = centerX + dx;
-            const py = centerY + dy;
-            
-            if (px > 60 && px < 540 && py > 0 && py < 600) {
-                const col = Math.floor(px / BLOCK_W);
-                const row = Math.floor(py / BLOCK_H);
-                
-                if (blocks[row] && blocks[row][col]) {
-                    const block = blocks[row][col];
-                    if (block.style.opacity !== '0') {
-                         block.style.opacity = '0';
-                         block.style.border = 'none';
-                         block.style.transform = 'scale(0.8)'; 
-                    }
-                }
-            }
-        }
+// ===== Ломаем блок =====
+function breakBlock(px, py) {
+    const col = Math.floor(px / BLOCK_W);
+    const row = Math.floor(py / BLOCK_H);
+    
+    if (col <= 0 || col >= COLS - 1) return; 
+    if (!blocks[row] || !blocks[row][col]) return;
+    
+    const block = blocks[row][col];
+    if (block.style.opacity !== '0') {
+        block.style.opacity = '0';
+        block.style.border = 'none';
     }
+}
+
+// ===== Функция: добавить новую строку снизу =====
+function appendNewRow() {
+    // Создаем новую строку
+    const newRow = createRow();
+    blocks.push(newRow);
+
+    // Удаляем самую верхнюю строку (чтобы не было бесконечного DOM-дерева)
+    const topRow = blocks.shift();
+    topRow.forEach(block => block.remove());
+
+    // Сдвигаем бур и все координаты вверх на высоту одного блока (60px)
+    y -= BLOCK_H;
 }
 
 // ===== Игровой цикл =====
@@ -91,6 +103,7 @@ function loop() {
 
     vy += GRAVITY;
 
+    // Движение по X
     let nextX = x + vx;
     if (isSolid(nextX + SIZE/2, y + SIZE/2)) {
         vx = -vx * 0.5; 
@@ -98,32 +111,29 @@ function loop() {
         x = nextX;
     }
 
+    // Движение по Y
     let nextY = y + vy;
     if (isSolid(x + SIZE/2, nextY + SIZE/2)) {
-        const hitCol = Math.floor((x + SIZE/2) / BLOCK_W);
-        const hitRow = Math.floor((nextY + SIZE/2) / BLOCK_H);
+        // Ломаем блок
+        breakBlock(x + SIZE/2, nextY + SIZE/2);
         
-        if (hitCol > 0 && hitCol < COLS - 1 && blocks[hitRow] && blocks[hitRow][hitCol]) {
-            blocks[hitRow][hitCol].style.opacity = '0';
-            blocks[hitRow][hitCol].style.border = 'none';
-        }
-
-        breakBlocksAround(x + SIZE/2, nextY + SIZE/2);
-        
+        // Слабый отскок
         vy = -Math.abs(vy) * 0.1; 
-        
         vx = (Math.random() > 0.5 ? 1 : -1) * (1 + Math.random() * 1.5);
     } else {
         y = nextY;
     }
 
+    // Вращение
     angle += ROTATION_SPEED;
 
-    if (y >= 600 - SIZE) {
-        stopGame();
-        return;
+    // Если бур опустился слишком низко (например, ниже 8-й строки)
+    // Мы сдвигаем камеру (все поле) наверх
+    if (y > (ROWS - 3) * BLOCK_H) {
+        appendNewRow();
     }
 
+    // Отрисовка
     drill.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
     
     reqId = requestAnimationFrame(loop);
@@ -135,6 +145,7 @@ function startGame() {
     
     if (bonusModal) bonusModal.classList.remove('is-open');
 
+    // Сбрасываем координаты
     x = 250; 
     y = -40; 
     vx = 2; 
@@ -145,10 +156,6 @@ function startGame() {
     isPlaying = true;
     
     reqId = requestAnimationFrame(loop);
-
-    setTimeout(() => {
-        if (isPlaying) stopGame();
-    }, 15000);
 }
 
 // ===== Стоп =====
@@ -162,36 +169,31 @@ function stopGame() {
     }, 1500);
 }
 
-// ===== ОТКРЫТИЕ МОДАЛКИ =====
-// Кнопка "Крутить" открывает модалку
+// ===== Модалка =====
 if (spinBtn) {
     spinBtn.addEventListener('click', () => {
         if (!isPlaying) bonusModal.classList.add('is-open');
     });
 }
 
-// Кнопка "Bonus Buy" тоже открывает модалку
 if (bonusBtn) {
     bonusBtn.addEventListener('click', () => {
         if (!isPlaying) bonusModal.classList.add('is-open');
     });
 }
 
-// Кнопка "Активировать" внутри модалки запускает игру
 document.querySelectorAll('.bonus-card__activate').forEach(btn => {
     btn.addEventListener('click', () => {
         startGame();
     });
 });
 
-// Закрытие модалки по крестику
 if (closeModal) {
     closeModal.addEventListener('click', () => {
         bonusModal.classList.remove('is-open');
     });
 }
 
-// Закрытие модалки по клику на фон
 if (bonusModal) {
     bonusModal.addEventListener('click', (e) => {
         if (e.target === bonusModal) {
