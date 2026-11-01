@@ -19,7 +19,7 @@ const COLS = 10;
 
 let isPlaying = false;
 let reqId = null;
-let blocks = []; // Массив для хранения блоков
+let blocks = []; 
 
 let x = 0, y = 0, vx = 0, vy = 0, angle = 0;
 
@@ -47,7 +47,6 @@ function generateField() {
     gameField.innerHTML = '';
     blocks = [];
 
-    // Создаем 10 строк (заполняем экран)
     for (let r = 0; r < ROWS; r++) {
         blocks.push(createRow());
     }
@@ -55,10 +54,9 @@ function generateField() {
 
 // ===== Проверка коллизий =====
 function isSolid(px, py) {
-    if (px < 0 || px >= 600) return true; // Стены по бокам
-    if (py < 0) return false; // Над сеткой пусто
+    if (px < 0 || px >= 600) return true; 
+    if (py < 0) return false; 
     
-    // Если бур улетел ниже экрана (но мы его туда не пустим)
     const col = Math.floor(px / BLOCK_W);
     const row = Math.floor(py / BLOCK_H);
     
@@ -68,7 +66,7 @@ function isSolid(px, py) {
     return block.style.opacity !== '0';
 }
 
-// ===== Ломаем блок =====
+// ===== Ломаем конкретный блок =====
 function breakBlock(px, py) {
     const col = Math.floor(px / BLOCK_W);
     const row = Math.floor(py / BLOCK_H);
@@ -83,19 +81,30 @@ function breakBlock(px, py) {
     }
 }
 
-// ===== Сдвиг камеры (создание новых блоков) =====
+// ===== Взрыв (ломаем блоки вокруг) =====
+function explode(centerX, centerY) {
+    // Ломаем центральный блок
+    breakBlock(centerX, centerY);
+
+    // Ломаем блоки вокруг (радиус кратера)
+    const offsets = [
+        [-BLOCK_W, 0], [BLOCK_W, 0], // слева, справа
+        [0, -BLOCK_H], [0, BLOCK_H], // сверху, снизу
+        [-BLOCK_W, -BLOCK_H], [BLOCK_W, -BLOCK_H], // диагонали
+        [-BLOCK_W, BLOCK_H], [BLOCK_W, BLOCK_H]
+    ];
+
+    offsets.forEach(offset => {
+        breakBlock(centerX + offset[0], centerY + offset[1]);
+    });
+}
+
+// ===== Сдвиг камеры =====
 function shiftCamera() {
-    // 1. Создаем новую строку и добавляем её в DOM
     const newRow = createRow();
-    
-    // 2. Удаляем самую верхнюю строку из DOM и из массива
     const topRow = blocks.shift(); 
     topRow.forEach(block => block.remove());
-
-    // 3. Добавляем новую строку в конец массива
     blocks.push(newRow);
-
-    // 4. Сдвигаем координату Y бура вверх на 60px
     y -= BLOCK_H;
 }
 
@@ -103,7 +112,6 @@ function shiftCamera() {
 function loop() {
     if (!isPlaying) return;
 
-    // Гравитация
     vy += GRAVITY;
 
     // Движение по X
@@ -117,15 +125,15 @@ function loop() {
     // Движение по Y
     let nextY = y + vy;
     if (isSolid(x + SIZE/2, nextY + SIZE/2)) {
-        breakBlock(x + SIZE/2, nextY + SIZE/2);
+        // ВЗРЫВ ВОКРУГ
+        explode(x + SIZE/2, nextY + SIZE/2);
         
-        vy = -Math.abs(vy) * 0.1; // Очень слабый отскок
+        vy = -Math.abs(vy) * 0.1; 
         vx = (Math.random() > 0.5 ? 1 : -1) * (1 + Math.random() * 1.5);
     } else {
         y = nextY;
     }
 
-    // Вращение
     angle += ROTATION_SPEED;
 
     // Если бур опустился до 8-й строки — сдвигаем камеру
@@ -133,13 +141,10 @@ function loop() {
         shiftCamera();
     }
 
-    // Если бур упал на самое дно (но мы сдвигаем камеру, поэтому сюда он не попадет)
     if (y >= 600 - SIZE) {
-        y = 600 - SIZE; // Оставляем его на границе
-        // Здесь потом можно добавить логику проигрыша (прочность бура)
+        y = 600 - SIZE;
     }
 
-    // Отрисовка
     drill.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
     
     reqId = requestAnimationFrame(loop);
@@ -150,7 +155,6 @@ function startGame() {
     if (isPlaying) return;
     if (bonusModal) bonusModal.classList.remove('is-open');
 
-    // Сбрасываем координаты
     x = 250; 
     y = -40; 
     vx = 2; 
