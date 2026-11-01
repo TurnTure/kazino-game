@@ -64,8 +64,8 @@ function createBlock(depth, col) {
     let type = 'stone';
     let hp = 0;
 
-    // Специальные блоки
-    if (depth >= 10 && depth % 5 === 0 && Math.random() < 0.2) {
+    // Специальные блоки (теперь 1 на каждые 15 слоев)
+    if (depth >= 10 && depth % 15 === 0 && Math.random() < 0.3) {
         if (Math.random() > 0.5) {
             type = 'dynamite';
             hp = 1;
@@ -172,6 +172,11 @@ function explode(centerX, centerY) {
                     if (b.style.opacity !== '0' && b.dataset.type !== 'indestructible') {
                         b.style.opacity = '0';
                         b.style.border = 'none';
+                        
+                        // НАЧИСЛЯЕМ ДЕНЬГИ ЗА ВЗОРВАННЫЙ БЛОК
+                        const bType = b.dataset.type;
+                        currentCash += (BLOCK_VALUES[bType] || 0);
+                        updateCash();
                     }
                 }
             }
@@ -325,7 +330,7 @@ function stopGame() {
     drill.style.opacity = '0';
     if (drillHp) drillHp.style.opacity = '0'; 
 
-    // Начисление выигрыша, если функция есть
+    // Начисление выигрыша
     if (currentCash > 0 && typeof addBalance === 'function') {
         addBalance(currentCash, 'pickaxe:win');
     }
