@@ -48,7 +48,7 @@ function createBlock(depth, col) {
     let hp = 0;
 
     if (depth < 10) {
-        // Первые 10 строк (включая стартовые экраны) — только земля и камень
+        // Первые 10 строк — только земля и камень
         if (Math.random() > 0.5) { type = 'dirt'; hp = 0; }
         else { type = 'stone'; hp = 0; }
     } else {
@@ -66,15 +66,15 @@ function createBlock(depth, col) {
                 if (oreRand < 60) {
                     type = 'iron';     
                     hp = 2; 
-                    veinData = { type: 'iron', remaining: 2 + Math.floor(Math.random() * 3) }; // 2-4 блока
+                    veinData = { type: 'iron', remaining: 2 + Math.floor(Math.random() * 3) }; 
                 } else if (oreRand < 90) {
                     type = 'diamond';  
                     hp = 3; 
-                    veinData = { type: 'diamond', remaining: 1 + Math.floor(Math.random() * 2) }; // 1-2 блока
+                    veinData = { type: 'diamond', remaining: 1 + Math.floor(Math.random() * 2) }; 
                 } else {
                     type = 'emerald';  
                     hp = 4; 
-                    veinData = { type: 'emerald', remaining: 1 }; // 1 блок
+                    veinData = { type: 'emerald', remaining: 1 }; 
                 }
             } else {
                 // Иначе — булыжник
@@ -94,7 +94,7 @@ function createBlock(depth, col) {
 function createRow(depth) {
     const rowBlocks = [];
     
-    // Жила не может тянуться бесконечно, сбрасываем её иногда
+    // Жила не может тянуться бесконечно
     if (Math.random() > 0.5) veinData.remaining = 0; 
 
     for (let c = 0; c < COLS; c++) {
@@ -159,12 +159,16 @@ function hitBlock(px, py) {
         block.dataset.hp = hp;
 
         if (hp <= 0) {
+            // Блок сломан
             block.style.opacity = '0';
             block.style.border = 'none';
         } else {
+            // Блок НЕ сломан, показываем трещину
             block.style.opacity = 0.5 + (hp * 0.1); 
-            vy = 0; 
-            vx = 0;
+            
+            // Отскок: бьем вверх и в сторону
+            vy = -Math.abs(vy) * 0.5 - 2; 
+            vx = (Math.random() > 0.5 ? 1 : -1) * (2 + Math.random() * 2);
         }
     }
 }
@@ -193,7 +197,7 @@ function loop() {
         hitBlock(nextX + SIZE, y); 
         hitBlock(nextX, y + SIZE); 
         hitBlock(nextX + SIZE, y + SIZE); 
-        vx = -vx * 0.5; 
+        vx = -vx * 0.8; 
     } else {
         x = nextX;
     }
@@ -205,8 +209,9 @@ function loop() {
         hitBlock(x, nextY + SIZE);
         hitBlock(x + SIZE, nextY + SIZE);
         
-        vy = -Math.abs(vy) * 0.1; 
-        vx = (Math.random() > 0.5 ? 1 : -1) * (1 + Math.random() * 1.5);
+        // Увеличенный отскок вверх и в сторону
+        vy = -Math.abs(vy) * 0.6 - 3; 
+        vx = (Math.random() > 0.5 ? 1 : -1) * (3 + Math.random() * 3);
     } else {
         y = nextY;
     }
