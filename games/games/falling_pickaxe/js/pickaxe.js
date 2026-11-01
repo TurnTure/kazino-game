@@ -1,4 +1,4 @@
-// ===== FALLING PICKAXE (Бесконечная шахта) =====
+// ===== FALLING PICKAXE (Бесконечная шахта + Блоки) =====
 
 const gameField = document.getElementById('gameField');
 const drill = document.getElementById('drill');
@@ -12,6 +12,7 @@ const GRAVITY = 0.15;
 const MAX_FALL_SPEED = 6;    
 const ROTATION_SPEED = 5;    
 const SIZE = 40;           
+const DAMAGE = 1; // Сколько урона наносит бур за один удар
 
 const BLOCK_W = 60;
 const BLOCK_H = 60;
@@ -26,20 +27,67 @@ let x = 0, y = 0, vx = 0, vy = 0, angle = 0;
 
 // Переменные для логики модалки
 let currentBet = 300;
-let currentPickaxe = null; // Храним выбранную кирку (например, 'stone', 'iron' или 'diamond')
+let currentPickaxe = null; 
+
+// ===== Создание блока с учетом глубины =====
+function createBlock(depth) {
+    const block = document.createElement('div');
+    block.className = 'block';
+
+    // Края — неразрушаемые
+    if (Math.random() < 0) { } // заглушка
+    // Мы не знаем колонку здесь, поэтому края сделаем в createRow
+
+    // Определяем тип блока в зависимости от глубины
+    // depth = 0 (верх), depth = 10 (середина), depth = 20 (низ)
+    
+    let type = 'stone';
+    let hp = 0;
+
+    if (depth < 3) {
+        // Верхние слои: только земля и камень (ломаются с 1 раза)
+        if (Math.random() > 0.5) { type = 'dirt'; hp = 0; }
+        else { type = 'stone'; hp = 0; }
+    } else {
+        // Глубокие слои: появляются руды и булыжник
+        const rand = Math.random() * 100;
+        
+        if (rand < 60) {
+            // Булыжник (60%)
+            type = 'cobblestone';
+            hp = 2; // Ломается за 2 удара
+        } else if (rand < 85) {
+            // Железо (25%)
+            type = 'iron';
+            hp = 1;
+        } else if (rand < 95) {
+            // Алмаз (10%)
+            type = 'diamond';
+            hp = 1;
+        } else {
+            // Изумруд (5%)
+            type = 'emerald';
+            hp = 1;
+        }
+    }
+
+    block.dataset.type = type;
+    block.dataset.hp = hp;
+    block.classList.add(type);
+    return block;
+}
 
 // ===== Генерация одной строки =====
-function createRow() {
+function createRow(depth) {
     const rowBlocks = [];
     for (let c = 0; c < COLS; c++) {
-        const block = document.createElement('div');
-        block.className = 'block';
-
+        let block;
         if (c === 0 || c === COLS - 1) {
-            block.classList.add('indestructible');
+            // Края — неразрушаемые стены
+            block = document.createElement('div');
+            block.className = 'block indestructible';
         } else {
-            if (Math.random() > 0.7) block.classList.add('dirt');
-            else block.classList.add('stone');
+            block = createBlock(depth);
         }
         gameField.appendChild(block);
         rowBlocks.push(block);
@@ -48,12 +96,16 @@ function createRow() {
 }
 
 // ===== Инициализация поля =====
+let currentDepth = 0; // Счетчик глубины
+
 function generateField() {
     gameField.innerHTML = '';
     blocks = [];
+    currentDepth = 0;
 
     for (let r = 0; r < ROWS; r++) {
-        blocks.push(createRow());
+        blocks.push(createRow(currentDepth));
+        currentDepth++;
     }
 }
 
@@ -78,8 +130,8 @@ function checkCollision(px, py) {
            isSolid(px + SIZE, py + SIZE);
 }
 
-// ===== Ломаем конкретный блок =====
-function breakBlock(px, py) {
+// ===== Нанесение урона блоку =====
+function hitBlock(px, py) {
     const col = Math.floor(px / BLOCK_W);
     const row = Math.floor(py / BLOCK_H);
     
@@ -87,15 +139,35 @@ function breakBlock(px, py) {
     if (!blocks[row] || !blocks[row][col]) return;
     
     const block = blocks[row][col];
-    if (block.style.opacity !== '0') {
+    if (block.style.opacity === '0') return;
+
+    // Получаем текущую прочность
+    let hp = parseInt(block.dataset.hp) || 0;
+    
+    // Если прочность 0 — ломаем сразу
+    if (hp === 0) {
         block.style.opacity = '0';
         block.style.border = 'none';
+    } else {
+        // Уменьшаем HP
+        hp -= DAMAGE;
+        block.dataset.hp = hp;
+        
+        // Визуальный эффект "трещины" (легкая прозрачность)
+        block.style.opacity = 1 - (DAMAGE / (parseInt(block.dataset.hp) + DAMAGE)) * 0.5;
+
+        if (hp <= 0) {
+            block.style.opacity = '0';
+            block.style.border = 'none';
+        }
     }
 }
 
 // ===== Сдвиг камеры =====
 function shiftCamera() {
-    const newRow = createRow();
+    const newRow = createRow(currentDepth);
+    currentDepth++;
+    
     const topRow = blocks.shift(); 
     topRow.forEach(block => block.remove());
     blocks.push(newRow);
@@ -111,10 +183,10 @@ function loop() {
 
     let nextX = x + vx;
     if (checkCollision(nextX, y)) {
-        breakBlock(nextX, y); 
-        breakBlock(nextX + SIZE, y); 
-        breakBlock(nextX, y + SIZE); 
-        breakBlock(nextX + SIZE, y + SIZE); 
+        hitBlock(nextX, y); 
+        hitBlock(nextX + SIZE, y); 
+        hitBlock(nextX, y + SIZE); 
+        hitBlock(nextX + SIZE, y + SIZE); 
         vx = -vx * 0.5; 
     } else {
         x = nextX;
@@ -122,10 +194,10 @@ function loop() {
 
     let nextY = y + vy;
     if (checkCollision(x, nextY)) {
-        breakBlock(x, nextY);
-        breakBlock(x + SIZE, nextY);
-        breakBlock(x, nextY + SIZE);
-        breakBlock(x + SIZE, nextY + SIZE);
+        hitBlock(x, nextY);
+        hitBlock(x + SIZE, nextY);
+        hitBlock(x, nextY + SIZE);
+        hitBlock(x + SIZE, nextY + SIZE);
         
         vy = -Math.abs(vy) * 0.1; 
         vx = (Math.random() > 0.5 ? 1 : -1) * (1 + Math.random() * 1.5);
@@ -180,7 +252,6 @@ function updateBet(value) {
     if (betInput) betInput.value = currentBet;
     if (slider) slider.value = currentBet;
 
-    // Обновляем надписи на карточках
     const cardPrices = document.querySelectorAll('.bonus-card__price');
     if (cardPrices.length === 3) {
         cardPrices[0].textContent = `bet will be ${(currentBet * 1.1).toFixed(2)}`;
@@ -196,39 +267,31 @@ if (betInput) {
     betInput.addEventListener('input', (e) => updateBet(parseInt(e.target.value) || 10));
 }
 
-// ===== Кнопки (Логика казино) =====
-// 1. Правая кнопка — быстрый запуск
+// ===== Кнопки =====
 if (spinBtn) {
     spinBtn.addEventListener('click', () => {
         if (isPlaying) return;
-
         if (currentPickaxe === null) {
-            // Если кирка не выбрана — открываем меню
             bonusModal.classList.add('is-open');
         } else {
-            // Если кирка есть — запускаем игру
             startGame();
         }
     });
 }
 
-// 2. Левая кнопка — открыть меню покупки
 if (bonusBtn) {
     bonusBtn.addEventListener('click', () => {
         if (!isPlaying) bonusModal.classList.add('is-open');
     });
 }
 
-// 3. Кнопки активации внутри модалки
 document.querySelectorAll('.bonus-card__activate').forEach(btn => {
     btn.addEventListener('click', () => {
-        // Запоминаем выбранную кирку (в HTML должно быть data-type="stone" и т.д.)
         currentPickaxe = btn.dataset.type; 
         startGame();
     });
 });
 
-// Закрытие модалки
 if (closeModal) {
     closeModal.addEventListener('click', () => bonusModal.classList.remove('is-open'));
 }
