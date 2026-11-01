@@ -1,7 +1,8 @@
-// ===== FALLING PICKAXE (Бесконечная шахта + Жилы) =====
+// ===== FALLING PICKAXE (Бесконечная шахта + Жилы + HP) =====
 
 const gameField = document.getElementById('gameField');
 const drill = document.getElementById('drill');
+const drillHpText = document.getElementById('drillHpText');
 const spinBtn = document.getElementById('spinBtn');
 const bonusBtn = document.getElementById('bonusBtn');
 const bonusModal = document.getElementById('bonusModal');
@@ -32,6 +33,10 @@ let currentPickaxe = null;
 // Переменные для генерации жил
 let currentDepth = 0;
 let veinData = { type: null, remaining: 0 };
+
+// Переменные для здоровья
+let maxHp = 150;
+let currentHp = 150;
 
 // ===== Создание одного блока =====
 function createBlock(depth, col) {
@@ -143,6 +148,15 @@ function hitBlock(px, py) {
     const block = blocks[row][col];
     if (block.style.opacity === '0') return;
 
+    // Наносим урон буру за каждый удар
+    currentHp -= 5;
+    updateHp();
+
+    if (currentHp <= 0) {
+        stopGame();
+        return;
+    }
+
     let hp = parseInt(block.dataset.hp) || 0;
     
     if (hp === 0) {
@@ -176,6 +190,13 @@ function shiftCamera() {
     y -= BLOCK_H;
 }
 
+// ===== Обновление HP =====
+function updateHp() {
+    if (drillHpText) {
+        drillHpText.textContent = `${currentHp}/${maxHp}`;
+    }
+}
+
 // ===== Игровой цикл =====
 function loop() {
     if (!isPlaying) return;
@@ -201,7 +222,6 @@ function loop() {
         hitBlock(x, nextY + SIZE);
         hitBlock(x + SIZE, nextY + SIZE);
         
-        // Слабый отскок
         vy = -Math.abs(vy) * 0.2 - 1; 
         vx = (Math.random() > 0.5 ? 1 : -1) * (1 + Math.random() * 1);
     } else {
@@ -228,6 +248,11 @@ function startGame() {
     vx = 2; 
     vy = 4; 
     angle = 0;
+
+    // Сбрасываем HP
+    maxHp = 150;
+    currentHp = maxHp;
+    updateHp();
 
     drill.style.opacity = '1';
     isPlaying = true;
