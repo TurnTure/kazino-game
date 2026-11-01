@@ -47,29 +47,29 @@
     <!-- Основной контент -->
     <div class="profile-content">
         <h1 class="page-title">Моя игровая активность</h1>
-        <p class="page-subtitle">Маша, здесь видно, сколько валюты и времени уходит на игры — и когда пора сделать паузу.</p>
+        <p class="page-subtitle">Здесь видно, сколько валюты уходит на игры — и когда пора сделать паузу.</p>
 
         <!-- Верхние карточки -->
         <div class="stats-grid">
             <div class="stat-card">
                 <span class="stat-card__label">Все начисления</span>
-                <div class="stat-card__value">12 500 ШР</div>
-                <span class="stat-card__hint">Выигрыши за 7 дней</span>
+                <div class="stat-card__value" id="statWon">0 ШР</div>
+                <span class="stat-card__hint">Выигрыши за всё время</span>
             </div>
             <div class="stat-card">
                 <span class="stat-card__label">Сумма ставок</span>
-                <div class="stat-card__value">18 000 ШР</div>
-                <span class="stat-card__hint">Поставлено за 7 дней</span>
+                <div class="stat-card__value" id="statBet">0 ШР</div>
+                <span class="stat-card__hint">Поставлено за всё время</span>
             </div>
             <div class="stat-card stat-card--negative">
                 <span class="stat-card__label">Чистый результат</span>
-                <div class="stat-card__value">-5 500 ШР</div>
+                <div class="stat-card__value" id="statNet">0 ШР</div>
                 <span class="stat-card__hint">Начисления минус ставки</span>
             </div>
             <div class="stat-card">
-                <span class="stat-card__label">Время в играх</span>
-                <div class="stat-card__value">8 ч 40 м</div>
-                <span class="stat-card__hint">За 7 дней</span>
+                <span class="stat-card__label">Количество игр</span>
+                <div class="stat-card__value" id="statSessions">0</div>
+                <span class="stat-card__hint">Сыграно сессий</span>
             </div>
         </div>
 
@@ -100,21 +100,14 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <!-- Данные таблицы будут обновлены через JS -->
                     <tr>
-                        <td><img src="./img/Знак.png" width="24" style="vertical-align: middle; margin-right: 8px;"> Почтовая лихорадка</td>
-                        <td>8 000</td>
-                        <td>3 500</td>
-                        <td class="text-red">-2 500</td>
-                        <td>3 ч 20 м</td>
-                        <td>12</td>
-                    </tr>
-                    <tr>
-                        <td><img src="./img/Знак.png" width="24" style="vertical-align: middle; margin-right: 8px;"> Falling Pickaxe</td>
-                        <td>10 000</td>
-                        <td>9 000</td>
-                        <td class="text-red">-1 000</td>
-                        <td>5 ч 20 м</td>
-                        <td>23</td>
+                        <td><img src="./img/Знак.png" width="24" style="vertical-align: middle; margin-right: 8px;"> Все игры</td>
+                        <td id="tableBet">0</td>
+                        <td id="tableWon">0</td>
+                        <td id="tableNet" class="text-red">0</td>
+                        <td>-</td>
+                        <td id="tableSessions">0</td>
                     </tr>
                 </tbody>
             </table>
@@ -130,38 +123,23 @@
                 </div>
                 <div class="sessions-stats">
                     <div class="sessions-stat-item">
-                        <div class="value">32</div>
+                        <div class="value" id="sessionsCount">0</div>
                         <div class="label">сессии за неделю</div>
                     </div>
                     <div class="sessions-stat-item">
-                        <div class="value">16 мин 15 с</div>
+                        <div class="value">-</div>
                         <div class="label">средняя длительность</div>
                     </div>
                     <div class="sessions-stat-item">
-                        <div class="value" style="color: #C8552B;">95 мин</div>
-                        <div class="label">самая длинная · лимит 60</div>
+                        <div class="value">-</div>
+                        <div class="label">самая длинная</div>
                     </div>
                 </div>
                 <p class="sessions-hint">Выборка: 3 последние сессии из 32 — результат за всё сессию</p>
                 
                 <div class="session-list">
-                    <div class="session-item">
-                        <div class="session-name">Домино во дворе<br><small>30 окт · 20:50–20:55</small></div>
-                        <div class="session-time">25 мин</div>
-                        <div class="text-green">+300 ШР</div>
-                    </div>
-                    <div class="session-item">
-                        <div class="session-name">Кот на серванте<br><small>30 окт · 18:40–19:25</small></div>
-                        <div class="session-time">45 мин</div>
-                        <div class="text-red">-1 000 ШР</div>
-                    </div>
-                    <div class="session-item">
-                        <div class="session-name">Почтовая лихорадка<br><small>30 окт · 14:40–15:35</small></div>
-                        <div class="session-time">⚠ 95 мин</div>
-                        <div class="text-red">-1 800 ШР</div>
-                    </div>
+                    <p style="font-family: sans-serif; color: #8A7461; font-size: 13px;">История сессий пока пуста...</p>
                 </div>
-                <div class="warning-text">⚠️ Сессия 95 мин — на 35 мин больше вашего лимита.</div>
             </div>
 
             <!-- Мои ограничения -->
@@ -170,7 +148,7 @@
                     <h3>Мои ограничения</h3>
                     <span style="font-size: 24px;">🛡️</span>
                 </div>
-                <p class="limits-subtitle">Выши ограничения для спокойной игры. На этой странице показан пример настроек.</p>
+                <p class="limits-subtitle">Ваши ограничения для спокойной игры. На этой странице показан пример настроек.</p>
                 
                 <div class="limit-row">
                     <div class="limit-info">
@@ -210,7 +188,7 @@
         <div class="cards-info-block">
             <div class="cards-header">
                 <h3>Как меняются карточки при росте показателей</h3>
-                <span>Предыдущий предыдущий период интерфейса, на данном</span>
+                <span>Предыдущий период интерфейса, на данном</span>
             </div>
             <div class="cards-grid">
                 <div class="card-status card-status--green">
@@ -244,5 +222,6 @@
 <script src="./shared/auth-state.js"></script>
 <script src="./shared/header.js"></script>
 <script src="./js/balance.js"></script>
+<script src="./js/profile.js"></script> <!-- Подключаем скрипт профиля -->
 </body>
 </html>

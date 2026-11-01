@@ -49,10 +49,10 @@ async function initDB() {
 }
 initDB();
 
-// Раздача статических файлов (HTML, CSS, JS, картинки)
+// Раздача статических файлов
 app.use(express.static(__dirname));
 
-// ===== Секретные ключи для дебага =====
+// ===== Секретные ключи =====
 const DEBUG_SECRET = '2e749b04e07a3ff88173fbda6d227f51c2db872d08dd744f6181ee08be03467a';
 const DEBUG_VIEW_KEY = 'посмотри-и-запомни-этот-ключ-12345';
 
@@ -234,6 +234,51 @@ app.post('/api/balance', async (req, res) => {
         res.json({ ok: true, balance: newBalance });
     } catch (err) {
         console.error(err);
+        res.status(500).json({ error: 'DB error' });
+    }
+});
+
+// ===== СТАТИСТИКА ДЛЯ ПРОФИЛЯ =====
+app.get('/api/profile/stats', async (req, res) => {
+    const sessionId = req.cookies.session;
+    if (!sessionId) return res.status(401).json({ error: 'not logged in' });
+
+    const session = sessions.get(sessionId);
+    if (!session) return res.status(401).json({ error: 'session expired' });
+
+    try {
+        // Получаем имя пользователя
+        const userResult = await pool.query('SELECT username FROM users WHERE id = $1', [session.userId]);
+        if (userResult.rows.length === 0) return res.status(401).json({ error: 'user not found' });
+        const username = userResult.rows[0].username;
+
+        // Считаем статистику из истории
+        const statsResult = await pool.query(`
+            SELECT 
+                COALESCE(SUM(CASE WHEN delta > 0 THEN delta ELSE 0 END), 0) as total_won,
+                COALESCE(SUM(CASE WHEN delta < 0 THEN ABS(delta) ELSE 0 END), 0) as total_bet,
+                COUNT(CASE WHEN reason LIKE '%bet%' OR reason LIKE '%spin%' THEN 1 END) as sessions_count
+            FROM history 
+            WHERE username = $1
+        `, [username]);
+
+        const stats = statsResult.rows[0];
+        
+        const totalWon = parseInt(stats.total_won, 10) || 0;
+        const totalBet = parseInt(stats.total_bet, 10) || 0;
+        const netResult = totalWon - totalBet;
+        const sessionsCount = parseInt(stats.sessions_count, 10) || 0;
+
+        res.json({
+            userName: username,
+            totalWon: totalWon,
+            totalBet: totalBet,
+            netResult: netResult,
+            sessionsCount: sessionsCount
+        });
+
+    } catch (err) {
+        console.error('Ошибка статистики:', err);
         res.status(500).json({ error: 'DB error' });
     }
 });
