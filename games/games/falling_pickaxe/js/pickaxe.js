@@ -52,7 +52,7 @@ function generateField() {
     }
 }
 
-// ===== Проверка коллизий =====
+// ===== Проверка коллизий (одна точка) =====
 function isSolid(px, py) {
     if (px < 0 || px >= 600) return true; 
     if (py < 0) return false; 
@@ -64,6 +64,14 @@ function isSolid(px, py) {
     
     const block = blocks[row][col];
     return block.style.opacity !== '0';
+}
+
+// ===== Проверка коллизий по 4 углам бура =====
+function checkCollision(px, py) {
+    return isSolid(px, py) || 
+           isSolid(px + SIZE, py) || 
+           isSolid(px, py + SIZE) || 
+           isSolid(px + SIZE, py + SIZE);
 }
 
 // ===== Ломаем конкретный блок =====
@@ -81,24 +89,6 @@ function breakBlock(px, py) {
     }
 }
 
-// ===== Взрыв (ломаем блоки вокруг) =====
-function explode(centerX, centerY) {
-    // Ломаем центральный блок
-    breakBlock(centerX, centerY);
-
-    // Ломаем блоки вокруг (радиус кратера)
-    const offsets = [
-        [-BLOCK_W, 0], [BLOCK_W, 0], // слева, справа
-        [0, -BLOCK_H], [0, BLOCK_H], // сверху, снизу
-        [-BLOCK_W, -BLOCK_H], [BLOCK_W, -BLOCK_H], // диагонали
-        [-BLOCK_W, BLOCK_H], [BLOCK_W, BLOCK_H]
-    ];
-
-    offsets.forEach(offset => {
-        breakBlock(centerX + offset[0], centerY + offset[1]);
-    });
-}
-
 // ===== Сдвиг камеры =====
 function shiftCamera() {
     const newRow = createRow();
@@ -114,21 +104,23 @@ function loop() {
 
     vy += GRAVITY;
 
-    // Движение по X
+    // 1. Движение по X
     let nextX = x + vx;
-    if (isSolid(nextX + SIZE/2, y + SIZE/2)) {
+    if (checkCollision(nextX, y)) {
+        // Врезались боком — ломаем этот блок
+        breakBlock(nextX + SIZE/2, y + SIZE/2);
         vx = -vx * 0.5; 
     } else {
         x = nextX;
     }
 
-    // Движение по Y
+    // 2. Движение по Y
     let nextY = y + vy;
-    if (isSolid(x + SIZE/2, nextY + SIZE/2)) {
-        // ВЗРЫВ ВОКРУГ
-        explode(x + SIZE/2, nextY + SIZE/2);
+    if (checkCollision(x, nextY)) {
+        // Врезались снизу/сверху — ломаем
+        breakBlock(x + SIZE/2, nextY + SIZE/2);
         
-        vy = -Math.abs(vy) * 0.1; 
+        vy = -Math.abs(vy) * 0.1; // Очень слабый отскок
         vx = (Math.random() > 0.5 ? 1 : -1) * (1 + Math.random() * 1.5);
     } else {
         y = nextY;
@@ -136,7 +128,7 @@ function loop() {
 
     angle += ROTATION_SPEED;
 
-    // Если бур опустился до 8-й строки — сдвигаем камеру
+    // Сдвиг камеры
     if (y > (ROWS - 3) * BLOCK_H) {
         shiftCamera();
     }
