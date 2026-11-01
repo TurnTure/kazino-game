@@ -9,7 +9,7 @@
 </head>
 <body class="profile-body">
 
-<!-- Шапка (такая же, как на главной) -->
+<!-- Шапка -->
 <header class="header">
     <a href="./index.html" class="logo">
         <img src="./img/Знак.png" alt="">
@@ -32,7 +32,7 @@
 </header>
 
 <main class="profile-layout">
-    <!-- Сайдбар слева (сокращенная версия со скрина) -->
+    <!-- Сайдбар -->
     <aside class="sidebar">
         <div class="sidebar__user">
             <img src="./img/Аватар.png" alt="Аватар">
@@ -63,7 +63,7 @@
             </div>
             <div class="stat-card stat-card--negative">
                 <span class="stat-card__label">Чистый результат</span>
-                <div class="stat-card__value" id="netResult">-5 500 ШР</div>
+                <div class="stat-card__value">-5 500 ШР</div>
                 <span class="stat-card__hint">Начисления минус ставки</span>
             </div>
             <div class="stat-card">
@@ -101,7 +101,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td><img src="./img/Знак.png" width="24"> Почтовая лихорадка</td>
+                        <td><img src="./img/Знак.png" width="24" style="vertical-align: middle; margin-right: 8px;"> Почтовая лихорадка</td>
                         <td>8 000</td>
                         <td>3 500</td>
                         <td class="text-red">-2 500</td>
@@ -109,10 +109,10 @@
                         <td>12</td>
                     </tr>
                     <tr>
-                        <td><img src="./img/Знак.png" width="24"> Falling Pickaxe</td>
+                        <td><img src="./img/Знак.png" width="24" style="vertical-align: middle; margin-right: 8px;"> Falling Pickaxe</td>
                         <td>10 000</td>
                         <td>9 000</td>
-                        <td class="text-green">-1 000</td>
+                        <td class="text-red">-1 000</td>
                         <td>5 ч 20 м</td>
                         <td>23</td>
                     </tr>
@@ -120,19 +120,124 @@
             </table>
         </div>
 
-        <!-- Блок ограничений -->
-        <div class="limits-block">
-            <h3>Мои ограничения</h3>
-            <div class="limit-item">
-                <span>Частые потери за 7 дней</span>
-                <span class="limit-value">4 000 ШР</span>
+        <!-- НИЖНИЙ БЛОК: Сессии и Мои ограничения -->
+        <div class="bottom-grid">
+            <!-- Сессии и привычки -->
+            <div class="sessions-block">
+                <div class="sessions-header">
+                    <h3>Сессии и привычки</h3>
+                    <span class="badge">Последние 7 дней</span>
+                </div>
+                <div class="sessions-stats">
+                    <div class="sessions-stat-item">
+                        <div class="value">32</div>
+                        <div class="label">сессии за неделю</div>
+                    </div>
+                    <div class="sessions-stat-item">
+                        <div class="value">16 мин 15 с</div>
+                        <div class="label">средняя длительность</div>
+                    </div>
+                    <div class="sessions-stat-item">
+                        <div class="value" style="color: #C8552B;">95 мин</div>
+                        <div class="label">самая длинная · лимит 60</div>
+                    </div>
+                </div>
+                <p class="sessions-hint">Выборка: 3 последние сессии из 32 — результат за всё сессию</p>
+                
+                <div class="session-list">
+                    <div class="session-item">
+                        <div class="session-name">Домино во дворе<br><small>30 окт · 20:50–20:55</small></div>
+                        <div class="session-time">25 мин</div>
+                        <div class="text-green">+300 ШР</div>
+                    </div>
+                    <div class="session-item">
+                        <div class="session-name">Кот на серванте<br><small>30 окт · 18:40–19:25</small></div>
+                        <div class="session-time">45 мин</div>
+                        <div class="text-red">-1 000 ШР</div>
+                    </div>
+                    <div class="session-item">
+                        <div class="session-name">Почтовая лихорадка<br><small>30 окт · 14:40–15:35</small></div>
+                        <div class="session-time">⚠ 95 мин</div>
+                        <div class="text-red">-1 800 ШР</div>
+                    </div>
+                </div>
+                <div class="warning-text">⚠️ Сессия 95 мин — на 35 мин больше вашего лимита.</div>
             </div>
-            <div class="limit-item">
-                <span>Сессия</span>
-                <span class="limit-value">60 мин</span>
+
+            <!-- Мои ограничения -->
+            <div class="limits-block">
+                <div class="limits-header">
+                    <h3>Мои ограничения</h3>
+                    <span style="font-size: 24px;">🛡️</span>
+                </div>
+                <p class="limits-subtitle">Выши ограничения для спокойной игры. На этой странице показан пример настроек.</p>
+                
+                <div class="limit-row">
+                    <div class="limit-info">
+                        <div class="limit-title">Частые потери за 7 дней</div>
+                        <div class="limit-desc">Свыше 5 000 ШР, превышение в 2 500 ШР</div>
+                    </div>
+                    <div class="limit-badge">4 000 ШР ✏️</div>
+                </div>
+
+                <div class="limit-row">
+                    <div class="limit-info">
+                        <div class="limit-title">Время в день</div>
+                        <div class="limit-desc">Сегодня 2 ч 40 м · превышение 40 мин</div>
+                    </div>
+                    <div class="limit-badge">2 часа ✏️</div>
+                </div>
+
+                <div class="limit-row">
+                    <div class="limit-info">
+                        <div class="limit-title">Одна сессия</div>
+                        <div class="limit-desc">Максимум 95 мин · превышение 35 мин</div>
+                    </div>
+                    <div class="limit-badge">60 мин ✏️</div>
+                </div>
+
+                <div class="pause-block">
+                    <div class="pause-info">
+                        <div class="limit-title">Время на перерыв</div>
+                        <div class="limit-desc">Пауза на 24 часа без доступа к играм. Действует только в качестве напоминания.</div>
+                    </div>
+                    <button class="btn-pause">Взять паузу</button>
+                </div>
             </div>
-            <button class="btn-outline">Взять паузу</button>
         </div>
+
+        <!-- Блок: Как меняются карточки -->
+        <div class="cards-info-block">
+            <div class="cards-header">
+                <h3>Как меняются карточки при росте показателей</h3>
+                <span>Предыдущий предыдущий период интерфейса, на данном</span>
+            </div>
+            <div class="cards-grid">
+                <div class="card-status card-status--green">
+                    <div class="card-status__icon">📈</div>
+                    <div>
+                        <strong>В пределах лимита</strong>
+                        <p>≥ 80% часового лимита</p>
+                    </div>
+                </div>
+                <div class="card-status card-status--yellow">
+                    <div class="card-status__icon">⚠️</div>
+                    <div>
+                        <strong>Близко к лимиту</strong>
+                        <p>80–100% часового лимита</p>
+                    </div>
+                </div>
+                <div class="card-status card-status--red">
+                    <div class="card-status__icon">🛑</div>
+                    <div>
+                        <strong>Лимит превышен</strong>
+                        <p>>100% часового лимита</p>
+                    </div>
+                </div>
+            </div>
+            <p class="cards-footer">Цвет, значения и текст меняются вместе. Состояние рассчитывается относительно выбранного дневного лимита или соответствующего периода.</p>
+        </div>
+
     </div>
 </main>
 
