@@ -138,7 +138,7 @@ async function openModal() {
         const hoursDiff = (new Date() - lastSpin) / (1000 * 60 * 60);
         
         if (hoursDiff < 24) {
-            const hoursLeft = Math.ceil(24 - hoursDiff);
+            const hoursLeft = Math.min(24, Math.round(24 - hoursDiff));
             spinBtn.disabled = true;
             resultEl.textContent = `Вы уже крутили. Следующая попытка через ${hoursLeft} ч.`;
         }

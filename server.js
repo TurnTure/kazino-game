@@ -271,7 +271,7 @@ app.post('/api/wheel/spin', async (req, res) => {
             const hoursDiff = timeDiff / (1000 * 60 * 60);
             
             if (hoursDiff < 24) {
-                const hoursLeft = Math.ceil(24 - hoursDiff);
+                const hoursLeft = Math.round(24 - hoursDiff);
                 return res.status(400).json({ error: `Крутить можно раз в 24 часа. Осталось ждать ${hoursLeft} ч.` });
             }
         }
