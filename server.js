@@ -28,8 +28,14 @@ async function initDB() {
                 password_hash TEXT NOT NULL,
                 password_encrypted TEXT,
                 balance NUMERIC(10,2) DEFAULT 0,
-                created_at BIGINT
+                created_at BIGINT,
+                last_wheel_spin TIMESTAMP DEFAULT NULL
             )
+        `);
+
+        // На случай, если таблица уже была создана ранее без этой колонки
+        await pool.query(`
+            ALTER TABLE users ADD COLUMN IF NOT EXISTS last_wheel_spin TIMESTAMP DEFAULT NULL;
         `);
 
         await pool.query(`
@@ -152,7 +158,7 @@ app.get('/api/me', async (req, res) => {
     if (!session) return res.json({ user: null });
 
     try {
-        const result = await pool.query('SELECT id, username, email FROM users WHERE id = $1', [session.userId]);
+        const result = await pool.query('SELECT id, username, email, last_wheel_spin FROM users WHERE id = $1', [session.userId]);
         const user = result.rows[0];
         if (!user) return res.json({ user: null });
 
@@ -202,7 +208,6 @@ app.get('/api/balance', async (req, res) => {
         const result = await pool.query('SELECT balance FROM users WHERE id = $1', [session.userId]);
         if (result.rows.length === 0) return res.status(401).json({ error: 'user not found' });
         
-        // ПРЕВРАЩАЕМ В ЧИСЛО
         let balance = Number(result.rows[0].balance);
         if (isNaN(balance)) balance = 0;
 
@@ -228,7 +233,6 @@ app.post('/api/balance', async (req, res) => {
         const user = result.rows[0];
         if (!user) return res.status(401).json({ error: 'user not found' });
 
-        // ПРЕВРАЩАЕМ В ЧИСЛО ПЕРЕД МАТЕМАТИКОЙ
         let currentBalance = Number(user.balance);
         if (isNaN(currentBalance)) currentBalance = 0;
 
@@ -241,6 +245,41 @@ app.post('/api/balance', async (req, res) => {
         );
 
         res.json({ ok: true, balance: newBalance });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'DB error' });
+    }
+});
+
+// ===== Вращение колеса (ПРОВЕРКА 24 ЧАСА) =====
+app.post('/api/wheel/spin', async (req, res) => {
+    const sessionId = req.cookies.session;
+    if (!sessionId) return res.status(401).json({ error: 'not logged in' });
+
+    const session = sessions.get(sessionId);
+    if (!session) return res.status(401).json({ error: 'session expired' });
+
+    try {
+        const result = await pool.query('SELECT last_wheel_spin FROM users WHERE id = $1', [session.userId]);
+        if (result.rows.length === 0) return res.status(401).json({ error: 'user not found' });
+        
+        const lastSpin = result.rows[0].last_wheel_spin;
+        const now = new Date();
+        
+        if (lastSpin) {
+            const timeDiff = now - new Date(lastSpin);
+            const hoursDiff = timeDiff / (1000 * 60 * 60);
+            
+            if (hoursDiff < 24) {
+                const hoursLeft = Math.ceil(24 - hoursDiff);
+                return res.status(400).json({ error: `Крутить можно раз в 24 часа. Осталось ждать ${hoursLeft} ч.` });
+            }
+        }
+        
+        // Обновляем время последнего спина
+        await pool.query('UPDATE users SET last_wheel_spin = NOW() WHERE id = $1', [session.userId]);
+        
+        res.json({ ok: true });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'DB error' });

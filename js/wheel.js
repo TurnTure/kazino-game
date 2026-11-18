@@ -124,12 +124,25 @@ function spinTo(index) {
     }, 3600);
 }
 
-// ===== Открытие/закрытие =====
-function openModal() {
+// ===== Проверка кулдауна при открытии модалки =====
+async function openModal() {
     modal.classList.add('is-open');
     resetRound();
     drawWheel();
     drawPointer();
+    
+    // Если пользователь залогинен и у него есть дата последнего спина
+    const user = window.currentUser;
+    if (user && user.last_wheel_spin) {
+        const lastSpin = new Date(user.last_wheel_spin);
+        const hoursDiff = (new Date() - lastSpin) / (1000 * 60 * 60);
+        
+        if (hoursDiff < 24) {
+            const hoursLeft = Math.ceil(24 - hoursDiff);
+            spinBtn.disabled = true;
+            resultEl.textContent = `Вы уже крутили. Следующая попытка через ${hoursLeft} ч.`;
+        }
+    }
 }
 
 function closeModal() {
@@ -165,6 +178,7 @@ modal.addEventListener('click', (e) => {
     if (e.target === modal) closeModal();
 });
 
+// ===== ЛОГИКА СПИНА (с проверкой на сервере) =====
 spinBtn.addEventListener('click', async () => {
     if (isSpinning) return;
 
@@ -174,14 +188,34 @@ spinBtn.addEventListener('click', async () => {
         return;
     }
 
-    isSpinning = true;
+    // Сначала спрашиваем разрешение у сервера
     spinBtn.disabled = true;
-    resultEl.textContent = '';
+    resultEl.textContent = 'Проверка...';
 
-    const index = pickSector();
-    pendingPrize = SECTORS[index].amount;
+    try {
+        const res = await fetch('/api/wheel/spin', { method: 'POST' });
+        const data = await res.json();
 
-    spinTo(index);
+        if (!res.ok) {
+            // Если сервер сказал, что прошло меньше 24 часов
+            resultEl.textContent = data.error; 
+            return; 
+        }
+
+        // Если всё ок, запускаем анимацию
+        isSpinning = true;
+        resultEl.textContent = '';
+        
+        const index = pickSector();
+        pendingPrize = SECTORS[index].amount;
+
+        spinTo(index);
+
+    } catch (err) {
+        console.error(err);
+        resultEl.textContent = 'Ошибка соединения с сервером';
+        spinBtn.disabled = false;
+    }
 });
 
 claimBtn.addEventListener('click', async () => {
