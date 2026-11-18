@@ -48,6 +48,17 @@ async function initDB() {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
+
+        // Таблица для использованных промокодов
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS used_promocodes (
+                id SERIAL PRIMARY KEY,
+                username VARCHAR(50) NOT NULL,
+                code VARCHAR(50) NOT NULL,
+                used_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
         console.log('✅ База данных инициализирована');
     } catch (err) {
         console.error('❌ Ошибка инициализации БД:', err);
@@ -251,6 +262,64 @@ app.post('/api/balance', async (req, res) => {
     }
 });
 
+// ===== Активация промокода (ПРОВЕРКА ОДИН РАЗ НА АККАУНТ) =====
+app.post('/api/promo', async (req, res) => {
+    const sessionId = req.cookies.session;
+    if (!sessionId) return res.status(401).json({ error: 'not logged in' });
+
+    const session = sessions.get(sessionId);
+    if (!session) return res.status(401).json({ error: 'session expired' });
+
+    const { code } = req.body;
+    if (!code) return res.status(400).json({ error: 'Введите промокод' });
+
+    const normalizedCode = code.trim().toLowerCase();
+
+    const PROMOCODES = {
+        'лето2006': 2006,
+        'аллоэ2000': 2000,
+        'ceo': -1000
+    };
+
+    const delta = PROMOCODES[normalizedCode];
+
+    if (delta === undefined) {
+        return res.status(400).json({ error: 'Неверный промокод' });
+    }
+
+    try {
+        const userResult = await pool.query('SELECT username, balance FROM users WHERE id = $1', [session.userId]);
+        const user = userResult.rows[0];
+        if (!user) return res.status(401).json({ error: 'user not found' });
+
+        // Проверяем, активировал ли он его уже
+        const checkResult = await pool.query('SELECT * FROM used_promocodes WHERE username = $1 AND code = $2', [user.username, normalizedCode]);
+        
+        if (checkResult.rows.length > 0) {
+            return res.status(400).json({ error: 'Этот промокод уже активирован' });
+        }
+
+        // Сохраняем активацию
+        await pool.query('INSERT INTO used_promocodes (username, code) VALUES ($1, $2)', [user.username, normalizedCode]);
+
+        // Меняем баланс
+        let currentBalance = Number(user.balance) || 0;
+        const newBalance = Math.max(0, currentBalance + delta);
+        await pool.query('UPDATE users SET balance = $1 WHERE id = $2', [newBalance, session.userId]);
+
+        // Пишем в историю
+        await pool.query(
+            'INSERT INTO history (username, delta, reason, balance) VALUES ($1, $2, $3, $4)',
+            [user.username, delta, `promo:${normalizedCode}`, newBalance]
+        );
+
+        res.json({ ok: true, delta, newBalance });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'DB error' });
+    }
+});
+
 // ===== Вращение колеса (ПРОВЕРКА 24 ЧАСА) =====
 app.post('/api/wheel/spin', async (req, res) => {
     const sessionId = req.cookies.session;
@@ -276,7 +345,6 @@ app.post('/api/wheel/spin', async (req, res) => {
             }
         }
         
-        // Обновляем время последнего спина
         await pool.query('UPDATE users SET last_wheel_spin = NOW() WHERE id = $1', [session.userId]);
         
         res.json({ ok: true });
@@ -286,7 +354,7 @@ app.post('/api/wheel/spin', async (req, res) => {
     }
 });
 
-// ===== СТАТИСТИКА ДЛЯ ПРОФИЛЯ (С РАЗБИВКОЙ ПО ИГРАМ) =====
+// ===== СТАТИСТИКА ДЛЯ ПРОФИЛЯ =====
 app.get('/api/profile/stats', async (req, res) => {
     const sessionId = req.cookies.session;
     if (!sessionId) return res.status(401).json({ error: 'not logged in' });

@@ -1,11 +1,4 @@
 // ===== Промокоды =====
-// положительное число — прибавляет, отрицательное — отнимает
-
-const PROMOCODES = {
-    'лето2006': 2006,
-    'аллоэ2000': 2000,
-    'ceo': -1000
-};
 
 const promoForm  = document.querySelector('.promo-card__form');
 const promoInput = document.querySelector('.promo-input');
@@ -28,19 +21,42 @@ if (promoForm) {
             return;
         }
 
-        if (PROMOCODES[code] !== undefined) {
-            const delta = PROMOCODES[code];
-            addBalance(delta, `promo:${code}`);
+        try {
+            // Отправляем код на сервер для проверки
+            const res = await fetch('/api/promo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code })
+            });
+            const data = await res.json();
 
-            if (delta > 0) {
-                showMessage(`Промокод активирован! +${delta} ₽`, '#2E7D32');
+            if (!res.ok) {
+                // Если сервер вернул ошибку (уже активирован или неверный код)
+                showMessage(data.error, '#C8552B');
+                return;
+            }
+
+            // Если всё ок, обновляем баланс на сайте (чтобы цифра в шапке изменилась)
+            if (window.balanceReady) {
+                const balanceRes = await fetch('/api/balance');
+                const balanceData = await balanceRes.json();
+                if (balanceData.balance !== undefined) {
+                    document.getElementById('balance').textContent = Number(balanceData.balance).toFixed(2);
+                }
+            }
+
+            // Показываем сообщение об успехе
+            if (data.delta > 0) {
+                showMessage(`Промокод активирован! +${data.delta} ₽`, '#2E7D32');
             } else {
-                showMessage(`Промокод активирован! ${delta} ₽`, '#C8552B');
+                showMessage(`Промокод активирован! ${data.delta} ₽`, '#C8552B');
             }
 
             promoInput.value = '';
-        } else {
-            showMessage('Неверный промокод', '#C8552B');
+
+        } catch (err) {
+            console.error(err);
+            showMessage('Ошибка соединения с сервером', '#C8552B');
         }
     });
 }
