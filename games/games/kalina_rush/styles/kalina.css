@@ -125,8 +125,20 @@ body.game-body {
     font-size: 13px;
 }
 
+/* Стили для обычной аварии (красные) */
 .crash-overlay h2 {
     color: #ff3333;
+}
+
+/* Стили для заглохшего двигателя (серые) */
+.engine-overlay {
+    border-color: #555 !important;
+}
+.engine-overlay h2 {
+    color: #999 !important; /* Серый цвет заголовка */
+}
+.engine-overlay p {
+    color: #666 !important;
 }
 
 /* Нижняя шкала */

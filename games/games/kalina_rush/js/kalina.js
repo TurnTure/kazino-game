@@ -19,6 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let speed = 5;
     let distance = 0;
 
+    // Настройки баланса
+    const MULTIPLIER_GROWTH = 0.015; // +1 икс примерно каждые 6-7 секунд
+    const BASE_CRASH_CHANCE = 0.002; // Базовый шанс краша (0.2% в секунду)
+    let currentCrashChance = BASE_CRASH_CHANCE;
+
     const ROAD_WIDTH = 800;
     const CAR_WIDTH = 60;
     const CAR_HEIGHT = 100;
@@ -36,9 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let enemyCars = [];
     let enemySpawnTimer = 0;
     let laneChangeTimer = 0;
-
-    const CRASH_CHANCE_PER_SEC = 0.01;
-    const ENEMY_SPAWN_RATE = 120; // Чуть реже спавним врагов, чтобы легче было
+    const ENEMY_SPAWN_RATE = 150; // Спавним машины пореже, чтобы не зажимали
 
     // ===== Отрисовка =====
     function draw() {
@@ -85,16 +88,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
         distance += 1;
         
-        // МНОЖИТЕЛЬ РАСТЕТ МЕДЛЕННЕЕ (было 0.005)
-        currentMultiplier += 0.002; 
+        // Растем
+        currentMultiplier += MULTIPLIER_GROWTH; 
+        
+        // --- Логика усложнения ---
+        if (currentMultiplier > 2.0) {
+            // После x2 шанс аварии начинает расти (например, на x10 он будет ~2.5%)
+            currentCrashChance = BASE_CRASH_CHANCE + ((currentMultiplier - 2.0) * 0.003);
+        }
+
+        // Ограничение максимума
+        if (currentMultiplier >= 20.0) {
+            currentMultiplier = 20.0;
+            cashout(); 
+            return;
+        }
+
         multiplierValue.textContent = 'x' + currentMultiplier.toFixed(2);
 
         const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
         timerDisplay.textContent = elapsed + ' сек';
 
-        // Скорость тоже немного замедлим, чтобы не было дёргано
         speed = 5 + (distance / 4000);
 
+        // --- Автопилот ---
         laneChangeTimer++;
         if (laneChangeTimer > 90 && Math.random() < 0.2) {
             laneChangeTimer = 0;
@@ -105,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // --- Машины и столкновения ---
         for (let i = enemyCars.length - 1; i >= 0; i--) {
             let car = enemyCars[i];
             car.y += speed;
@@ -126,13 +144,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // Спавн
         enemySpawnTimer++;
         if (enemySpawnTimer > ENEMY_SPAWN_RATE) {
             spawnEnemy();
             enemySpawnTimer = 0;
         }
 
-        if (Math.random() < (CRASH_CHANCE_PER_SEC / 60)) {
+        // --- Проверка на поломку двигателя ---
+        if (Math.random() < (currentCrashChance / 60)) {
             engineStall();
             return;
         }
@@ -151,17 +171,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         isPlaying = true;
         
-        // СТАРТ С 0.00
-        currentMultiplier = 0.00; 
+        currentMultiplier = 1.00; // Стартуем с x1.00
+        currentCrashChance = BASE_CRASH_CHANCE; // СБРАСЫВАЕМ ШАНС КРАША
         distance = 0;
         speed = 5;
         
-        // ОЧИЩАЕМ ВРАГОВ ОТ ПРОШЛОЙ ИГРЫ
         enemyCars = []; 
         enemySpawnTimer = 0;
         laneChangeTimer = 0;
         
-        multiplierValue.textContent = 'x0.00';
+        multiplierValue.textContent = 'x1.00';
         multiplierValue.style.color = '#d4ff00';
         startOverlay.style.display = 'none';
         crashOverlay.style.display = 'none';
@@ -192,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function engineStall() {
         isPlaying = false;
         cancelAnimationFrame(gameLoop);
-        multiplierValue.style.color = '#ff3333';
+        multiplierValue.style.color = '#999';
         engineOverlay.style.display = 'block';
         actionBtn.textContent = 'ЕЩЕ РАЗ';
         actionBtn.classList.remove('cashout');
@@ -210,7 +229,6 @@ document.addEventListener('DOMContentLoaded', () => {
         actionBtn.classList.remove('cashout');
         
         const bet = Number(betInput.value);
-        // Если множитель 0, то выигрыш будет 0. Защита от дурака:
         const win = Math.floor(bet * Math.max(1, currentMultiplier)); 
         showMessage(`Вы забрали: +${win} ₽ (x${currentMultiplier.toFixed(2)})`, '#2E7D32');
 
