@@ -351,6 +351,17 @@ body.game-body {
     font-family: sans-serif;
 }
 
+#gameCanvas {
+    display: block;
+    width: 100%;
+    max-width: 800px; /* Ограничиваем максимальную ширину под наш размер */
+    height: auto;
+    aspect-ratio: 800 / 450; /* Сохраняем пропорции */
+    margin: 0 auto;
+    border-radius: 8px;
+    background-color: #1a1a1a;
+}
+
 /* ===== Адаптив ===== */
 @media (max-width: 900px) {
     .kalina-container {
