@@ -230,21 +230,39 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const bet = Number(betInput.value);
         
-        // ВОТ ТУТ УБРАНА ЗАЩИТА Math.max(1, ...), ТЕПЕРЬ ИГРОК МОЖЕТ ПОТЕРЯТЬ ДЕНЬГИ
+        // Считаем выигрыш
         const win = Math.floor(bet * currentMultiplier); 
         
-        if (win > 0) {
-            showMessage(`Вы забрали: +${win} ₽ (x${currentMultiplier.toFixed(2)})`, '#2E7D32');
-        } else {
-            showMessage(`Вы забрали: 0 ₽ (x${currentMultiplier.toFixed(2)})`, '#C8552B');
+        // Списываем ставку и начисляем выигрыш в базу
+        if (typeof addBalance === 'function') {
+            addBalance(-bet, 'kalina:bet');
+            if (win > 0) {
+                addBalance(win, 'kalina:win');
+            }
         }
+        
+        // Показываем оверлей по центру экрана
+        const winOverlay = document.getElementById('winOverlay');
+        const winAmountText = document.getElementById('winAmountText');
+        
+        if (win > 0) {
+            winAmountText.textContent = `Вы забрали: +${win} ₽ (x${currentMultiplier.toFixed(2)})`;
+            winAmountText.style.color = '#a5d6a7'; // Светло-зеленый
+        } else {
+            winAmountText.textContent = `Вы забрали: 0 ₽ (x${currentMultiplier.toFixed(2)})`;
+            winAmountText.style.color = '#ff3333'; // Красный, если 0
+        }
+        
+        winOverlay.style.display = 'block';
 
+        // Убираем оверлей через 2 секунды и возвращаем стартовый экран
         setTimeout(() => {
+            winOverlay.style.display = 'none';
             startOverlay.style.display = 'block';
             multiplierValue.textContent = 'x0.00';
             multiplierValue.style.color = '#d4ff00';
             draw();
-        }, 1000);
+        }, 2000); // 2 секунды
     }
 
     actionBtn.addEventListener('click', () => {

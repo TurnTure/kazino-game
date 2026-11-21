@@ -298,6 +298,17 @@ body.game-body {
     letter-spacing: 1px;
 }
 
+/* Стили для успешного забора (зеленые) */
+.win-overlay {
+    border-color: #2E7D32 !important;
+}
+.win-overlay h2 {
+    color: #4caf50 !important; 
+}
+.win-overlay p {
+    color: #a5d6a7 !important;
+}
+
 .panel-rules ul {
     padding-left: 15px;
     margin: 0;
