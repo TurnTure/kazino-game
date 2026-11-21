@@ -26,20 +26,21 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentCrashChance = BASE_CRASH_CHANCE;
 
     const ROAD_WIDTH = 800;
-    const CAR_WIDTH = 60;
-    const CAR_HEIGHT = 100;
+    
+    // Увеличили размеры машинки для качества
+    const CAR_WIDTH = 70;  
+    const CAR_HEIGHT = 120; 
 
-    // Загружаем картинку для машинок по абсолютному пути
+    // Загружаем картинку по абсолютному пути (чтобы работало на Render)
     const carImage = new Image();
     carImage.src = '/games/games/kalina_rush/img/Kalina.webp'; 
     
-    // Если картинка загрузится, перерисуем экран
     carImage.onload = () => {
         console.log("Картинка Kalina.webp успешно загружена!");
         if (!isPlaying) draw();
     };
     carImage.onerror = () => {
-        console.error("ОШИБКА: Не удалось загрузить картинку по пути '../img/Kalina.webp'. Проверь путь и регистр букв!");
+        console.error("ОШИБКА: Не удалось загрузить картинку.");
     };
 
     const LANES = [ROAD_WIDTH * 0.25, ROAD_WIDTH * 0.5, ROAD_WIDTH * 0.75];
@@ -78,7 +79,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // Враги
         enemyCars.forEach(car => {
             if (carImage.complete && carImage.naturalWidth !== 0) {
+                // Тень для скрытия белых артефактов
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetY = 5;
+                
                 ctx.drawImage(carImage, car.x - CAR_WIDTH/2, car.y, CAR_WIDTH, CAR_HEIGHT);
+                
+                // Сброс тени
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetY = 0;
             } else {
                 ctx.fillStyle = '#ff3333';
                 ctx.beginPath();
@@ -92,7 +103,17 @@ document.addEventListener('DOMContentLoaded', () => {
         playerCar.x += (playerCar.targetX - playerCar.x) * 0.1;
         
         if (carImage.complete && carImage.naturalWidth !== 0) {
+            // Тень для нашей машины
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+            ctx.shadowBlur = 15;
+            ctx.shadowOffsetY = 8;
+
             ctx.drawImage(carImage, playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT);
+
+            // Сброс тени
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
         } else {
             ctx.fillStyle = '#e0e0e0';
             ctx.roundRect(playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT, 10);
@@ -136,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Машины и столкновения
+        // Машины и столкновения (по реальному хитбоксу)
         for (let i = enemyCars.length - 1; i >= 0; i--) {
             let car = enemyCars[i];
             car.y += speed;
