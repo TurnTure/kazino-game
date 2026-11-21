@@ -26,17 +26,48 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentCrashChance = BASE_CRASH_CHANCE;
 
     const ROAD_WIDTH = 800;
-    
-    // Увеличили размеры машинки для качества
     const CAR_WIDTH = 70;  
     const CAR_HEIGHT = 120; 
 
-    // Загружаем картинку по абсолютному пути (чтобы работало на Render)
+    // Загружаем картинку
     const carImage = new Image();
     carImage.src = '/games/games/kalina_rush/img/Kalina.webp'; 
     
+    // Создаем временный холст для обработки (удаления белого фона)
+    const processedCarImage = document.createElement('canvas');
+    const procCtx = processedCarImage.getContext('2d');
+    let isImageProcessed = false;
+
     carImage.onload = () => {
-        console.log("Картинка Kalina.webp успешно загружена!");
+        console.log("Картинка загружена, удаляем белый фон...");
+        
+        processedCarImage.width = carImage.width;
+        processedCarImage.height = carImage.height;
+        
+        // Рисуем картинку на временном холсте
+        procCtx.drawImage(carImage, 0, 0);
+        
+        // Получаем данные пикселей
+        const imageData = procCtx.getImageData(0, 0, processedCarImage.width, processedCarImage.height);
+        const data = imageData.data;
+        
+        // Проходимся по каждому пикселю
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            
+            // Если пиксель белый или очень светлый (r, g, b > 240), делаем его прозрачным
+            // Порог 240 означает, что мы удаляем только чисто белый цвет, не трогая блики
+            if (r > 240 && g > 240 && b > 240) {
+                data[i + 3] = 0; // Alpha = 0 (прозрачный)
+            }
+        }
+        
+        // Возвращаем обработанные пиксели
+        procCtx.putImageData(imageData, 0, 0);
+        isImageProcessed = true;
+        
         if (!isPlaying) draw();
     };
     carImage.onerror = () => {
@@ -76,17 +107,13 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.fillRect(canvas.width * 0.625, i + lineOffset, 4, 40); 
         }
 
-        // Враги
+        // Враги (используем обработанную картинку)
         enemyCars.forEach(car => {
-            if (carImage.complete && carImage.naturalWidth !== 0) {
-                // Тень для скрытия белых артефактов
+            if (isImageProcessed) {
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
                 ctx.shadowBlur = 10;
                 ctx.shadowOffsetY = 5;
-                
-                ctx.drawImage(carImage, car.x - CAR_WIDTH/2, car.y, CAR_WIDTH, CAR_HEIGHT);
-                
-                // Сброс тени
+                ctx.drawImage(processedCarImage, car.x - CAR_WIDTH/2, car.y, CAR_WIDTH, CAR_HEIGHT);
                 ctx.shadowColor = 'transparent';
                 ctx.shadowBlur = 0;
                 ctx.shadowOffsetY = 0;
@@ -98,19 +125,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Наша машина
+        // Наша машина (используем обработанную картинку)
         ctx.beginPath();
         playerCar.x += (playerCar.targetX - playerCar.x) * 0.1;
         
-        if (carImage.complete && carImage.naturalWidth !== 0) {
-            // Тень для нашей машины
+        if (isImageProcessed) {
             ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
             ctx.shadowBlur = 15;
             ctx.shadowOffsetY = 8;
-
-            ctx.drawImage(carImage, playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT);
-
-            // Сброс тени
+            ctx.drawImage(processedCarImage, playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT);
             ctx.shadowColor = 'transparent';
             ctx.shadowBlur = 0;
             ctx.shadowOffsetY = 0;
@@ -157,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Машины и столкновения (по реальному хитбоксу)
+        // Машины и столкновения
         for (let i = enemyCars.length - 1; i >= 0; i--) {
             let car = enemyCars[i];
             car.y += speed;
