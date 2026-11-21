@@ -77,11 +77,17 @@ body.game-body {
     flex: 1;
     min-height: 450px;
     position: relative;
-    background: #111;
+    background-color: #111; /* Темный асфальт */
     
-    /* Рисуем нормальную дорогу: темный асфальт и белые полосы по краям */
+    /* Рисуем 3 полосы */
     background-image: 
-        /* Центральная прерывистая линия */
+        /* 1. Левая сплошная полоса (отступ 10% от края) */
+        linear-gradient(to right, transparent calc(10% - 2px), #444 calc(10% - 2px), #444 calc(10% + 2px), transparent calc(10% + 2px)),
+        
+        /* 2. Правая сплошная полоса (отступ 10% от правого края) */
+        linear-gradient(to right, transparent calc(90% - 2px), #444 calc(90% - 2px), #444 calc(90% + 2px), transparent calc(90% + 2px)),
+        
+        /* 3. Центральная прерывистая полоса */
         repeating-linear-gradient(
             to bottom,
             transparent,
@@ -89,8 +95,17 @@ body.game-body {
             #444 40px,
             #444 80px
         );
-    background-size: 8px 100%;
-    background-position: center;
+        
+    background-size: 
+        100% 100%, /* Левая */
+        100% 100%, /* Правая */
+        6px 100%;  /* Центральная */
+        
+    background-position: 
+        left top, 
+        right top, 
+        center top;
+        
     background-repeat: no-repeat;
     
     display: flex;
