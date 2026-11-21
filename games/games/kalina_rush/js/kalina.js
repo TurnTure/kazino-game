@@ -27,17 +27,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const ROAD_WIDTH = 800;
     
-    // Слегка увеличили машину, чтобы она была заметнее
+    // Увеличили размеры машинок для качества
     const CAR_WIDTH = 80;  
     const CAR_HEIGHT = 140; 
 
-    // Загружаем картинку
-    const carImage = new Image();
-    carImage.src = '/games/games/kalina_rush/img/Kalina.png'; 
+    // Загружаем картинку для НАШЕЙ машины (Калина)
+    const playerCarImage = new Image();
+    playerCarImage.src = '/games/games/kalina_rush/img/Kalina.png'; 
     
-    carImage.onload = () => {
-        if (!isPlaying) draw();
-    };
+    // Загружаем картинку для ВРАГОВ (BMW)
+    const enemyCarImage = new Image();
+    enemyCarImage.src = '/games/games/kalina_rush/img/BMW.png'; 
 
     const LANES = [ROAD_WIDTH * 0.25, ROAD_WIDTH * 0.5, ROAD_WIDTH * 0.75];
 
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Включаем максимальное качество сглаживания для картинки
+        // Высокое качество сглаживания
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high'; 
 
@@ -76,19 +76,25 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.fillRect(canvas.width * 0.625, i + lineOffset, 4, 40); 
         }
 
-        // Враги
+        // Враги (BMW)
         enemyCars.forEach(car => {
-            if (carImage.complete && carImage.naturalWidth !== 0) {
+            if (enemyCarImage.complete && enemyCarImage.naturalWidth !== 0) {
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
                 ctx.shadowBlur = 10;
                 ctx.shadowOffsetY = 5;
                 
-                ctx.drawImage(carImage, car.x - CAR_WIDTH/2, car.y, CAR_WIDTH, CAR_HEIGHT);
+                // Рисуем врага, переворачивая его по вертикали, чтобы он ехал на нас
+                ctx.save();
+                ctx.translate(car.x, car.y + CAR_HEIGHT);
+                ctx.scale(1, -1);
+                ctx.drawImage(enemyCarImage, -CAR_WIDTH/2, 0, CAR_WIDTH, CAR_HEIGHT);
+                ctx.restore();
                 
                 ctx.shadowColor = 'transparent';
                 ctx.shadowBlur = 0;
                 ctx.shadowOffsetY = 0;
             } else {
+                // Заглушка, если картинка не загрузилась
                 ctx.fillStyle = '#ff3333';
                 ctx.beginPath();
                 ctx.roundRect(car.x - CAR_WIDTH/2, car.y, CAR_WIDTH, CAR_HEIGHT, 10);
@@ -96,16 +102,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Наша машина
+        // Наша машина (Калина)
         ctx.beginPath();
         playerCar.x += (playerCar.targetX - playerCar.x) * 0.1;
         
-        if (carImage.complete && carImage.naturalWidth !== 0) {
+        if (playerCarImage.complete && playerCarImage.naturalWidth !== 0) {
             ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
             ctx.shadowBlur = 15;
             ctx.shadowOffsetY = 8;
             
-            ctx.drawImage(carImage, playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT);
+            ctx.drawImage(playerCarImage, playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT);
             
             ctx.shadowColor = 'transparent';
             ctx.shadowBlur = 0;
