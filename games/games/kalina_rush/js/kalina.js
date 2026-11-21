@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Загружаем картинку для машинок
     // Убедись, что путь правильный (например, ./img/kalina.png)
     const carImage = new Image();
-    carImage.src = './img/kalina.webp'; 
+    carImage.src = '../img/Kalina.webp'; 
 
     const LANES = [ROAD_WIDTH * 0.25, ROAD_WIDTH * 0.5, ROAD_WIDTH * 0.75];
 
