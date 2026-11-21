@@ -30,9 +30,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const CAR_HEIGHT = 100;
 
     // Загружаем картинку для машинок
-    // Убедись, что путь правильный (например, ./img/kalina.png)
     const carImage = new Image();
-    carImage.src = '../img/Kalina.webp'; 
+    carImage.src = '../img/Kalina.webp';
+    
+    // Если картинка загрузится, перерисуем экран
+    carImage.onload = () => {
+        console.log("Картинка Kalina.webp успешно загружена!");
+        if (!isPlaying) draw();
+    };
+    carImage.onerror = () => {
+        console.error("ОШИБКА: Не удалось загрузить картинку по пути '../img/Kalina.webp'. Проверь путь и регистр букв!");
+    };
 
     const LANES = [ROAD_WIDTH * 0.25, ROAD_WIDTH * 0.5, ROAD_WIDTH * 0.75];
 
@@ -69,13 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Враги
         enemyCars.forEach(car => {
-            // Если картинка загрузилась, рисуем её
-            if (carImage.complete) {
-                // Рисуем картинку (повернутую, если нужно, но мы пока просто вставляем)
-                // Аргументы: картинка, x, y, ширина, высота
+            if (carImage.complete && carImage.naturalWidth !== 0) {
                 ctx.drawImage(carImage, car.x - CAR_WIDTH/2, car.y, CAR_WIDTH, CAR_HEIGHT);
             } else {
-                // Заглушка, пока картинка грузится
                 ctx.fillStyle = '#ff3333';
                 ctx.beginPath();
                 ctx.roundRect(car.x - CAR_WIDTH/2, car.y, CAR_WIDTH, CAR_HEIGHT, 10);
@@ -87,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.beginPath();
         playerCar.x += (playerCar.targetX - playerCar.x) * 0.1;
         
-        if (carImage.complete) {
+        if (carImage.complete && carImage.naturalWidth !== 0) {
             ctx.drawImage(carImage, playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT);
         } else {
             ctx.fillStyle = '#e0e0e0';
