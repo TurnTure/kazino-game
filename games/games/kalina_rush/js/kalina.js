@@ -22,7 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- НАСТРОЙКИ БАЛАНСА ---
     // +1.00 икс ровно за 10 секунд (600 кадров при 60 fps)
     const MULTIPLIER_GROWTH = 1.00 / 600; 
-    const BASE_CRASH_CHANCE = 0.002; 
+    
+    // ВНИМАНИЕ: Для теста я поднял шанс поломки двигателя до 5% (0.05). 
+    // Для реальной игры верни значение 0.002 (0.2%).
+    const BASE_CRASH_CHANCE = 0.05; 
     let currentCrashChance = BASE_CRASH_CHANCE;
 
     const ROAD_WIDTH = 800;
@@ -127,6 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
             let car = enemyCars[i];
             car.y += speed;
 
+            // === ВНИМАНИЕ: БЛОК СТОЛКНОВЕНИЙ ОТКЛЮЧЕН ДЛЯ ТЕСТА ===
+            // Чтобы вернуть аварии, убери /* в начале и */ в конце этого блока
+            /* 
             let playerLaneX = LANES[playerCar.laneIndex];
             
             if (
@@ -138,6 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 crashGame();
                 return;
             }
+            */
+            // ==================================================
 
             if (car.y > canvas.height) {
                 enemyCars.splice(i, 1);
@@ -230,8 +238,17 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const bet = Number(betInput.value);
         
-        // ВОТ ТУТ УБРАНА ЗАЩИТА Math.max(1, ...), ТЕПЕРЬ ИГРОК МОЖЕТ ПОТЕРЯТЬ ДЕНЬГИ
+        // ТЕПЕРЬ ИГРОК МОЖЕТ ПОТЕРЯТЬ ДЕНЬГИ (если заберет меньше x1.00)
         const win = Math.floor(bet * currentMultiplier); 
+        
+        // ВНИМАНИЕ: Тут мы списываем ставку и начисляем выигрыш
+        // Убедись, что у тебя в проекте подключен addBalance()
+        if (typeof addBalance === 'function') {
+            addBalance(-bet, 'kalina:bet'); // Списываем ставку
+            if (win > 0) {
+                addBalance(win, 'kalina:win'); // Начисляем выигрыш
+            }
+        }
         
         if (win > 0) {
             showMessage(`Вы забрали: +${win} ₽ (x${currentMultiplier.toFixed(2)})`, '#2E7D32');
