@@ -29,50 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const CAR_WIDTH = 70;  
     const CAR_HEIGHT = 120; 
 
-    // Создаем объекты для картинки
+    // Просто загружаем картинку
     const carImage = new Image();
     carImage.src = '/games/games/kalina_rush/img/Kalina.png'; 
     
-    // Временный холст для обработки
-    const tempCanvas = document.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d');
-    let isImageReady = false;
-
     carImage.onload = () => {
-        tempCanvas.width = carImage.width;
-        tempCanvas.height = carImage.height;
-        
-        // Очищаем холст (делаем его прозрачным)
-        tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
-        
-        // Рисуем картинку (она уже PNG, но возможно с белым фоном)
-        tempCtx.drawImage(carImage, 0, 0);
-        
-        // ПОЛУЧАЕМ ДАННЫЕ ПИКСЕЛЕЙ
-        const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-        const data = imgData.data;
-        
-        // УДАЛЯЕМ БЕЛЫЙ ФОН БЕЗ ШУМА
-        for (let i = 0; i < data.length; i += 4) {
-            const r = data[i];
-            const g = data[i + 1];
-            const b = data[i + 2];
-            
-            // Если пиксель очень светлый (белый или почти белый), делаем его прозрачным
-            // 230 — это порог. Если хочешь убрать больше, поставь 200.
-            if (r > 230 && g > 230 && b > 230) {
-                data[i + 3] = 0; // Делаем прозрачным
-            } else {
-                // Для остальных пикселей (сама машина) оставляем как есть
-                // Но добавим немного насыщенности, чтобы машина не была тусклой
-                data[i + 3] = 255; 
-            }
-        }
-        
-        // Возвращаем обработанные данные
-        tempCtx.putImageData(imgData, 0, 0);
-        isImageReady = true;
-        
         if (!isPlaying) draw();
     };
 
@@ -109,13 +70,17 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.fillRect(canvas.width * 0.625, i + lineOffset, 4, 40); 
         }
 
-        // Враги (используем нашу очищенную картинку)
+        // Враги
         enemyCars.forEach(car => {
-            if (isImageReady) {
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            if (carImage.complete && carImage.naturalWidth !== 0) {
+                // Тень
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
                 ctx.shadowBlur = 10;
                 ctx.shadowOffsetY = 5;
-                ctx.drawImage(tempCanvas, car.x - CAR_WIDTH/2, car.y, CAR_WIDTH, CAR_HEIGHT);
+                
+                ctx.drawImage(carImage, car.x - CAR_WIDTH/2, car.y, CAR_WIDTH, CAR_HEIGHT);
+                
+                // Сброс тени
                 ctx.shadowColor = 'transparent';
                 ctx.shadowBlur = 0;
                 ctx.shadowOffsetY = 0;
@@ -131,14 +96,15 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.beginPath();
         playerCar.x += (playerCar.targetX - playerCar.x) * 0.1;
         
-        if (isImageReady) {
+        if (carImage.complete && carImage.naturalWidth !== 0) {
+            // Тень
             ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
             ctx.shadowBlur = 15;
             ctx.shadowOffsetY = 8;
             
-            // Рисуем очищенную картинку
-            ctx.drawImage(tempCanvas, playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT);
+            ctx.drawImage(carImage, playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT);
             
+            // Сброс тени
             ctx.shadowColor = 'transparent';
             ctx.shadowBlur = 0;
             ctx.shadowOffsetY = 0;
