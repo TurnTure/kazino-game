@@ -77,41 +77,45 @@ body.game-body {
     flex: 1;
     min-height: 450px;
     position: relative;
-    background-color: #111; /* Темный асфальт */
-    
-    /* Рисуем 3 полосы */
-    background-image: 
-        /* 1. Левая сплошная полоса (отступ 10% от края) */
-        linear-gradient(to right, transparent calc(10% - 2px), #444 calc(10% - 2px), #444 calc(10% + 2px), transparent calc(10% + 2px)),
-        
-        /* 2. Правая сплошная полоса (отступ 10% от правого края) */
-        linear-gradient(to right, transparent calc(90% - 2px), #444 calc(90% - 2px), #444 calc(90% + 2px), transparent calc(90% + 2px)),
-        
-        /* 3. Центральная прерывистая полоса */
-        repeating-linear-gradient(
-            to bottom,
-            transparent,
-            transparent 40px,
-            #444 40px,
-            #444 80px
-        );
-        
-    background-size: 
-        100% 100%, /* Левая */
-        100% 100%, /* Правая */
-        6px 100%;  /* Центральная */
-        
-    background-position: 
-        left top, 
-        right top, 
-        center top;
-        
-    background-repeat: no-repeat;
-    
+    background-color: #1a1a1a; /* Цвет асфальта */
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    
+    /* 
+       Рисуем разметку: 
+       1. Левая обочина (сплошная на 10% ширины)
+       2. Первая разделительная (пунктир на 35%)
+       3. Вторая разделительная (пунктир на 65%)
+       4. Правая обочина (сплошная на 90% ширины)
+    */
+    background-image: 
+        /* 1. Левая сплошная */
+        linear-gradient(to right, transparent calc(10% - 2px), #555 calc(10% - 2px), #555 calc(10% + 2px), transparent calc(10% + 2px)),
+        
+        /* 2. Первый пунктир */
+        repeating-linear-gradient(to bottom, transparent 0, transparent 40px, #555 40px, #555 80px),
+        
+        /* 3. Второй пунктир */
+        repeating-linear-gradient(to bottom, transparent 0, transparent 40px, #555 40px, #555 80px),
+        
+        /* 4. Правая сплошная */
+        linear-gradient(to right, transparent calc(90% - 2px), #555 calc(90% - 2px), #555 calc(90% + 2px), transparent calc(90% + 2px));
+        
+    background-size: 
+        100% 100%, /* Левая обочина */
+        4px 100%,  /* Первый пунктир (ширина 4px) */
+        4px 100%,  /* Второй пунктир (ширина 4px) */
+        100% 100%; /* Правая обочина */
+        
+    background-position: 
+        left top, 
+        35% top,   /* Позиция первого пунктира */
+        65% top,   /* Позиция второго пунктира */
+        right top;
+        
+    background-repeat: no-repeat;
 }
 
 /* Оверлеи (Готов к старту / Авария) */
