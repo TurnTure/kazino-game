@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const CAR_WIDTH = 70;  
     const CAR_HEIGHT = 120; 
 
-    // Загружаем картинку по абсолютному пути (теперь в формате .png)
+    // Загружаем картинку
     const carImage = new Image();
     carImage.src = '/games/games/kalina_rush/img/Kalina.png'; 
     
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isPlaying) draw();
     };
     carImage.onerror = () => {
-        console.error("ОШИБКА: Не удалось загрузить картинку. Проверь путь и название файла.");
+        console.error("ОШИБКА: Не удалось загрузить картинку.");
     };
 
     const LANES = [ROAD_WIDTH * 0.25, ROAD_WIDTH * 0.5, ROAD_WIDTH * 0.75];
@@ -77,13 +77,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Враги
         enemyCars.forEach(car => {
             if (carImage.complete && carImage.naturalWidth !== 0) {
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-                ctx.shadowBlur = 10;
-                ctx.shadowOffsetY = 5;
+                // Включаем режим умножения (белый фон исчезнет)
+                ctx.globalCompositeOperation = 'multiply';
                 ctx.drawImage(carImage, car.x - CAR_WIDTH/2, car.y, CAR_WIDTH, CAR_HEIGHT);
-                ctx.shadowColor = 'transparent';
-                ctx.shadowBlur = 0;
-                ctx.shadowOffsetY = 0;
+                // Возвращаем обычный режим
+                ctx.globalCompositeOperation = 'source-over';
             } else {
                 ctx.fillStyle = '#ff3333';
                 ctx.beginPath();
@@ -97,13 +95,9 @@ document.addEventListener('DOMContentLoaded', () => {
         playerCar.x += (playerCar.targetX - playerCar.x) * 0.1;
         
         if (carImage.complete && carImage.naturalWidth !== 0) {
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
-            ctx.shadowBlur = 15;
-            ctx.shadowOffsetY = 8;
+            ctx.globalCompositeOperation = 'multiply';
             ctx.drawImage(carImage, playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT);
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetY = 0;
+            ctx.globalCompositeOperation = 'source-over';
         } else {
             ctx.fillStyle = '#e0e0e0';
             ctx.roundRect(playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT, 10);
@@ -147,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Машины и столкновения (по реальному хитбоксу)
+        // Машины и столкновения
         for (let i = enemyCars.length - 1; i >= 0; i--) {
             let car = enemyCars[i];
             car.y += speed;
