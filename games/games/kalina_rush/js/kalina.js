@@ -29,9 +29,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const CAR_WIDTH = 60;
     const CAR_HEIGHT = 100;
 
-    // Загружаем картинку для машинок
+    // Загружаем картинку для машинок по абсолютному пути
     const carImage = new Image();
-    carImage.src = '../img/Kalina.webp';
+    carImage.src = '/games/games/kalina_rush/img/Kalina.webp'; 
     
     // Если картинка загрузится, перерисуем экран
     carImage.onload = () => {
