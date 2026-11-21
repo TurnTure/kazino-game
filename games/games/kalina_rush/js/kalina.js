@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let speed = 5;
     let distance = 0;
 
-    // --- НАСТРОЙКИ БАЛАНСА ---
+    // --- НАСТРОЙКИ ---
     const MULTIPLIER_GROWTH = 1.00 / 600; 
     const BASE_CRASH_CHANCE = 0.002; 
     let currentCrashChance = BASE_CRASH_CHANCE;
@@ -29,16 +29,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const CAR_WIDTH = 70;  
     const CAR_HEIGHT = 120; 
 
-    // Загружаем картинку
+    // Создаем объекты для картинки
     const carImage = new Image();
     carImage.src = '/games/games/kalina_rush/img/Kalina.png'; 
     
+    // Временный холст для обработки (удаления белого фона)
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    let isImageReady = false;
+
     carImage.onload = () => {
-        console.log("Картинка Kalina.png успешно загружена!");
+        tempCanvas.width = carImage.width;
+        tempCanvas.height = carImage.height;
+        
+        // Рисуем оригинал на временном холсте
+        tempCtx.drawImage(carImage, 0, 0);
+        
+        // Получаем все пиксели
+        const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+        const data = imgData.data;
+        
+        // Проходимся по пикселям и удаляем белый цвет
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            
+            // Если пиксель светлый (r, g, b > 235), делаем его прозрачным
+            if (r > 235 && g > 235 && b > 235) {
+                data[i + 3] = 0; // Alpha = 0
+            }
+        }
+        
+        // Возвращаем обратно, но уже без белого фона
+        tempCtx.putImageData(imgData, 0, 0);
+        isImageReady = true;
         if (!isPlaying) draw();
-    };
-    carImage.onerror = () => {
-        console.error("ОШИБКА: Не удалось загрузить картинку.");
     };
 
     const LANES = [ROAD_WIDTH * 0.25, ROAD_WIDTH * 0.5, ROAD_WIDTH * 0.75];
@@ -76,12 +102,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Враги
         enemyCars.forEach(car => {
-            if (carImage.complete && carImage.naturalWidth !== 0) {
-                // Включаем режим умножения (белый фон исчезнет)
-                ctx.globalCompositeOperation = 'multiply';
-                ctx.drawImage(carImage, car.x - CAR_WIDTH/2, car.y, CAR_WIDTH, CAR_HEIGHT);
-                // Возвращаем обычный режим
-                ctx.globalCompositeOperation = 'source-over';
+            if (isImageReady) {
+                // Тень
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetY = 5;
+                ctx.drawImage(tempCanvas, car.x - CAR_WIDTH/2, car.y, CAR_WIDTH, CAR_HEIGHT);
+                // Сброс тени
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetY = 0;
             } else {
                 ctx.fillStyle = '#ff3333';
                 ctx.beginPath();
@@ -94,10 +124,14 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.beginPath();
         playerCar.x += (playerCar.targetX - playerCar.x) * 0.1;
         
-        if (carImage.complete && carImage.naturalWidth !== 0) {
-            ctx.globalCompositeOperation = 'multiply';
-            ctx.drawImage(carImage, playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT);
-            ctx.globalCompositeOperation = 'source-over';
+        if (isImageReady) {
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+            ctx.shadowBlur = 15;
+            ctx.shadowOffsetY = 8;
+            ctx.drawImage(tempCanvas, playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT);
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
         } else {
             ctx.fillStyle = '#e0e0e0';
             ctx.roundRect(playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT, 10);
