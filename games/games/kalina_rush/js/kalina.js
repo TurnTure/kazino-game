@@ -19,16 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let speed = 5;
     let distance = 0;
 
-    // Ширина дороги (условная)
     const ROAD_WIDTH = 800;
     const CAR_WIDTH = 60;
     const CAR_HEIGHT = 100;
 
-    // Координаты 3-х полос (центр каждой полосы)
-    // Если холст 800px, то полосы будут на 200, 400, 600
+    // Координаты 3-х полос
     const LANES = [ROAD_WIDTH * 0.25, ROAD_WIDTH * 0.5, ROAD_WIDTH * 0.75];
 
-    // Наша машина
     let playerCar = {
         x: LANES[1],
         y: canvas.height - CAR_HEIGHT - 20,
@@ -41,53 +38,43 @@ document.addEventListener('DOMContentLoaded', () => {
     let laneChangeTimer = 0;
 
     const CRASH_CHANCE_PER_SEC = 0.01;
-    const ENEMY_SPAWN_RATE = 100;
+    const ENEMY_SPAWN_RATE = 120; // Чуть реже спавним врагов, чтобы легче было
 
     // ===== Отрисовка =====
     function draw() {
-        // Очищаем экран
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // 1. Асфальт
         ctx.fillStyle = '#1a1a1a';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // 2. Обочины (отступ от краев по 10%)
         ctx.fillStyle = '#444';
         ctx.fillRect(canvas.width * 0.1, 0, 4, canvas.height);
         ctx.fillRect(canvas.width * 0.9 - 4, 0, 4, canvas.height);
 
-        // 3. Пунктиры (сдвигаем под координаты полос)
         ctx.fillStyle = '#444';
         let lineOffset = (distance * speed) % 80;
         for (let i = -80; i < canvas.height; i += 80) {
-            // Пунктир между 1 и 2 полосой
             ctx.fillRect(canvas.width * 0.375, i + lineOffset, 4, 40); 
-            // Пунктир между 2 и 3 полосой
             ctx.fillRect(canvas.width * 0.625, i + lineOffset, 4, 40); 
         }
 
-        // 4. Враги
         enemyCars.forEach(car => {
             ctx.fillStyle = '#ff3333';
             ctx.beginPath();
             ctx.roundRect(car.x - CAR_WIDTH/2, car.y, CAR_WIDTH, CAR_HEIGHT, 10);
             ctx.fill();
             
-            // Фары
             ctx.fillStyle = '#fff';
             ctx.fillRect(car.x - CAR_WIDTH/2 + 5, car.y + 10, 10, 5);
             ctx.fillRect(car.x + CAR_WIDTH/2 - 15, car.y + 10, 10, 5);
         });
 
-        // 5. Наша машина
         ctx.fillStyle = '#e0e0e0';
         ctx.beginPath();
         playerCar.x += (playerCar.targetX - playerCar.x) * 0.1;
         ctx.roundRect(playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT, 10);
         ctx.fill();
         
-        // Детали (полоски)
         ctx.fillStyle = '#ccc';
         ctx.fillRect(playerCar.x - CAR_WIDTH/2 + 5, playerCar.y + 40, CAR_WIDTH - 10, 2);
     }
@@ -97,13 +84,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isPlaying) return;
 
         distance += 1;
-        currentMultiplier += 0.005;
+        
+        // МНОЖИТЕЛЬ РАСТЕТ МЕДЛЕННЕЕ (было 0.005)
+        currentMultiplier += 0.002; 
         multiplierValue.textContent = 'x' + currentMultiplier.toFixed(2);
 
         const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
         timerDisplay.textContent = elapsed + ' сек';
 
-        speed = 5 + (distance / 2000);
+        // Скорость тоже немного замедлим, чтобы не было дёргано
+        speed = 5 + (distance / 4000);
 
         laneChangeTimer++;
         if (laneChangeTimer > 90 && Math.random() < 0.2) {
@@ -160,14 +150,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isPlaying) return;
 
         isPlaying = true;
-        currentMultiplier = 1.00;
+        
+        // СТАРТ С 0.00
+        currentMultiplier = 0.00; 
         distance = 0;
         speed = 5;
-        enemyCars = [];
+        
+        // ОЧИЩАЕМ ВРАГОВ ОТ ПРОШЛОЙ ИГРЫ
+        enemyCars = []; 
         enemySpawnTimer = 0;
         laneChangeTimer = 0;
         
-        multiplierValue.textContent = 'x1.00';
+        multiplierValue.textContent = 'x0.00';
         multiplierValue.style.color = '#d4ff00';
         startOverlay.style.display = 'none';
         crashOverlay.style.display = 'none';
@@ -216,7 +210,8 @@ document.addEventListener('DOMContentLoaded', () => {
         actionBtn.classList.remove('cashout');
         
         const bet = Number(betInput.value);
-        const win = Math.floor(bet * currentMultiplier);
+        // Если множитель 0, то выигрыш будет 0. Защита от дурака:
+        const win = Math.floor(bet * Math.max(1, currentMultiplier)); 
         showMessage(`Вы забрали: +${win} ₽ (x${currentMultiplier.toFixed(2)})`, '#2E7D32');
 
         setTimeout(() => {
