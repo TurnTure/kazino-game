@@ -19,8 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let speed = 5;
     let distance = 0;
 
-    // Настройки баланса
-    const MULTIPLIER_GROWTH = 0.015; // +1 икс примерно каждые 6-7 секунд
+    // --- НАСТРОЙКИ БАЛАНСА ---
+    const MULTIPLIER_GROWTH = 0.005; // Скорость роста (как ты просил)
     const BASE_CRASH_CHANCE = 0.002; // Базовый шанс краша (0.2% в секунду)
     let currentCrashChance = BASE_CRASH_CHANCE;
 
@@ -41,19 +41,22 @@ document.addEventListener('DOMContentLoaded', () => {
     let enemyCars = [];
     let enemySpawnTimer = 0;
     let laneChangeTimer = 0;
-    const ENEMY_SPAWN_RATE = 150; // Спавним машины пореже, чтобы не зажимали
+    const ENEMY_SPAWN_RATE = 150; // Реже спавним врагов, чтобы легче уворачиваться
 
     // ===== Отрисовка =====
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        // Асфальт
         ctx.fillStyle = '#1a1a1a';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+        // Обочины
         ctx.fillStyle = '#444';
         ctx.fillRect(canvas.width * 0.1, 0, 4, canvas.height);
         ctx.fillRect(canvas.width * 0.9 - 4, 0, 4, canvas.height);
 
+        // Пунктиры
         ctx.fillStyle = '#444';
         let lineOffset = (distance * speed) % 80;
         for (let i = -80; i < canvas.height; i += 80) {
@@ -61,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.fillRect(canvas.width * 0.625, i + lineOffset, 4, 40); 
         }
 
+        // Враги (красные)
         enemyCars.forEach(car => {
             ctx.fillStyle = '#ff3333';
             ctx.beginPath();
@@ -72,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.fillRect(car.x + CAR_WIDTH/2 - 15, car.y + 10, 10, 5);
         });
 
+        // Наша машина (белая)
         ctx.fillStyle = '#e0e0e0';
         ctx.beginPath();
         playerCar.x += (playerCar.targetX - playerCar.x) * 0.1;
@@ -91,13 +96,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Растем
         currentMultiplier += MULTIPLIER_GROWTH; 
         
-        // --- Логика усложнения ---
+        // Логика усложнения (после x2 шанс растет)
         if (currentMultiplier > 2.0) {
-            // После x2 шанс аварии начинает расти (например, на x10 он будет ~2.5%)
-            currentCrashChance = BASE_CRASH_CHANCE + ((currentMultiplier - 2.0) * 0.003);
+            currentCrashChance = BASE_CRASH_CHANCE + ((currentMultiplier - 2.0) * 0.005);
         }
 
-        // Ограничение максимума
+        // Максимальный потолок х20
         if (currentMultiplier >= 20.0) {
             currentMultiplier = 20.0;
             cashout(); 
@@ -109,9 +113,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
         timerDisplay.textContent = elapsed + ' сек';
 
+        // Ускорение
         speed = 5 + (distance / 4000);
 
-        // --- Автопилот ---
+        // Автопилот
         laneChangeTimer++;
         if (laneChangeTimer > 90 && Math.random() < 0.2) {
             laneChangeTimer = 0;
@@ -122,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // --- Машины и столкновения ---
+        // Машины и столкновения
         for (let i = enemyCars.length - 1; i >= 0; i--) {
             let car = enemyCars[i];
             car.y += speed;
@@ -151,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
             enemySpawnTimer = 0;
         }
 
-        // --- Проверка на поломку двигателя ---
+        // Поломка двигателя
         if (Math.random() < (currentCrashChance / 60)) {
             engineStall();
             return;
@@ -171,8 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         isPlaying = true;
         
-        currentMultiplier = 1.00; // Стартуем с x1.00
-        currentCrashChance = BASE_CRASH_CHANCE; // СБРАСЫВАЕМ ШАНС КРАША
+        currentMultiplier = 1.00;
+        currentCrashChance = BASE_CRASH_CHANCE;
         distance = 0;
         speed = 5;
         
