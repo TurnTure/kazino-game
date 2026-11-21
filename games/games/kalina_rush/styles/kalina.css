@@ -2,7 +2,8 @@
 body.game-body {
     margin: 0;
     padding: 0;
-    padding-top: 90px; /* <--- ДОБАВИЛИ ОТСТУП СВЕРХУ, ЧТОБЫ ОПУСТИТЬ ИГРУ */
+    /* ДОБАВИЛИ ОТСТУП СВЕРХУ, ЧТОБЫ ОПУСТИТЬ ИГРУ ПОД ШАПКУ */
+    padding-top: 100px; 
     background-color: #F5E9D6; /* Твой бежевый фон */
     font-family: Georgia, 'Times New Roman', serif;
     color: #2B1A0F;
@@ -11,7 +12,7 @@ body.game-body {
 
 .kalina-container {
     max-width: 1200px;
-    margin: 40px auto;
+    margin: 0 auto 40px auto;
     padding: 0 20px;
     display: grid;
     grid-template-columns: 1fr 340px; /* Слева игра, справа панель */
@@ -33,10 +34,12 @@ body.game-body {
 .kalina-top-info {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start; /* Выравниваем по верхнему краю */
     padding: 20px 24px;
     background: #1a1a1a;
     border-bottom: 1px solid #333;
+    position: relative;
+    z-index: 10; /* Чтобы иксы не прятались за дорогой */
 }
 
 .kalina-multiplier {
@@ -50,11 +53,12 @@ body.game-body {
     font-size: 11px;
     letter-spacing: 1px;
     text-transform: uppercase;
+    margin-bottom: 5px;
 }
 
 .mult-value {
     font-family: Arial, sans-serif;
-    font-size: 48px;
+    font-size: 52px;
     font-weight: 900;
     color: #d4ff00; /* Ярко-салатовый цвет из макета */
     line-height: 1;
@@ -63,26 +67,39 @@ body.game-body {
 .kalina-timer {
     color: #555;
     font-family: Arial, sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: bold;
+    padding-top: 20px;
 }
 
 /* Сама дорога */
 .kalina-road {
     flex: 1;
-    min-height: 400px;
+    min-height: 450px;
     position: relative;
     background: #111;
-    /* Рисуем разметку дороги */
+    
+    /* Рисуем нормальную дорогу: темный асфальт и белые полосы по краям */
     background-image: 
-        linear-gradient(90deg, transparent 49%, #444 49%, #444 51%, transparent 51%);
-    background-size: 100px 100%;
+        /* Центральная прерывистая линия */
+        repeating-linear-gradient(
+            to bottom,
+            transparent,
+            transparent 40px,
+            #444 40px,
+            #444 80px
+        );
+    background-size: 8px 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
 }
 
+/* Оверлеи (Готов к старту / Авария) */
 .kalina-overlay {
     background: rgba(0, 0, 0, 0.85);
     border: 2px solid #333;
@@ -91,6 +108,7 @@ body.game-body {
     text-align: center;
     color: #fff;
     z-index: 10;
+    backdrop-filter: blur(4px);
 }
 
 .kalina-overlay h2 {
@@ -99,6 +117,7 @@ body.game-body {
     font-family: Arial, sans-serif;
     font-size: 24px;
     letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
 .kalina-overlay p {
@@ -115,16 +134,36 @@ body.game-body {
 /* Машинка (персонаж игрока) */
 .kalina-car {
     position: absolute;
-    width: 50px;
-    height: 80px;
-    background-color: #e0e0e0; /* Белая машина */
-    border-radius: 10px;
+    width: 60px;
+    height: 90px;
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    transition: bottom 0.1s linear;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    transition: bottom 0.1s linear, transform 0.5s ease; /* Плавный поворот при краше */
     z-index: 5;
+    
+    /* Если у тебя есть картинка машинки, раскомментируй строки ниже и положи файл в папку img */
+    /* background-image: url('../img/car.png'); */
+    /* background-size: contain; */
+    /* background-repeat: no-repeat; */
+    
+    /* Пока картинки нет, рисуем красивую CSS-машинку */
+    background: #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5), inset 0 -15px 0 rgba(0,0,0,0.1);
+}
+
+/* Полоски на машинке для красоты */
+.kalina-car::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    width: 80%;
+    height: 2px;
+    background: #ccc;
+    box-shadow: 0 10px 0 #ccc;
+    transform: translateY(-50%);
 }
 
 /* Нижняя шкала */
@@ -155,6 +194,7 @@ body.game-body {
     color: #fff;
     border: 1px solid #333;
     box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    height: fit-content;
 }
 
 .panel-header {
@@ -172,17 +212,27 @@ body.game-body {
     letter-spacing: 1px;
 }
 
+.btn-icon {
+    background: #222;
+    border: 1px solid #333;
+    color: #fff;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
 .panel-bet-info {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     border-bottom: 1px dashed #333;
     padding-bottom: 10px;
 }
 
-.panel-bet-info span { font-size: 14px; color: #ccc; }
-.bet-val-display { font-size: 20px; font-weight: bold; }
+.panel-bet-info span { font-size: 14px; color: #ccc; font-family: sans-serif;}
+.bet-val-display { font-size: 20px; font-weight: bold; font-family: Arial, sans-serif;}
 
 .bet-changer {
     display: flex;
@@ -191,10 +241,11 @@ body.game-body {
     border-radius: 8px;
     overflow: hidden;
     margin-bottom: 10px;
+    height: 48px;
 }
 
 .bet-changer button {
-    width: 40px;
+    width: 48px;
     background: #222;
     border: none;
     color: #fff;
@@ -225,11 +276,15 @@ body.game-body {
     background: #222;
     border: 1px solid #333;
     color: #888;
-    padding: 8px 0;
+    padding: 10px 0;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 13px;
+    font-family: sans-serif;
+    transition: all 0.2s;
 }
+
+.quick-bets button:hover { background: #2a2a2a; }
 
 .quick-bets button.active {
     background: #333;
@@ -242,21 +297,22 @@ body.game-body {
     background: #d4ff00;
     color: #000;
     border: none;
-    padding: 16px;
+    padding: 18px;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 900;
     text-transform: uppercase;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: opacity 0.2s, background-color 0.3s;
     margin-bottom: 24px;
+    font-family: Arial, sans-serif;
 }
 
-.kalina-main-btn:hover {
-    opacity: 0.9;
-}
+.kalina-main-btn:hover { opacity: 0.9; }
+
 .kalina-main-btn.cashout {
     background: #E5A72C; /* Оранжевый при заборе */
+    color: #fff;
 }
 
 .panel-rules h4 {
@@ -264,14 +320,16 @@ body.game-body {
     font-size: 11px;
     color: #888;
     margin: 0 0 10px;
+    letter-spacing: 1px;
 }
 
 .panel-rules ul {
     padding-left: 15px;
     margin: 0;
     color: #666;
-    font-size: 12px;
-    line-height: 1.5;
+    font-size: 13px;
+    line-height: 1.6;
+    font-family: sans-serif;
 }
 
 /* ===== Адаптив ===== */
