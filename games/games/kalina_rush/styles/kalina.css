@@ -2,9 +2,8 @@
 body.game-body {
     margin: 0;
     padding: 0;
-    /* ДОБАВИЛИ ОТСТУП СВЕРХУ, ЧТОБЫ ОПУСТИТЬ ИГРУ ПОД ШАПКУ */
     padding-top: 100px; 
-    background-color: #F5E9D6; /* Твой бежевый фон */
+    background-color: #F5E9D6;
     font-family: Georgia, 'Times New Roman', serif;
     color: #2B1A0F;
     min-height: 100vh;
@@ -15,13 +14,13 @@ body.game-body {
     margin: 0 auto 40px auto;
     padding: 0 20px;
     display: grid;
-    grid-template-columns: 1fr 340px; /* Слева игра, справа панель */
+    grid-template-columns: 1fr 340px;
     gap: 20px;
 }
 
 /* ===== Левая часть (Дорога) ===== */
 .kalina-game-area {
-    background: #0f0f0f; /* Сама дорога черная */
+    background: #0f0f0f;
     border-radius: 16px;
     overflow: hidden;
     position: relative;
@@ -34,12 +33,12 @@ body.game-body {
 .kalina-top-info {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start; /* Выравниваем по верхнему краю */
+    align-items: flex-start;
     padding: 20px 24px;
     background: #1a1a1a;
     border-bottom: 1px solid #333;
     position: relative;
-    z-index: 10; /* Чтобы иксы не прятались за дорогой */
+    z-index: 10;
 }
 
 .kalina-multiplier {
@@ -60,7 +59,7 @@ body.game-body {
     font-family: Arial, sans-serif;
     font-size: 52px;
     font-weight: 900;
-    color: #d4ff00; /* Ярко-салатовый цвет из макета */
+    color: #d4ff00;
     line-height: 1;
 }
 
@@ -72,54 +71,32 @@ body.game-body {
     padding-top: 20px;
 }
 
-/* Сама дорога */
+/* Дорога */
 .kalina-road {
     flex: 1;
-    min-height: 450px;
     position: relative;
-    background-color: #1a1a1a; /* Цвет асфальта */
+    background: #111;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    
-    /* 
-       Рисуем разметку: 
-       1. Левая обочина (сплошная на 10% ширины)
-       2. Первая разделительная (пунктир на 35%)
-       3. Вторая разделительная (пунктир на 65%)
-       4. Правая обочина (сплошная на 90% ширины)
-    */
-    background-image: 
-        /* 1. Левая сплошная */
-        linear-gradient(to right, transparent calc(10% - 2px), #555 calc(10% - 2px), #555 calc(10% + 2px), transparent calc(10% + 2px)),
-        
-        /* 2. Первый пунктир */
-        repeating-linear-gradient(to bottom, transparent 0, transparent 40px, #555 40px, #555 80px),
-        
-        /* 3. Второй пунктир */
-        repeating-linear-gradient(to bottom, transparent 0, transparent 40px, #555 40px, #555 80px),
-        
-        /* 4. Правая сплошная */
-        linear-gradient(to right, transparent calc(90% - 2px), #555 calc(90% - 2px), #555 calc(90% + 2px), transparent calc(90% + 2px));
-        
-    background-size: 
-        100% 100%, /* Левая обочина */
-        4px 100%,  /* Первый пунктир (ширина 4px) */
-        4px 100%,  /* Второй пунктир (ширина 4px) */
-        100% 100%; /* Правая обочина */
-        
-    background-position: 
-        left top, 
-        35% top,   /* Позиция первого пунктира */
-        65% top,   /* Позиция второго пунктира */
-        right top;
-        
-    background-repeat: no-repeat;
+    min-height: 450px;
 }
 
-/* Оверлеи (Готов к старту / Авария) */
+#gameCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Вписываем холст без искажений */
+    background: #1a1a1a;
+}
+
+/* Оверлеи по центру */
 .kalina-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     background: rgba(0, 0, 0, 0.85);
     border: 2px solid #333;
     padding: 20px 40px;
@@ -128,6 +105,8 @@ body.game-body {
     color: #fff;
     z-index: 10;
     backdrop-filter: blur(4px);
+    width: max-content;
+    max-width: 90%;
 }
 
 .kalina-overlay h2 {
@@ -148,41 +127,6 @@ body.game-body {
 
 .crash-overlay h2 {
     color: #ff3333;
-}
-
-/* Машинка (персонаж игрока) */
-.kalina-car {
-    position: absolute;
-    width: 60px;
-    height: 90px;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    transition: bottom 0.1s linear, transform 0.5s ease; /* Плавный поворот при краше */
-    z-index: 5;
-    
-    /* Если у тебя есть картинка машинки, раскомментируй строки ниже и положи файл в папку img */
-    /* background-image: url('../img/car.png'); */
-    /* background-size: contain; */
-    /* background-repeat: no-repeat; */
-    
-    /* Пока картинки нет, рисуем красивую CSS-машинку */
-    background: #e0e0e0;
-    border-radius: 12px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5), inset 0 -15px 0 rgba(0,0,0,0.1);
-}
-
-/* Полоски на машинке для красоты */
-.kalina-car::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 10%;
-    width: 80%;
-    height: 2px;
-    background: #ccc;
-    box-shadow: 0 10px 0 #ccc;
-    transform: translateY(-50%);
 }
 
 /* Нижняя шкала */
@@ -330,7 +274,7 @@ body.game-body {
 .kalina-main-btn:hover { opacity: 0.9; }
 
 .kalina-main-btn.cashout {
-    background: #E5A72C; /* Оранжевый при заборе */
+    background: #E5A72C;
     color: #fff;
 }
 
@@ -351,18 +295,6 @@ body.game-body {
     font-family: sans-serif;
 }
 
-#gameCanvas {
-    display: block;
-    width: 100%;
-    max-width: 800px; /* Ограничиваем максимальную ширину под наш размер */
-    height: auto;
-    aspect-ratio: 800 / 450; /* Сохраняем пропорции */
-    margin: 0 auto;
-    border-radius: 8px;
-    background-color: #1a1a1a;
-}
-
-/* ===== Адаптив ===== */
 @media (max-width: 900px) {
     .kalina-container {
         grid-template-columns: 1fr;
