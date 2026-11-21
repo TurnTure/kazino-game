@@ -26,18 +26,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentCrashChance = BASE_CRASH_CHANCE;
 
     const ROAD_WIDTH = 800;
-    
-    // Увеличили размеры машинок для качества
     const CAR_WIDTH = 80;  
     const CAR_HEIGHT = 140; 
 
-    // Загружаем картинку для НАШЕЙ машины (Калина)
+    // Создаем объекты картинок
     const playerCarImage = new Image();
     playerCarImage.src = '/games/games/kalina_rush/img/Kalina.png'; 
     
-    // Загружаем картинку для ВРАГОВ (BMW)
     const enemyCarImage = new Image();
     enemyCarImage.src = '/games/games/kalina_rush/img/BMW.png'; 
+
+    // КАК ТОЛЬКО ЛЮБАЯ ИЗ НИХ ЗАГРУЗИТСЯ - ПЕРЕРИСОВЫВАЕМ ЭКРАН
+    playerCarImage.onload = () => { if (!isPlaying) draw(); };
+    enemyCarImage.onload = () => { if (!isPlaying) draw(); };
 
     const LANES = [ROAD_WIDTH * 0.25, ROAD_WIDTH * 0.5, ROAD_WIDTH * 0.75];
 
@@ -57,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Высокое качество сглаживания
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high'; 
 
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.shadowBlur = 10;
                 ctx.shadowOffsetY = 5;
                 
-                // Рисуем врага, переворачивая его по вертикали, чтобы он ехал на нас
+                // Рисуем BMW (перевернутую)
                 ctx.save();
                 ctx.translate(car.x, car.y + CAR_HEIGHT);
                 ctx.scale(1, -1);
@@ -94,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.shadowBlur = 0;
                 ctx.shadowOffsetY = 0;
             } else {
-                // Заглушка, если картинка не загрузилась
                 ctx.fillStyle = '#ff3333';
                 ctx.beginPath();
                 ctx.roundRect(car.x - CAR_WIDTH/2, car.y, CAR_WIDTH, CAR_HEIGHT, 10);
@@ -117,7 +116,9 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.shadowBlur = 0;
             ctx.shadowOffsetY = 0;
         } else {
+            // Заглушка (белый квадрат)
             ctx.fillStyle = '#e0e0e0';
+            ctx.beginPath();
             ctx.roundRect(playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT, 10);
             ctx.fill();
         }
@@ -128,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isPlaying) return;
 
         distance += 1;
-        
         currentMultiplier += MULTIPLIER_GROWTH; 
         
         if (currentMultiplier > 2.0) {
@@ -142,10 +142,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         multiplierValue.textContent = 'x' + currentMultiplier.toFixed(2);
-
         const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
         timerDisplay.textContent = elapsed + ' сек';
-
         speed = 5 + (distance / 4000);
 
         // Автопилот
@@ -159,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Машины и столкновения
+        // Столкновения
         for (let i = enemyCars.length - 1; i >= 0; i--) {
             let car = enemyCars[i];
             car.y += speed;
@@ -219,12 +217,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         isPlaying = true;
-        
         currentMultiplier = 0.00;
         currentCrashChance = BASE_CRASH_CHANCE;
         distance = 0;
         speed = 5;
-        
         enemyCars = []; 
         enemySpawnTimer = 0;
         laneChangeTimer = 0;
@@ -317,5 +313,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Первичная отрисовка
     draw();
 });
