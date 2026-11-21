@@ -20,7 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let distance = 0;
 
     // --- НАСТРОЙКИ БАЛАНСА ---
-    const MULTIPLIER_GROWTH = 0.005; // Скорость роста (как ты просил)
+    // Медленный рост (x2 наступит примерно через 20 секунд)
+    const MULTIPLIER_GROWTH = 0.0008; 
     const BASE_CRASH_CHANCE = 0.002; // Базовый шанс краша (0.2% в секунду)
     let currentCrashChance = BASE_CRASH_CHANCE;
 
@@ -41,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let enemyCars = [];
     let enemySpawnTimer = 0;
     let laneChangeTimer = 0;
-    const ENEMY_SPAWN_RATE = 150; // Реже спавним врагов, чтобы легче уворачиваться
+    const ENEMY_SPAWN_RATE = 150; 
 
     // ===== Отрисовка =====
     function draw() {
@@ -96,9 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Растем
         currentMultiplier += MULTIPLIER_GROWTH; 
         
-        // Логика усложнения (после x2 шанс растет)
+        // Логика усложнения (после x2 шанс растет плавнее)
         if (currentMultiplier > 2.0) {
-            currentCrashChance = BASE_CRASH_CHANCE + ((currentMultiplier - 2.0) * 0.005);
+            currentCrashChance = BASE_CRASH_CHANCE + ((currentMultiplier - 2.0) * 0.002);
         }
 
         // Максимальный потолок х20
