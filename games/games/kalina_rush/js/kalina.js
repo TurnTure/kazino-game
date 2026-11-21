@@ -20,7 +20,11 @@ const CRASH_CHANCE = 0.02; // 2% шанс аварии каждые 100мс
 function startGame() {
     if (isPlaying) return;
 
-    // Сброс
+    // ===== ОЧИСТКА ЭКРАНА ОТ ПРОШЛОЙ ИГРЫ =====
+    const oldCars = document.querySelectorAll('.kalina-car');
+    oldCars.forEach(car => car.remove()); 
+
+    // Сброс интерфейса
     isPlaying = true;
     currentMultiplier = 1.00;
     multiplierValue.textContent = 'x1.00';
@@ -30,10 +34,12 @@ function startGame() {
     actionBtn.textContent = 'ЗАБРАТЬ';
     actionBtn.classList.add('cashout');
 
-    // Создаем машинку
+    // Создаем новую машинку
     currentCar = document.createElement('div');
     currentCar.className = 'kalina-car';
     currentCar.style.bottom = '20px';
+    currentCar.style.background = '#e0e0e0'; // Белая машинка при старте
+    currentCar.style.transform = 'translateX(-50%) rotate(0deg)';
     road.appendChild(currentCar);
 
     startTime = Date.now();
@@ -61,6 +67,8 @@ function startGame() {
 
 // Функция аварии
 function crashGame() {
+    if (!isPlaying) return;
+    
     clearInterval(gameInterval);
     isPlaying = false;
     
@@ -78,6 +86,8 @@ function crashGame() {
 
 // Функция забора выигрыша
 function cashout() {
+    if (!isPlaying) return;
+
     clearInterval(gameInterval);
     isPlaying = false;
 
@@ -86,16 +96,16 @@ function cashout() {
     actionBtn.textContent = 'НАЧАТЬ ЗАЕЗД';
     actionBtn.classList.remove('cashout');
     
-    // Тут мы потом добавим начисление баланса через addBalance()
     const bet = Number(betInput.value);
     const win = Math.floor(bet * currentMultiplier);
     showMessage(`Вы забрали: +${win} ₽ (x${currentMultiplier.toFixed(2)})`, '#2E7D32');
 
-    // Удаляем машинку через секунду
+    // Удаляем машинку и возвращаем стартовый экран через секунду
     setTimeout(() => {
         if (currentCar) currentCar.remove();
         startOverlay.style.display = 'block';
         multiplierValue.textContent = 'x0.00';
+        multiplierValue.style.color = '#d4ff00'; // Возвращаем зеленый цвет
     }, 1000);
 }
 
