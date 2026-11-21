@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalina Rush — Слот-машина</title>
+
+    <link rel="stylesheet" href="../../../shared/header.css">
+    <link rel="stylesheet" href="./styles/kalina.css">
+</head>
+<body class="game-body">
+
+<!-- Шапка -->
+<header class="header">
+    <a href="../../../index.html" class="logo">
+        <img src="../../../img/Знак.png" alt="">
+        <h1>Слот-машина</h1>
+    </a>
+    <nav class="header__nav">
+        <a href="#!" class="header__link">Реклама</a>
+        <a href="#!" class="header__link">Промокод</a>
+        <a href="#!" class="header__link">Награды</a>
+    </nav>
+    <div class="menu">
+        <div class="rubli">
+            <img src="../../../img/Лампочка.png" alt="">
+            <span class="amount" id="balance">0</span>
+            <span class="currency_name">шуховские рубли</span>
+        </div>
+        <div class="header-auth" id="headerAuth"></div>
+    </div>
+</header>
+
+<!-- Основной контейнер игры -->
+<main class="kalina-container">
+    
+    <!-- Левая часть: Дорога и множитель -->
+    <div class="kalina-game-area">
+        <div class="kalina-top-info">
+            <div class="kalina-multiplier">
+                <span class="mult-label">МНОЖИТЕЛЬ</span>
+                <span class="mult-value" id="multiplierValue">x1.00</span>
+            </div>
+            <div class="kalina-timer" id="gameTimer">0.0 сек</div>
+        </div>
+
+        <!-- Сама дорога -->
+        <div class="kalina-road" id="road">
+            <!-- Машинки будут добавляться через JS -->
+            <div class="kalina-overlay" id="startOverlay">
+                <h2>ГОТОВ К СТАРТУ</h2>
+                <p>Сделайте ставку и отправляйтесь в путь</p>
+            </div>
+            <div class="kalina-overlay crash-overlay" id="crashOverlay" style="display: none;">
+                <h2>АВАРИЯ!</h2>
+                <p>Вы не успели забрать выигрыш</p>
+            </div>
+        </div>
+
+        <div class="kalina-stats-row">
+            <div class="kalina-stat"><span>х1</span> 3.0х</div>
+            <div class="kalina-stat"><span>х2</span> 10.0х</div>
+            <div class="kalina-stat"><span>х3</span> 15.0х</div>
+            <div class="kalina-stat"><span>х4</span> 20.0х</div>
+        </div>
+    </div>
+
+    <!-- Правая часть: Панель управления -->
+    <div class="kalina-panel">
+        <div class="panel-header">
+            <h3>СДЕЛАЙ СТАВКУ</h3>
+            <button class="btn-icon">+</button>
+        </div>
+        
+        <div class="panel-bet-info">
+            <span>НОВЫЙ ЗАЕЗД</span>
+            <span class="bet-val-display" id="displayBet">500 ₽</span>
+        </div>
+
+        <div class="panel-controls">
+            <div class="bet-changer">
+                <button id="btnMinus">−</button>
+                <input type="number" id="betInput" value="500">
+                <button id="btnPlus">+</button>
+            </div>
+            <div class="quick-bets">
+                <button data-bet="100">100</button>
+                <button data-bet="500" class="active">500</button>
+                <button data-bet="1000">1К</button>
+                <button data-bet="5000">5К</button>
+            </div>
+        </div>
+
+        <button class="kalina-main-btn" id="actionBtn">НАЧАТЬ ЗАЕЗД</button>
+
+        <div class="panel-rules">
+            <h4>КАК ЭТО РАБОТАЕТ</h4>
+            <ul>
+                <li>Сделайте ставку и нажмите "Начать заезд".</li>
+                <li>Множитель начинает расти.</li>
+                <li>Успейте забрать выигрыш до аварии!</li>
+            </ul>
+        </div>
+    </div>
+
+</main>
+
+<!-- Подключение скриптов -->
+<script src="../../../shared/auth-state.js"></script>
+<script src="../../../js/balance.js"></script>
+<script src="../../../js/ui.js"></script>
+<script src="../../../shared/header.js"></script>
+<script src="./js/kalina.js"></script>
+
+</body>
+</html>

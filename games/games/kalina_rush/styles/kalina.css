@@ -1,0 +1,281 @@
+/* ===== Основные стили страницы ===== */
+body.game-body {
+    margin: 0;
+    padding: 0;
+    background-color: #F5E9D6; /* Твой бежевый фон */
+    font-family: Georgia, 'Times New Roman', serif;
+    color: #2B1A0F;
+    min-height: 100vh;
+}
+
+.kalina-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1fr 340px; /* Слева игра, справа панель */
+    gap: 20px;
+}
+
+/* ===== Левая часть (Дорога) ===== */
+.kalina-game-area {
+    background: #0f0f0f; /* Сама дорога черная */
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid #EAD9B8;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+.kalina-top-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+}
+
+.kalina-multiplier {
+    display: flex;
+    flex-direction: column;
+}
+
+.mult-label {
+    color: #888;
+    font-family: sans-serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.mult-value {
+    font-family: Arial, sans-serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: #d4ff00; /* Ярко-салатовый цвет из макета */
+    line-height: 1;
+}
+
+.kalina-timer {
+    color: #555;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Сама дорога */
+.kalina-road {
+    flex: 1;
+    min-height: 400px;
+    position: relative;
+    background: #111;
+    /* Рисуем разметку дороги */
+    background-image: 
+        linear-gradient(90deg, transparent 49%, #444 49%, #444 51%, transparent 51%);
+    background-size: 100px 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.kalina-overlay {
+    background: rgba(0, 0, 0, 0.85);
+    border: 2px solid #333;
+    padding: 20px 40px;
+    border-radius: 12px;
+    text-align: center;
+    color: #fff;
+    z-index: 10;
+}
+
+.kalina-overlay h2 {
+    color: #d4ff00;
+    margin: 0 0 8px;
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+    letter-spacing: 1px;
+}
+
+.kalina-overlay p {
+    margin: 0;
+    color: #888;
+    font-family: sans-serif;
+    font-size: 13px;
+}
+
+.crash-overlay h2 {
+    color: #ff3333;
+}
+
+/* Машинка (персонаж игрока) */
+.kalina-car {
+    position: absolute;
+    width: 50px;
+    height: 80px;
+    background-color: #e0e0e0; /* Белая машина */
+    border-radius: 10px;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: bottom 0.1s linear;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    z-index: 5;
+}
+
+/* Нижняя шкала */
+.kalina-stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    background: #1a1a1a;
+    border-top: 1px solid #333;
+}
+
+.kalina-stat {
+    padding: 15px;
+    text-align: center;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    border-right: 1px solid #333;
+}
+.kalina-stat:last-child { border-right: none; }
+.kalina-stat span { color: #888; margin-right: 5px; }
+
+/* ===== Правая панель ===== */
+.kalina-panel {
+    background: #1a1a1a;
+    border-radius: 16px;
+    padding: 24px;
+    color: #fff;
+    border: 1px solid #333;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.panel-header h3 {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    color: #888;
+    letter-spacing: 1px;
+}
+
+.panel-bet-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 10px;
+    border-bottom: 1px dashed #333;
+    padding-bottom: 10px;
+}
+
+.panel-bet-info span { font-size: 14px; color: #ccc; }
+.bet-val-display { font-size: 20px; font-weight: bold; }
+
+.bet-changer {
+    display: flex;
+    background: #000;
+    border: 1px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.bet-changer button {
+    width: 40px;
+    background: #222;
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+}
+.bet-changer button:hover { background: #333; }
+
+.bet-changer input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #fff;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    outline: none;
+}
+
+.quick-bets {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 20px;
+}
+
+.quick-bets button {
+    flex: 1;
+    background: #222;
+    border: 1px solid #333;
+    color: #888;
+    padding: 8px 0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.quick-bets button.active {
+    background: #333;
+    color: #d4ff00;
+    border-color: #d4ff00;
+}
+
+.kalina-main-btn {
+    width: 100%;
+    background: #d4ff00;
+    color: #000;
+    border: none;
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 900;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-bottom: 24px;
+}
+
+.kalina-main-btn:hover {
+    opacity: 0.9;
+}
+.kalina-main-btn.cashout {
+    background: #E5A72C; /* Оранжевый при заборе */
+}
+
+.panel-rules h4 {
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    color: #888;
+    margin: 0 0 10px;
+}
+
+.panel-rules ul {
+    padding-left: 15px;
+    margin: 0;
+    color: #666;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* ===== Адаптив ===== */
+@media (max-width: 900px) {
+    .kalina-container {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,16 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>kazino_zestko</title>
     <link rel="icon" type="image/png" href="./img/Лампочка.png">
+    
+    <link rel="stylesheet" href="./shared/header.css">
+    <link rel="stylesheet" href="./styles/vitrina.css">
+    <link rel="stylesheet" href="./styles/osnova-promo.css">
+    <link rel="stylesheet" href="./styles/modalka.css">
+    <link rel="stylesheet" href="./styles/games_block.css">
 </head>
-<link rel="stylesheet" href="./shared/header.css">
-<link rel="stylesheet" href="./styles/vitrina.css">
-<link rel="stylesheet" href="./styles/osnova-promo.css">
-<link rel="stylesheet" href="./styles/modalka.css">
-<link rel="stylesheet" href="./styles/games_block.css">
 <body class="fon">
     <header class="header">
         <a href="./index.html" class="logo">
@@ -126,9 +127,6 @@
 </div>
 
 
-
-
-
 <!-- МОДАЛКА -->
 <div class="wheel-modal" id="wheelModal">
     <div class="wheel-modal__content">
@@ -187,7 +185,6 @@
         <!-- Карточка 2 -->
         <article class="game-card">
             <div class="game-card__image">
-                <!-- Сюда можешь поставить картинку бура или шахты, если она есть -->
                 <img src="/img/bg.png" alt="Falling Pickaxe">
             </div>
             <div class="game-card__body">
@@ -204,29 +201,29 @@
             </div>
         </article>
 
-        <!-- Карточка 3 -->
+        <!-- Карточка 3 (Kalina Rush) -->
         <article class="game-card">
             <div class="game-card__image">
+                <!-- Тут поставь путь к скриншоту игры, например ./games/kalina_rush/img/preview.png -->
+                <img src="./img/bg.png" alt="Kalina Rush">
             </div>
             <div class="game-card__body">
-                <h3 class="game-card__title">Кот на серванте</h3>
-                <p class="game-card__desc">Прыгай по полкам, не задев хрусталь и фарфоровых рыбок.</p>
-                <button class="game-card__btn">
+                <h3 class="game-card__title">Kalina Rush</h3>
+                <p class="game-card__desc">Успей забрать выигрыш, пока машина не разбилась.</p>
+                <a href="./games/kalina_rush/index.html" class="game-card__btn">
                     Играть
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
                          stroke="currentColor" stroke-width="2"
                          stroke-linecap="round" stroke-linejoin="round">
                         <polygon points="5 3 19 12 5 21 5 3"></polygon>
                     </svg>
-                </button>
+                </a>
             </div>
         </article>
 
     </div>
     </section>
 </div>
-
-
 
 <script src="./shared/auth-state.js"></script>
 <script src="./shared/header.js"></script>
