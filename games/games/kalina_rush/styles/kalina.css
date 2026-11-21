@@ -2,6 +2,7 @@
 body.game-body {
     margin: 0;
     padding: 0;
+    padding-top: 90px; /* <--- ДОБАВИЛИ ОТСТУП СВЕРХУ, ЧТОБЫ ОПУСТИТЬ ИГРУ */
     background-color: #F5E9D6; /* Твой бежевый фон */
     font-family: Georgia, 'Times New Roman', serif;
     color: #2B1A0F;
