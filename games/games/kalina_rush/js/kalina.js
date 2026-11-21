@@ -31,10 +31,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Загружаем картинку по абсолютному пути (теперь в формате .png)
     const carImage = new Image();
-    carImage.src = '/games/games/kalina_rush/img/kalina.png'; 
+    carImage.src = '/games/games/kalina_rush/img/Kalina.png'; 
     
     carImage.onload = () => {
-        console.log("Картинка kalina.png успешно загружена!");
+        console.log("Картинка Kalina.png успешно загружена!");
         if (!isPlaying) draw();
     };
     carImage.onerror = () => {
