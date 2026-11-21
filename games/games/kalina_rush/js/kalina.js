@@ -29,6 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const CAR_WIDTH = 60;
     const CAR_HEIGHT = 100;
 
+    // Загружаем картинку для машинок
+    // Убедись, что путь правильный (например, ./img/kalina.png)
+    const carImage = new Image();
+    carImage.src = './img/kalina.webp'; 
+
     const LANES = [ROAD_WIDTH * 0.25, ROAD_WIDTH * 0.5, ROAD_WIDTH * 0.75];
 
     let playerCar = {
@@ -47,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        // Дорога
         ctx.fillStyle = '#1a1a1a';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -61,26 +67,33 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.fillRect(canvas.width * 0.625, i + lineOffset, 4, 40); 
         }
 
+        // Враги
         enemyCars.forEach(car => {
-            ctx.fillStyle = '#ff3333';
-            ctx.beginPath();
-            ctx.roundRect(car.x - CAR_WIDTH/2, car.y, CAR_WIDTH, CAR_HEIGHT, 10);
-            ctx.fill();
-            
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(car.x - CAR_WIDTH/2 + 5, car.y + 10, 10, 5);
-            ctx.fillRect(car.x + CAR_WIDTH/2 - 15, car.y + 10, 10, 5);
+            // Если картинка загрузилась, рисуем её
+            if (carImage.complete) {
+                // Рисуем картинку (повернутую, если нужно, но мы пока просто вставляем)
+                // Аргументы: картинка, x, y, ширина, высота
+                ctx.drawImage(carImage, car.x - CAR_WIDTH/2, car.y, CAR_WIDTH, CAR_HEIGHT);
+            } else {
+                // Заглушка, пока картинка грузится
+                ctx.fillStyle = '#ff3333';
+                ctx.beginPath();
+                ctx.roundRect(car.x - CAR_WIDTH/2, car.y, CAR_WIDTH, CAR_HEIGHT, 10);
+                ctx.fill();
+            }
         });
 
-        ctx.fillStyle = '#e0e0e0';
+        // Наша машина
         ctx.beginPath();
-        // Плавное движение нашей машинки
         playerCar.x += (playerCar.targetX - playerCar.x) * 0.1;
-        ctx.roundRect(playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT, 10);
-        ctx.fill();
         
-        ctx.fillStyle = '#ccc';
-        ctx.fillRect(playerCar.x - CAR_WIDTH/2 + 5, playerCar.y + 40, CAR_WIDTH - 10, 2);
+        if (carImage.complete) {
+            ctx.drawImage(carImage, playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT);
+        } else {
+            ctx.fillStyle = '#e0e0e0';
+            ctx.roundRect(playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT, 10);
+            ctx.fill();
+        }
     }
 
     // ===== Логика =====
@@ -124,8 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let car = enemyCars[i];
             car.y += speed;
 
-            // ИСПРАВЛЕНИЕ: Проверяем по реальным координатам (playerCar.x), а не по номеру полосы.
-            // Это избавляет от "телепортации" хитбокса при смене полосы.
             if (
                 playerCar.x - CAR_WIDTH/2 < car.x + CAR_WIDTH/2 &&
                 playerCar.x + CAR_WIDTH/2 > car.x - CAR_WIDTH/2 &&
