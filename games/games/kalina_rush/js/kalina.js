@@ -9,18 +9,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const startOverlay = document.getElementById('startOverlay');
     const crashOverlay = document.getElementById('crashOverlay');
     const engineOverlay = document.getElementById('engineOverlay');
+    const winOverlay = document.getElementById('winOverlay'); // Добавили переменную
     const timerDisplay = document.getElementById('gameTimer');
     const betInput = document.getElementById('betInput');
 
     let isPlaying = false;
-    let currentMultiplier = 0.00; // СТАРТ С 0.00
+    let currentMultiplier = 0.00;
     let startTime = 0;
     let gameLoop = null;
     let speed = 5;
     let distance = 0;
 
     // --- НАСТРОЙКИ БАЛАНСА ---
-    // +1.00 икс ровно за 10 секунд (600 кадров при 60 fps)
     const MULTIPLIER_GROWTH = 1.00 / 600; 
     const BASE_CRASH_CHANCE = 0.002; 
     let currentCrashChance = BASE_CRASH_CHANCE;
@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const CAR_WIDTH = 60;
     const CAR_HEIGHT = 100;
 
-    // Координаты 3-х полос
     const LANES = [ROAD_WIDTH * 0.25, ROAD_WIDTH * 0.5, ROAD_WIDTH * 0.75];
 
     let playerCar = {
@@ -89,15 +88,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         distance += 1;
         
-        // Растем
         currentMultiplier += MULTIPLIER_GROWTH; 
         
-        // Логика усложнения (после x2 шанс растет)
         if (currentMultiplier > 2.0) {
             currentCrashChance = BASE_CRASH_CHANCE + ((currentMultiplier - 2.0) * 0.002);
         }
 
-        // Максимальный потолок х20
         if (currentMultiplier >= 20.0) {
             currentMultiplier = 20.0;
             cashout(); 
@@ -111,7 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         speed = 5 + (distance / 4000);
 
-        // Автопилот
         laneChangeTimer++;
         if (laneChangeTimer > 90 && Math.random() < 0.2) {
             laneChangeTimer = 0;
@@ -122,7 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Машины и столкновения
         for (let i = enemyCars.length - 1; i >= 0; i--) {
             let car = enemyCars[i];
             car.y += speed;
@@ -144,14 +138,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Спавн
         enemySpawnTimer++;
         if (enemySpawnTimer > ENEMY_SPAWN_RATE) {
             spawnEnemy();
             enemySpawnTimer = 0;
         }
 
-        // Поломка двигателя
         if (Math.random() < (currentCrashChance / 60)) {
             engineStall();
             return;
@@ -166,12 +158,31 @@ document.addEventListener('DOMContentLoaded', () => {
         enemyCars.push({ x: lane, y: -CAR_HEIGHT - 50 });
     }
 
+    // ===== СТАРТ ИГРЫ =====
     function startGame() {
         if (isPlaying) return;
 
+        // 1. БЕРЕМ СТАВКУ
+        const bet = Number(betInput.value);
+        
+        // 2. ПРОВЕРЯЕМ, ХВАТАЕТ ЛИ ДЕНЕГ
+        if (typeof canAfford === 'function' && !canAfford(bet)) {
+            showMessage('Недостаточно средств', '#C8552B');
+            return;
+        }
+        if (bet < 10) {
+            showMessage('Минимальная ставка 10 ₽', '#C8552B');
+            return;
+        }
+
+        // 3. СПИСЫВАЕМ СТАВКУ
+        if (typeof addBalance === 'function') {
+            addBalance(-bet, 'kalina:bet');
+        }
+
         isPlaying = true;
         
-        currentMultiplier = 0.00; // СТАРТ С 0.00
+        currentMultiplier = 0.00;
         currentCrashChance = BASE_CRASH_CHANCE;
         distance = 0;
         speed = 5;
@@ -185,6 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         startOverlay.style.display = 'none';
         crashOverlay.style.display = 'none';
         engineOverlay.style.display = 'none';
+        winOverlay.style.display = 'none';
         
         actionBtn.textContent = 'ЗАБРАТЬ';
         actionBtn.classList.add('cashout');
@@ -218,6 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
         draw();
     }
 
+    // ===== ЗАБРАТЬ ВЫИГРЫШ =====
     function cashout() {
         if (!isPlaying) return;
         
@@ -233,36 +246,32 @@ document.addEventListener('DOMContentLoaded', () => {
         // Считаем выигрыш
         const win = Math.floor(bet * currentMultiplier); 
         
-        // Списываем ставку и начисляем выигрыш в базу
+        // НАЧИСЛЯЕМ ТОЛЬКО ВЫИГРЫШ (ставку мы уже списали при старте)
         if (typeof addBalance === 'function') {
-            addBalance(-bet, 'kalina:bet');
             if (win > 0) {
                 addBalance(win, 'kalina:win');
             }
         }
         
-        // Показываем оверлей по центру экрана
-        const winOverlay = document.getElementById('winOverlay');
         const winAmountText = document.getElementById('winAmountText');
         
         if (win > 0) {
             winAmountText.textContent = `Вы забрали: +${win} ₽ (x${currentMultiplier.toFixed(2)})`;
-            winAmountText.style.color = '#a5d6a7'; // Светло-зеленый
+            winAmountText.style.color = '#a5d6a7';
         } else {
             winAmountText.textContent = `Вы забрали: 0 ₽ (x${currentMultiplier.toFixed(2)})`;
-            winAmountText.style.color = '#ff3333'; // Красный, если 0
+            winAmountText.style.color = '#ff3333';
         }
         
         winOverlay.style.display = 'block';
 
-        // Убираем оверлей через 2 секунды и возвращаем стартовый экран
         setTimeout(() => {
             winOverlay.style.display = 'none';
             startOverlay.style.display = 'block';
             multiplierValue.textContent = 'x0.00';
             multiplierValue.style.color = '#d4ff00';
             draw();
-        }, 2000); // 2 секунды
+        }, 2000);
     }
 
     actionBtn.addEventListener('click', () => {
