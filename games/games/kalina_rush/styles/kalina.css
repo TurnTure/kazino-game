@@ -14,7 +14,7 @@ body.game-body {
     margin: 0 auto 40px auto;
     padding: 0 20px;
     display: grid;
-    grid-template-columns: 1fr 340px;
+    grid-template-columns: 1fr 340px; /* Дорога слева, панель справа */
     gap: 20px;
 }
 

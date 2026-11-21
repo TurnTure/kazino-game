@@ -39,7 +39,7 @@
         <div class="kalina-top-info">
             <div class="kalina-multiplier">
                 <span class="mult-label">МНОЖИТЕЛЬ</span>
-                <span class="mult-value" id="multiplierValue">x1.00</span>
+                <span class="mult-value" id="multiplierValue">x0.00</span>
             </div>
             <div class="kalina-timer" id="gameTimer">0.0 сек</div>
         </div>
@@ -48,29 +48,29 @@
         <div class="kalina-road">
             <canvas id="gameCanvas" width="800" height="450"></canvas>
             
+            <!-- Оверлеи поверх Canvas -->
             <div class="kalina-overlay" id="startOverlay">
                 <h2>ГОТОВ К СТАРТУ</h2>
                 <p>Сделайте ставку и отправляйтесь в путь</p>
             </div>
+            
             <div class="kalina-overlay crash-overlay" id="crashOverlay" style="display: none;">
                 <h2>АВАРИЯ!</h2>
                 <p>Вы не успели забрать выигрыш</p>
             </div>
+            
             <div class="kalina-overlay engine-overlay" id="engineOverlay" style="display: none;">
                 <h2>ДВИГАТЕЛЬ ЗАГЛОХ!</h2>
                 <p>Слишком долгая поездка</p>
+            </div>
+
             <div class="kalina-overlay win-overlay" id="winOverlay" style="display: none;">
                 <h2>УСПЕШНЫЙ ЗАБОР!</h2>
                 <p id="winAmountText">Вы забрали: 0 ₽</p>
             </div>
         </div>
 
-        <div class="kalina-stats-row">
-            <div class="kalina-stat"><span>х1</span> 3.0х</div>
-            <div class="kalina-stat"><span>х2</span> 10.0х</div>
-            <div class="kalina-stat"><span>х3</span> 15.0х</div>
-            <div class="kalina-stat"><span>х4</span> 20.0х</div>
-        </div>
+        <!-- БЛОК С ИКСАМИ УБРАН -->
     </div>
 
     <!-- Правая часть: Панель управления -->
