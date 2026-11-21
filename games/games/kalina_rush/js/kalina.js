@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const startOverlay = document.getElementById('startOverlay');
     const crashOverlay = document.getElementById('crashOverlay');
     const engineOverlay = document.getElementById('engineOverlay');
-    const winOverlay = document.getElementById('winOverlay'); // Добавили переменную
+    const winOverlay = document.getElementById('winOverlay');
     const timerDisplay = document.getElementById('gameTimer');
     const betInput = document.getElementById('betInput');
 
@@ -74,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         ctx.fillStyle = '#e0e0e0';
         ctx.beginPath();
+        // Плавное движение нашей машинки
         playerCar.x += (playerCar.targetX - playerCar.x) * 0.1;
         ctx.roundRect(playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT, 10);
         ctx.fill();
@@ -107,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         speed = 5 + (distance / 4000);
 
+        // Автопилот
         laneChangeTimer++;
         if (laneChangeTimer > 90 && Math.random() < 0.2) {
             laneChangeTimer = 0;
@@ -117,15 +119,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // Машины и столкновения
         for (let i = enemyCars.length - 1; i >= 0; i--) {
             let car = enemyCars[i];
             car.y += speed;
 
-            let playerLaneX = LANES[playerCar.laneIndex];
-            
+            // ИСПРАВЛЕНИЕ: Проверяем по реальным координатам (playerCar.x), а не по номеру полосы.
+            // Это избавляет от "телепортации" хитбокса при смене полосы.
             if (
-                playerLaneX - CAR_WIDTH/2 < car.x + CAR_WIDTH/2 &&
-                playerLaneX + CAR_WIDTH/2 > car.x - CAR_WIDTH/2 &&
+                playerCar.x - CAR_WIDTH/2 < car.x + CAR_WIDTH/2 &&
+                playerCar.x + CAR_WIDTH/2 > car.x - CAR_WIDTH/2 &&
                 playerCar.y < car.y + CAR_HEIGHT &&
                 playerCar.y + CAR_HEIGHT > car.y
             ) {
@@ -162,10 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function startGame() {
         if (isPlaying) return;
 
-        // 1. БЕРЕМ СТАВКУ
         const bet = Number(betInput.value);
         
-        // 2. ПРОВЕРЯЕМ, ХВАТАЕТ ЛИ ДЕНЕГ
         if (typeof canAfford === 'function' && !canAfford(bet)) {
             showMessage('Недостаточно средств', '#C8552B');
             return;
@@ -175,7 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 3. СПИСЫВАЕМ СТАВКУ
         if (typeof addBalance === 'function') {
             addBalance(-bet, 'kalina:bet');
         }
@@ -242,11 +242,8 @@ document.addEventListener('DOMContentLoaded', () => {
         actionBtn.classList.remove('cashout');
         
         const bet = Number(betInput.value);
-        
-        // Считаем выигрыш
         const win = Math.floor(bet * currentMultiplier); 
         
-        // НАЧИСЛЯЕМ ТОЛЬКО ВЫИГРЫШ (ставку мы уже списали при старте)
         if (typeof addBalance === 'function') {
             if (win > 0) {
                 addBalance(win, 'kalina:win');
