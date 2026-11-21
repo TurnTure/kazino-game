@@ -26,10 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentCrashChance = BASE_CRASH_CHANCE;
 
     const ROAD_WIDTH = 800;
-    const CAR_WIDTH = 70;  
-    const CAR_HEIGHT = 120; 
+    
+    // Слегка увеличили машину, чтобы она была заметнее
+    const CAR_WIDTH = 80;  
+    const CAR_HEIGHT = 140; 
 
-    // Просто загружаем картинку
+    // Загружаем картинку
     const carImage = new Image();
     carImage.src = '/games/games/kalina_rush/img/Kalina.png'; 
     
@@ -54,6 +56,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== Отрисовка =====
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Включаем максимальное качество сглаживания для картинки
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high'; 
 
         // Дорога
         ctx.fillStyle = '#1a1a1a';
@@ -73,14 +79,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Враги
         enemyCars.forEach(car => {
             if (carImage.complete && carImage.naturalWidth !== 0) {
-                // Тень
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
                 ctx.shadowBlur = 10;
                 ctx.shadowOffsetY = 5;
                 
                 ctx.drawImage(carImage, car.x - CAR_WIDTH/2, car.y, CAR_WIDTH, CAR_HEIGHT);
                 
-                // Сброс тени
                 ctx.shadowColor = 'transparent';
                 ctx.shadowBlur = 0;
                 ctx.shadowOffsetY = 0;
@@ -97,14 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
         playerCar.x += (playerCar.targetX - playerCar.x) * 0.1;
         
         if (carImage.complete && carImage.naturalWidth !== 0) {
-            // Тень
             ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
             ctx.shadowBlur = 15;
             ctx.shadowOffsetY = 8;
             
             ctx.drawImage(carImage, playerCar.x - CAR_WIDTH/2, playerCar.y, CAR_WIDTH, CAR_HEIGHT);
             
-            // Сброс тени
             ctx.shadowColor = 'transparent';
             ctx.shadowBlur = 0;
             ctx.shadowOffsetY = 0;
