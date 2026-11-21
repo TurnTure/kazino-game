@@ -13,16 +13,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const betInput = document.getElementById('betInput');
 
     let isPlaying = false;
-    let currentMultiplier = 1.00;
+    let currentMultiplier = 0.00; // СТАРТ С 0.00
     let startTime = 0;
     let gameLoop = null;
     let speed = 5;
     let distance = 0;
 
     // --- НАСТРОЙКИ БАЛАНСА ---
-    // Медленный рост (x2 наступит примерно через 20 секунд)
-    const MULTIPLIER_GROWTH = 0.0008; 
-    const BASE_CRASH_CHANCE = 0.002; // Базовый шанс краша (0.2% в секунду)
+    // +1.00 икс ровно за 10 секунд (600 кадров при 60 fps)
+    const MULTIPLIER_GROWTH = 1.00 / 600; 
+    const BASE_CRASH_CHANCE = 0.002; 
     let currentCrashChance = BASE_CRASH_CHANCE;
 
     const ROAD_WIDTH = 800;
@@ -48,16 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Асфальт
         ctx.fillStyle = '#1a1a1a';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Обочины
         ctx.fillStyle = '#444';
         ctx.fillRect(canvas.width * 0.1, 0, 4, canvas.height);
         ctx.fillRect(canvas.width * 0.9 - 4, 0, 4, canvas.height);
 
-        // Пунктиры
         ctx.fillStyle = '#444';
         let lineOffset = (distance * speed) % 80;
         for (let i = -80; i < canvas.height; i += 80) {
@@ -65,7 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.fillRect(canvas.width * 0.625, i + lineOffset, 4, 40); 
         }
 
-        // Враги (красные)
         enemyCars.forEach(car => {
             ctx.fillStyle = '#ff3333';
             ctx.beginPath();
@@ -77,7 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.fillRect(car.x + CAR_WIDTH/2 - 15, car.y + 10, 10, 5);
         });
 
-        // Наша машина (белая)
         ctx.fillStyle = '#e0e0e0';
         ctx.beginPath();
         playerCar.x += (playerCar.targetX - playerCar.x) * 0.1;
@@ -97,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Растем
         currentMultiplier += MULTIPLIER_GROWTH; 
         
-        // Логика усложнения (после x2 шанс растет плавнее)
+        // Логика усложнения (после x2 шанс растет)
         if (currentMultiplier > 2.0) {
             currentCrashChance = BASE_CRASH_CHANCE + ((currentMultiplier - 2.0) * 0.002);
         }
@@ -114,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
         timerDisplay.textContent = elapsed + ' сек';
 
-        // Ускорение
         speed = 5 + (distance / 4000);
 
         // Автопилот
@@ -177,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         isPlaying = true;
         
-        currentMultiplier = 1.00;
+        currentMultiplier = 0.00; // СТАРТ С 0.00
         currentCrashChance = BASE_CRASH_CHANCE;
         distance = 0;
         speed = 5;
@@ -186,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
         enemySpawnTimer = 0;
         laneChangeTimer = 0;
         
-        multiplierValue.textContent = 'x1.00';
+        multiplierValue.textContent = 'x0.00';
         multiplierValue.style.color = '#d4ff00';
         startOverlay.style.display = 'none';
         crashOverlay.style.display = 'none';
@@ -235,8 +229,15 @@ document.addEventListener('DOMContentLoaded', () => {
         actionBtn.classList.remove('cashout');
         
         const bet = Number(betInput.value);
-        const win = Math.floor(bet * Math.max(1, currentMultiplier)); 
-        showMessage(`Вы забрали: +${win} ₽ (x${currentMultiplier.toFixed(2)})`, '#2E7D32');
+        
+        // ВОТ ТУТ УБРАНА ЗАЩИТА Math.max(1, ...), ТЕПЕРЬ ИГРОК МОЖЕТ ПОТЕРЯТЬ ДЕНЬГИ
+        const win = Math.floor(bet * currentMultiplier); 
+        
+        if (win > 0) {
+            showMessage(`Вы забрали: +${win} ₽ (x${currentMultiplier.toFixed(2)})`, '#2E7D32');
+        } else {
+            showMessage(`Вы забрали: 0 ₽ (x${currentMultiplier.toFixed(2)})`, '#C8552B');
+        }
 
         setTimeout(() => {
             startOverlay.style.display = 'block';
